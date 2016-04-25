@@ -1,0 +1,6 @@
+flake8
+
+# Documentation requirements
+Sphinx
+sphinx-autobuild
+

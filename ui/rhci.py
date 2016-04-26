@@ -5,8 +5,8 @@
 Implements RHCI UI
 """
 from time import sleep
-from robottelo.ui.base import Base
-from robottelo.ui.locators import locators
+from ui.base import Base
+from ui.locators import locators
 from robottelo.common.helpers import get_server_url
 from selenium.webdriver.support.select import Select
 import requests

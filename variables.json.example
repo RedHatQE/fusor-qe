@@ -1,8 +1,8 @@
 {
   "credentials": {
     "fusor": {
-      "username": "admin",
-      "password": "changeme"
+      "username": "",
+      "password": ""
     }
   }
 }

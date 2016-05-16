@@ -1,4 +1,4 @@
 [pytest]
-base_url = https://10.8.196.202
+base_url = https:// #Set this to the URL of the fusor server under test
 sensitive_url = example\.com
 addopts = --driver Firefox --variables variables.json

@@ -4,3 +4,7 @@ flake8
 Sphinx
 sphinx-autobuild
 
+# Automation requirements
+pytest
+pytest-selenium
+pytest-variables[yaml]

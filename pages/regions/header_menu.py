@@ -1,7 +1,7 @@
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.action_chains import ActionChains
 
-from pages import Page
+from pages.page import Page
 from pages.deployments import DeploymentsPage
 from pages.wizard import SelectProductsPage
 
@@ -32,8 +32,21 @@ class HeaderMenu(Page):
         chain.perform()
 
     @property
+    def is_menu_submenu_visible(self):
+        submenu = self._root_element.find_element(*self._menu_items_locator)
+        return submenu.is_displayed()
+
+    def sub_navigation_menu(self, value):
+        # used to access on specific menu
+        for menu in self.items:
+            if menu.name == value:
+                return menu
+        raise Exception("Menu not found: '%s'. Menus: %s" % (
+                value, [menu.name for menu in self.items]))
+
+    @property
     def items(self):
-        return [self.HeaderMenuItem(self.testsetup, web_element, self)
+        return [self.HeaderMenuItem(self.base_url, self.selenium, web_element, self)
                 for web_element in self._root_element.find_elements(
                 *self._menu_items_locator)]
 
@@ -46,8 +59,8 @@ class HeaderMenu(Page):
             }
         }
 
-        def __init__(self, testsetup, element, menu):
-            Page.__init__(self, testsetup)
+        def __init__(self, base_url, selenium, element, menu):
+            Page.__init__(self, base_url, selenium)
             self._root_element = element
             self._menu = menu
 
@@ -64,4 +77,4 @@ class HeaderMenu(Page):
             ActionChains(self.selenium).move_to_element(
                 self._root_element).click().perform()
 
-            return self._item_page[menu_name][my_name](self.testsetup)
+            return self._item_page[menu_name][my_name](self.base_url, self.selenium)

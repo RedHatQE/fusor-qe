@@ -21,9 +21,21 @@ class Base(Page):
         WebDriverWait(self.selenium, self.timeout).until(lambda s: self.selenium.title)
         return self.selenium.title
 
+    @property
+    def header(self):
+        return Base.HeaderRegion(self, self.selenium)
+
     class HeaderRegion(Page):
-        _site_navigation_menus_locator = (By.ID,
+        _site_navigation_menus_locator = (By.CSS_SELECTOR,
                                           "div.navbar > div.container > ul.navbar-menu > li")
+        _site_navigation_min_number_menus = 1
+
+        def site_navigation_menu(self, value):
+            # used to access on specific menu
+            for menu in self.site_navigation_menus:
+                if menu.name == value:
+                    return menu
+            raise Exception("Menu not found: '%s'. Menus: %s" % (value, [menu.name for menu in self.site_navigation_menus]))
 
         @property
         def site_navigation_menus(self):
@@ -32,6 +44,6 @@ class Base(Page):
                 lambda s: len(s.find_elements(*self._site_navigation_menus_locator)) >=
                 self._site_navigation_min_number_menus)
             from pages.regions.header_menu import HeaderMenu
-            return [HeaderMenu(self.testsetup, web_element)
+            return [HeaderMenu(self.base_url, self.selenium, web_element)
                     for web_element in self.selenium.find_elements(
                         *self._site_navigation_menus_locator)]

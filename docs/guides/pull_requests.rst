@@ -9,7 +9,7 @@ Submitting
 
 * If your code will require the documentation to be updated, include those documentation updates in your PR.
 * Once submitted, request review from the team (via IRC or email).
-* If a reviewer responds with comments/questions, address them promptly to ensure your PR is merged in quickly.
+* If a reviewer responds with comments/questions, please address them promptly to ensure your PR is merged in quickly.
 
 Reviewing
 ^^^^^^^^^
@@ -22,6 +22,7 @@ simple:
 2. Once a team member reviews the code and decides it is acceptable, they comment on the PR with the
    acronym "lgtm" (short for "Looks good to me").
 3. Once two reviewers have commented with "lgtm", the merge button will unlock, and the PR should be merged by
-   the developer who submitted it.
+   the developer who submitted it. [*]_
 
-   * The PR should be merged by its submitter so they can make the final decision on its readiness for merging.
+
+.. [*] This is so they can make the final decision on its readiness for merging.

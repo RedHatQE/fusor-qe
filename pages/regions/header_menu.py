@@ -3,7 +3,7 @@ from selenium.webdriver.common.action_chains import ActionChains
 
 from pages.page import Page
 from pages.deployments import DeploymentsPage
-from pages.wizard import SelectProductsPage
+from pages.wizard.product_selection import SelectProductsPage
 
 
 class HeaderMenu(Page):

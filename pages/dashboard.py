@@ -1,6 +1,6 @@
 from selenium.webdriver.common.by import By
 
-from base import Base
+from pages.base import Base
 
 
 class DashboardPage(Base):

@@ -2,7 +2,6 @@ import requests
 from time import sleep
 from requests.packages.urllib3.exceptions import InsecureRequestWarning
 
-
 """
 Disable all notices InsecureRequestWarning
 InsecureRequestWarning: Unverified HTTPS request is being made. Adding certificate verification is strongly advised. See: https://urllib3.readthedocs.org/en/latest/security.html
@@ -255,6 +254,41 @@ class FusorApi(object):
 
         return response.json()
 
+    def rhn_attach_subscription(self, consumer_uuid, sub_pool_id, quantity_to_add):
+        """
+        Attach a subscription to the specified consumer
+        """
+
+        if self.customer_session is None:
+            raise Exception("No customer login session has been created")
+
+        resource = "consumers/{}/entitlements?pool={}&quantity={}".format(
+            consumer_uuid, sub_pool_id, quantity_to_add)
+        data = {}
+        response = self._customer_post_resource(resource, data)
+
+        if response.status_code != 200:
+            return None
+
+        return response.json()
+
+    def rhn_unattach_subscription(self, consumer_uuid, sub_pool_id):
+        """
+        Unattach a subscription from the specified consumer
+        """
+
+        if self.customer_session is None:
+            raise Exception("No customer login session has been created")
+
+        resource = "consumers/{}?pool={}".format(
+            consumer_uuid, sub_pool_id)
+        response = self._customer_post_resource(resource)
+
+        if response.status_code != 200:
+            return None
+
+        return response.json()
+
     def rhn_get_consumer_subscriptions(self, consumer_uuid):
         """
         Retrieve a Satellite consumers (aka "Subscription Application Managers") subscriptions
@@ -271,7 +305,7 @@ class FusorApi(object):
 
         return response.json()
 
-    def rhn_add_subscription(
+    def add_deployment_subscription(
             self, deployment_id, contract_number, product_name, quantity_attached,
             start_date, end_date, total_quantity, source="added", quantity_to_add=0):
         """
@@ -287,7 +321,7 @@ class FusorApi(object):
                 "end_date": end_date,
                 "total_quantity": total_quantity,
                 "source": source,
-                "quantity_to_add": 0, }}
+                "quantity_to_add": quantity_to_add, }}
 
         resource = "subscriptions"
         response = self._fusor_post_resource(resource, data)
@@ -330,7 +364,7 @@ class FusorDeploymentApi(FusorApi):
         validation = self.get_deployment_validation()
 
         if validation['validation']['errors']:
-            return None
+            return False
 
         resource = "deployments/{}/deploy".format(self.deployment_id)
         data = {}
@@ -342,12 +376,12 @@ class FusorDeploymentApi(FusorApi):
         self.fusor_data['deploy_task'] = None
 
         if response.status_code not in [200, 202]:
-            return None
+            return False
 
         # /deploy doesn't return a nested dict so we need to nest the data
         self.fusor_data['deploy_task'] = response.json()
 
-        return self.fusor_data['deploy_task']
+        return True
 
     def redeploy(self):
         """
@@ -369,11 +403,11 @@ class FusorDeploymentApi(FusorApi):
             auth=(self.username, self.password), verify=False)
 
         if response.status_code not in [200, 202]:
-            return None
+            return False
 
         self.fusor_data['deploy_task'] = response.json()
 
-        return self.fusor_data['deploy_task']
+        return True
 
     def load_deployment(self, name):
         """
@@ -508,14 +542,14 @@ class FusorDeploymentApi(FusorApi):
 
         return len(self.fusor_data['deployment']['subscription_ids']) > 0
 
-    def rhn_add_subscription(
+    def add_deployment_subscription(
             self, contract_number, product_name, quantity_attached,
             start_date, end_date, total_quantity, source="added", quantity_to_add=0):
 
         if not self.deployment_id:
             raise Exception("Unable to update deployment because there is no deployment id")
 
-        return super(FusorDeploymentApi, self).rhn_add_subscription(
+        return super(FusorDeploymentApi, self).add_deployment_subscription(
             self.deployment_id, contract_number, product_name, quantity_attached,
             start_date, end_date, total_quantity, source, quantity_to_add)
 
@@ -1080,7 +1114,8 @@ class OSPFusorApi(FusorDeploymentApi):
         return len(self.fusor_data['nodes']) > 0
 
     def register_nodes(
-            self, ipmi_driver, ipmi_ip, ipmi_user, ipmi_pass, node_mac, deploy_kernel_id, deploy_ramdisk_id, virt_type="virsh", capabilities="boot_option:local"):
+            self, ipmi_driver, ipmi_ip, ipmi_user, ipmi_pass,
+            node_mac, deploy_kernel_id, deploy_ramdisk_id, virt_type="virsh", capabilities="boot_option:local"):
         """
         Register the node with OSP using the specified ipmi interface
         You'll need to check the status of the introspection tasks to know if the nodes were

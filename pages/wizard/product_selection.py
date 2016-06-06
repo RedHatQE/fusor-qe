@@ -1,5 +1,5 @@
 from selenium.webdriver.common.by import By
-from base import Base
+from pages.base import Base
 
 
 class SelectProductsPage(Base):
@@ -27,6 +27,3 @@ class SelectProductsPage(Base):
     @property
     def openshift_checkbox(self):
         return self.selenium.find_element(*self._openshift_checkbox_locator)
-
-
-

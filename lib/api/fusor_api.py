@@ -309,9 +309,12 @@ class FusorDeploymentApi(FusorApi):
         super(FusorDeploymentApi, self).__init__(fusor_ip, user, pw)
         self.fusor_data = None
         self.deployment_id = None
+        self.product_install_location = None
 
     def create_deployment(
-            self, name, description=None, organization_id='1', lifecycle_environment_id=None):
+            self, name, description=None,
+            deploy_cfme=False, deploy_ose=False,
+            organization_id='1', lifecycle_environment_id=None, access_insights=False):
         raise NotImplementedError("Implement this method")
 
     def deploy(self):
@@ -324,14 +327,10 @@ class FusorDeploymentApi(FusorApi):
         if not self.customer_session:
             raise Exception("Please login to the Red Hat customer portal")
 
-        """
-        #Complains about the openstack overcloud password not being set in the deployment object
-        # But it's set in the heat template
         validation = self.get_deployment_validation()
 
         if validation['validation']['errors']:
             return None
-        """
 
         resource = "deployments/{}/deploy".format(self.deployment_id)
         data = {}
@@ -392,6 +391,7 @@ class FusorDeploymentApi(FusorApi):
                 # Load all of the fusor info about the deployment
                 self.fusor_data = self.deployment(deployment['id'])
                 self.deployment_id = deployment['id']
+                self.openstack_deployment_id = deployment['openstack_deployment_id']
                 return True
 
         return False
@@ -553,6 +553,13 @@ class FusorDeploymentApi(FusorApi):
         resource = "deployments/{}/validate".format(self.deployment_id)
         response = self._fusor_get_resource(resource)
 
+        if response.status_code not in [200, 202]:
+            return None
+
+        response_data = response.json()
+        for key in response_data:
+            self.fusor_data[key] = response_data[key]
+
         return response.json()
 
     def get_deployment_progress(self):
@@ -579,10 +586,152 @@ class FusorDeploymentApi(FusorApi):
 
         return self.fusor_data['fusor_log']
 
+    def ose_set_master_node_specs(self, master_node_count, master_vcpu, master_ram, master_disk):
+        """
+        Set the master node count and specs for each master node
+        """
+        if not self.deployment_id:
+            raise Exception(
+                "Unable to set OpenShift master node specs "
+                "because there is no deployment id")
+
+        return self._ose_set_node_specs(
+            "openshift_number_master_nodes", master_node_count,
+            "openshift_master_vcpu", master_vcpu,
+            "openshift_master_ram", master_ram,
+            "openshift_master_disk", master_disk)
+
+    def ose_set_worker_node_specs(self, worker_node_count, worker_vcpu, worker_ram, worker_disk):
+        """
+        Set the worker node count and specs for each worker node
+        """
+        if not self.deployment_id:
+            raise Exception(
+                'Unable to set OpenShift worker node specs '
+                'because there is no deployment id')
+
+        return self._ose_set_node_specs(
+            'openshift_number_worker_nodes', worker_node_count,
+            'openshift_node_vcpu', worker_vcpu,
+            'openshift_node_ram', worker_ram,
+            'openshift_node_disk', worker_disk)
+
+    def _ose_set_node_specs(
+            self,
+            node_count_name, node_count,
+            node_vcpu_name, node_vcpu,
+            node_ram_name, node_ram,
+            node_disk_name, node_disk):
+        """
+        Set the node specs.
+        Helper function since master nodes set the same number and type of objects
+        """
+        data = {'deployment': {
+            'openshift_install_loc': self.product_install_location,
+            node_count_name: node_count,
+            node_vcpu_name: node_vcpu,
+            node_ram_name: node_ram,
+            node_disk_name: node_disk, }}
+
+        resource = 'deployments/{}'.format(self.deployment_id)
+        response = self._fusor_put_resource(resource, data)
+
+        if response.status_code != 200:
+            return False
+
+        response_data = response.json()
+        for key in response_data:
+            self.fusor_data[key] = response_data[key]
+
+        return True
+
+    def set_ose_nfs_storage(self, storage_name, storage_host, storage_path):
+        """
+        Set the nfs storage options for OpenShift
+        """
+        if not self.deployment_id:
+            raise Exception(
+                'Unable to set nfs storage for RHEV because there is no deployment id')
+
+        data = {
+            'deployment': {
+                'openshift_storage_type': 'NFS',
+                'openshift_storage_name': storage_name,
+                'openshift_storage_host': storage_host,
+                'openshift_export_path': storage_path, }}
+
+        resource = 'deployments/{}'.format(self.deployment_id)
+        response = self._fusor_put_resource(resource, data)
+
+        if response.status_code != 200:
+            return False
+
+        response_data = response.json()
+        for key in response_data:
+            self.fusor_data[key] = response_data[key]
+
+        return True
+
+    def set_ose_creds(self, username, pw):
+        """
+        Set the OpenShift credentials
+        """
+        if not self.deployment_id:
+            raise Exception("Unable to set the OpenShift creds because there is no deployment id")
+
+        data = {
+            "deployment": {
+                'openshift_username': username,
+                'openshift_user_password': pw,
+                'openshift_root_password': pw, }}
+
+        resource = 'deployments/{}'.format(self.deployment_id)
+        response = self._fusor_put_resource(resource, data)
+
+        if response.status_code != 200:
+            return False
+
+        response_data = response.json()
+        for key in response_data:
+            self.fusor_data[key] = response_data[key]
+
+        return True
+
+    def set_ose_subdomain(self, subdomain_name):
+        """
+        Set the OpenShift subdomain
+        """
+        if not self.deployment_id:
+            raise Exception(
+                "Unable to set the OpenShift subdomain because "
+                "there is no deployment id")
+
+        data = {
+            "deployment": {
+                'openshift_subdomain_name': subdomain_name, }}
+
+        resource = 'deployments/{}'.format(self.deployment_id)
+        response = self._fusor_put_resource(resource, data)
+
+        if response.status_code != 200:
+            return False
+
+        response_data = response.json()
+        for key in response_data:
+            self.fusor_data[key] = response_data[key]
+
+        return True
+
 
 class RHEVFusorApi(FusorDeploymentApi):
+    def __init__(self, fusor_ip, user, pw):
+        super(RHEVFusorApi, self).__init__(fusor_ip, user, pw)
+        self.product_install_location = 'RHEV'
+
     def create_deployment(
-            self, name, description=None, organization_id='1', lifecycle_environment_id=None):
+            self, name, description=None,
+            deploy_cfme=False, deploy_ose=False,
+            organization_id='1', lifecycle_environment_id=None, access_insights=False):
         """
         Create a new RHEV deployment with CFME and store the deployment data returned
         NOTE: RHCI currently only supports the Default organization
@@ -591,10 +740,12 @@ class RHEVFusorApi(FusorDeploymentApi):
             'name': name,
             'description': description,
             'deploy_rhev': True,
-            'deploy_cfme': True,
+            'deploy_cfme': deploy_cfme,
+            'deploy_openshift': deploy_ose,
             'deploy_openstack': False,
             'organization_id': organization_id,
-            'lifecycle_environment_id': lifecycle_environment_id, }, }
+            'lifecycle_environment_id': lifecycle_environment_id,
+            'enable_access_insights': access_insights, }, }
         response = self._fusor_post_resource('deployments', data)
 
         if response.status_code != 200:
@@ -684,9 +835,10 @@ class RHEVFusorApi(FusorDeploymentApi):
 
         data = {
             "deployment": {
-                'cfme_install_loc': 'RHEV',
+                'cfme_install_loc': self.product_install_location,
                 'cfme_root_password': pw,
-                'cfme_admin_password': pw, }}
+                'cfme_admin_password': pw,
+                'cfme_db_password': pw, }}
 
         resource = 'deployments/{}'.format(self.deployment_id)
         response = self._fusor_put_resource(resource, data)
@@ -764,6 +916,11 @@ class OSPFusorApi(FusorDeploymentApi):
     def __init__(self, fusor_ip, user, pw):
         super(OSPFusorApi, self).__init__(fusor_ip, user, pw)
         self.openstack_api_url = "https://{}/fusor/api/openstack/deployments/".format(self.fusor_ip)
+        self.product_install_location = 'OpenStack'
+
+        # Id for deployment objects specific to the orchestration of an openstack deployment
+        # This will also be stored in fusor deployment object 'openstack_deployment_id'
+        self.openstack_deployment_id = None
 
     ################################################################################################
     # Private Helper Methods
@@ -797,7 +954,9 @@ class OSPFusorApi(FusorDeploymentApi):
     ################################################################################################
 
     def create_deployment(
-            self, name, description=None, organization_id='1', lifecycle_environment_id=None):
+            self, name, description=None,
+            deploy_cfme=False, deploy_ose=False,
+            organization_id='1', lifecycle_environment_id=None, access_insights=False):
         """
         Create a new RHEV deployment with CFME and store the deployment data returned
         """
@@ -805,10 +964,12 @@ class OSPFusorApi(FusorDeploymentApi):
             'name': name,
             'description': description,
             'deploy_rhev': False,
-            'deploy_cfme': True,
+            'deploy_cfme': deploy_cfme,
+            'deploy_openshift': deploy_ose,
             'deploy_openstack': True,
-            'organization_id': '1',  # RHCI only supports the Default organization
-            'lifecycle_environment_id': None, }, }
+            'organization_id': organization_id,
+            'lifecycle_environment_id': lifecycle_environment_id,
+            'enable_access_insights': access_insights, }, }
         response = self._fusor_post_resource('deployments', data)
 
         if response.status_code not in [200, 202]:
@@ -820,13 +981,15 @@ class OSPFusorApi(FusorDeploymentApi):
             self.fusor_data[key] = response_data[key]
 
         self.deployment_id = self.fusor_data['deployment']['id']
+        self.openstack_deployment_id = self.fusor_data['deployment']['openstack_deployment_id']
 
         return True
 
     def add_undercloud(self, ip, ssh_user, ssh_pass):
         if not self.deployment_id:
-            raise Exception('Unable to get deployment id because there is no deployment id')
+            raise Exception('Unable to add undercloud because there is no deployment id')
 
+        # TODO: Verify if we need to pass the nested undercloud dict
         undercloud_data = {
             "underhost": ip,
             "underuser": ssh_user,
@@ -956,12 +1119,15 @@ class OSPFusorApi(FusorDeploymentApi):
 
         return True
 
-    def wait_for_node_registration(self, delay=10, maxtime=30):
+    def wait_for_node_registration(self, delay=10, maxtime=30, introspection_attempts_max=1):
         """
         Wait for node registration to finish processing either by success/error
+        If fusor_data['introspection_tasks'] is empty, it will attempt to refresh the
+         deployment info from the server
         Arguments:
           maxtime: Max time to wait in minutes
           delay: seconds to wait between checking tasks
+           introspection_attempts_max: number of attempts refresh the introspection tasks if empty
         Return Value:
           dictionary[<node_uuid>] = True for success and false otherwise
         """
@@ -974,7 +1140,20 @@ class OSPFusorApi(FusorDeploymentApi):
         tasks_finished = False
         total_time = 0
         result_pending_value = 'pending'
+        introspection_attempts = 0
+
         introspection_tasks = self.fusor_data['introspection_tasks']
+
+        while ((introspection_attempts < introspection_attempts_max) and
+               (len(introspection_tasks) < 1)):
+                self.refresh_deployment_info()
+                introspection_tasks = self.fusor_data['introspection_tasks']
+                introspection_attempts += 1
+
+        if len(introspection_tasks) < 1:
+            self.refresh_deployment_info()
+            introspection_tasks = self.fusor_data['introspection_tasks']
+
         while not tasks_finished:
             tasks = [
                 self.foreman_task(t['task_id']) for t in introspection_tasks if(
@@ -986,12 +1165,35 @@ class OSPFusorApi(FusorDeploymentApi):
 
             sleep(delay)
             if (total_time * delay) >= (maxtime * 60):
-                print "Deploy timed out"
                 break
 
             total_time += 1
 
         return tasks_finished
+
+    def set_overcloud_node_count(self, node_count):
+        """
+        Set the total number of nodes registered with the overcloud
+        """
+        if not self.openstack_deployment_id:
+            raise Exception('Unable to update role because there is no openstack deployment id')
+
+        data = {
+            'openstack_deployment': {
+                'overcloud_node_count': node_count,
+            }, }
+
+        resource = 'openstack_deployments/{}'.format(self.openstack_deployment_id)
+        response = self._fusor_put_resource(resource, data)
+
+        if response.status_code not in [200, 202]:
+            return False
+
+        response_data = response.json()
+        for key in response_data:
+            self.fusor_data[key] = response_data[key]
+
+        return True
 
     def get_deployment_plan(self):
         """
@@ -1003,6 +1205,76 @@ class OSPFusorApi(FusorDeploymentApi):
 
         resource = '{}/deployment_plans/overcloud'.format(self.deployment_id)
         response = self._openstack_get_resource(resource)
+
+        if response.status_code not in [200, 202]:
+            return False
+
+        response_data = response.json()
+        for key in response_data:
+            self.fusor_data[key] = response_data[key]
+
+        return True
+
+    def update_role_compute(self, flavor, count):
+        """
+        Assign compute role the specified flavor and count
+        """
+
+        return self.update_role(
+            'overcloud_compute_flavor', flavor,
+            'overcloud_compute_count', count)
+
+    def update_role_controller(self, flavor, count):
+        """
+        Assign controller role the specified flavor and count
+        """
+
+        return self.update_role(
+            'overcloud_controller_flavor', flavor,
+            'overcloud_controller_count', count)
+
+    def update_role_ceph(self, flavor, count):
+        """
+        Assign ceph role the specified flavor and count
+        """
+
+        return self.update_role(
+            'overcloud_ceph_storage_flavor', flavor,
+            'overcloud_ceph_count', count)
+
+    def update_role_cinder(self, flavor, count):
+        """
+        Assign cinder role the specified flavor and count
+        """
+
+        return self.update_role(
+            'overcloud_block_storage_flavor', flavor,
+            'overcloud_block_count', count)
+
+    def update_role_swift(self, flavor, count):
+        """
+        Assign swift role the specified flavor and count
+        """
+
+        return self.update_role(
+            'overcloud_object_storage_flavor', flavor,
+            'overcloud_object_count', count)
+
+    def update_role(self, flavor_role_name, flavor, count_role_name, count):
+        """
+        Assign a role count and flavor with one api call
+        """
+        if not self.openstack_deployment_id:
+            raise Exception('Unable to update role because there is no openstack deployment id')
+
+        data = {
+            'openstack_deployment': {
+                flavor_role_name: flavor,
+                count_role_name: count,
+            }, }
+
+        resource = 'openstack_deployments/{}'.format(self.openstack_deployment_id)
+        response = self._fusor_put_resource(resource, data)
 
         if response.status_code not in [200, 202]:
             return False
@@ -1043,12 +1315,12 @@ class OSPFusorApi(FusorDeploymentApi):
         if not self.fusor_data:
             raise Exception('Unable to get deployment id because there is no deployment id')
 
-        resource = '{}/deployment_plans/overcloud/update_role_count'.format(self.deployment_id)
         data = {
-            "role_name": role_name,
-            "count": role_count, }
+            "deployment": {
+                role_name: role_count, }}
 
-        response = self._openstack_put_resource(resource, data)
+        resource = 'deployments/{}'.format(self.deployment_id)
+        response = self._fusor_put_resource(resource, data)
 
         if response.status_code not in [200, 202]:
             return False
@@ -1085,7 +1357,7 @@ class OSPFusorApi(FusorDeploymentApi):
 
         data = {
             "deployment": {
-                'cfme_install_loc': 'OpenStack',
+                'cfme_install_loc': self.product_install_location,
                 'cfme_root_password': pw,
                 'cfme_admin_password': pw, }}
 
@@ -1108,27 +1380,37 @@ class OSPFusorApi(FusorDeploymentApi):
         if not self.deployment_id:
             raise Exception("Unable to update deployment because there is no deployment id")
 
-        # The webui appears to update the heat template(Controller-1::AdminPassword but the
-        # fusor sync_openstack function doesn't sync this password and fusor /validate complains
-        # that the overcloud password isn't set even if it's set in the template
-        # Anyways the deployment won't validate if we don't update this deployment object
         data = {
-            "deployment": {
-                'openstack_overcloud_password': pw, }}
+            'openstack_deployment': {
+                'overcloud_password': pw, }}
+
+        resource = 'openstack_deployments/{}'.format(self.openstack_deployment_id)
+        response = self._fusor_put_resource(resource, data)
+
+        if response.status_code not in [200, 202]:
+            return False
+
+        response_data = response.json()
+        for key in response_data:
+            self.fusor_data[key] = response_data[key]
+
+        return True
+
+    def set_nova_libvirt_type(self, libvirt_type='kvm'):
+        """
+        Set the Overcloud Compute Libvirt Type
+        Wrapper for heat template param 'Compute-1::NovaComputeLibvirtType'
+        """
+        if not self.deployment_id:
+            raise Exception("Unable to update deployment because there is no deployment id")
+
+        data = {
+            'deployment': {
+                'openstack_overcloud_libvirt_type': libvirt_type,
+            }, }
 
         resource = 'deployments/{}'.format(self.deployment_id)
         response = self._fusor_put_resource(resource, data)
-
-        """
-        params = [
-            {'name': 'Controller-1::AdminPassword', 'value': pw}, ]
-
-        resource = '{}/deployment_plans/overcloud/update_parameters'.format(
-            self.deployment_id)
-        data = {'parameters': params}
-
-        response = self._openstack_put_resource(resource, data)
-        """
 
         if response.status_code not in [200, 202]:
             return False
@@ -1141,20 +1423,19 @@ class OSPFusorApi(FusorDeploymentApi):
 
     def set_overcloud_nic(self, external_nic):
         """
-        Set the Overcloud network info
+        Set the Overcloud external network nic
+        Wrapper for heat template param 'Controller-1::NeutronPublicInterface'
         """
-        if not self.deployment_id:
+        if not self.openstack_deployment_id:
             raise Exception("Unable to update deployment because there is no deployment id")
 
-        params = [
-            {'name': 'Controller-1::NeutronPublicInterface', 'value': external_nic},
-            {'name': 'Compute-1::NovaComputeLibvirtType', 'value': 'kvm'}, ]
+        data = {
+            'openstack_deployment': {
+                'overcloud_ext_net_interface': external_nic,
+            }, }
 
-        resource = '{}/deployment_plans/overcloud/update_parameters'.format(
-            self.deployment_id)
-        data = {'parameters': params}
-
-        response = self._openstack_put_resource(resource, data)
+        resource = 'openstack_deployments/{}'.format(self.openstack_deployment_id)
+        response = self._fusor_put_resource(resource, data)
 
         if response.status_code not in [200, 202]:
             return False
@@ -1169,17 +1450,19 @@ class OSPFusorApi(FusorDeploymentApi):
         """
         Set the Overcloud network info
         """
-        if not self.deployment_id:
-            raise Exception("Unable to update deployment because there is no deployment id")
+        if not self.openstack_deployment_id:
+            raise Exception(
+                "Unable to set overcloud network because there is no "
+                "openstack deployment id")
 
         data = {
-            "deployment": {
-                'openstack_overcloud_address': None,
-                'openstack_overcloud_private_net': private_cidr,
-                'openstack_overcloud_float_gateway': float_gateway,
-                'openstack_overcloud_float_net': float_cidr, }}
+            "openstack_deployment": {
+                'overcloud_address': None,
+                'overcloud_private_net': private_cidr,
+                'overcloud_float_gateway': float_gateway,
+                'overcloud_float_net': float_cidr, }}
 
-        resource = 'deployments/{}'.format(self.deployment_id)
+        resource = 'openstack_deployments/{}'.format(self.openstack_deployment_id)
         response = self._fusor_put_resource(resource, data)
 
         if response.status_code not in [200, 202]:
@@ -1195,11 +1478,14 @@ class OSPFusorApi(FusorDeploymentApi):
         """
         Tells fusor to sync the openstack parameters with the fusor database
         """
-        if not self.deployment_id:
-            raise Exception("Unable to update deployment because there is no deployment id")
+        if not self.openstack_deployment_id:
+            raise Exception("Unable to sync openstack deployment because there is no "
+                            "openstack deployment id")
 
-        resource = "deployments/{}?sync_openstack=true".format(self.deployment_id)
-        response = self._fusor_get_resource(resource)
+        resource = "openstack_deployments/{}/sync_openstack".format(
+            self.openstack_deployment_id)
+        data = {}
+        response = self._fusor_post_resource(resource, data)
 
         if response.status_code not in [200, 202]:
             return False

@@ -1,6 +1,6 @@
 #
 #
-# $Id$
+# $Id: 4c1a8a61a4654b13ab641bde241c19ffc531101d $
 #
 .PHONY: 2to3 coverage docs init install lint test
 

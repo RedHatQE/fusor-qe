@@ -11,11 +11,14 @@ class ModalDialogPage(Page):
     1) Modal header
     2) Close button
     3) Error
-    4) Modal foote
-    5) OK
+    4) Modal footer
+    5) Okay
     """
 
     _page_title = "QuickStart Cloud Installer"
 
+    # id = globalErrorModal
+
+    # modal-title
 
 # end class ModalDialogPage

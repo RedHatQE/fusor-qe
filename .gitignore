@@ -91,3 +91,8 @@ ENV/
 # pytest configuration files
 pytest.ini
 variables.json
+
+# PyDev
+=======
+.project
+.pydevproject

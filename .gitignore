@@ -91,3 +91,7 @@ ENV/
 # pytest configuration files
 pytest.ini
 variables.json
+
+# jupyter notebook files
+*.ipynb
+

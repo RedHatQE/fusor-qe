@@ -31,19 +31,24 @@ class UpdateAvailability(Base):
     )
 
     # properties
+    @property
     def immediately(self):
         return self.selenium.find_element(*self._immediately_loc)
 
+    @property
     def after_publishing(self):
         return self.selenium.find_element(*self._after_publishing_loc)
 
-    def cancel(self):
+    @property
+    def cancelBtn(self):
         return self.selenium.find_element(*self._cancel_loc)
 
-    def back(self):
+    @property
+    def backBtn(self):
         return self.selenium.find_element(*self._back_loc)
 
-    def next(self):
+    @property
+    def nextBtn(self):
         return self.selenium.find_element(*self._next_loc)
 
     # actions
@@ -54,11 +59,11 @@ class UpdateAvailability(Base):
         self.after_publishing.click()
 
     def click_cancel(self):
-        self.cancel.click()
+        self.cancelBtn.click()
 
     def click_back(self):
-        self.back.click()
+        self.backBtn.click()
 
     def click_next(self):
-        self.next.click()
+        self.nextBtn.click()
         return Insights(self.base_url, self.selenium)

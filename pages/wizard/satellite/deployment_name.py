@@ -26,19 +26,24 @@ class DeploymentName(Base):
 
 
     # properties
+    @property
     def name(self):
         return self.selenium.find_element(*self._name_loc)
 
+    @property
     def description(self):
         return self.selenium.find_element(*self._description_loc)
 
-    def cancel(self):
+    @property
+    def cancelBtn(self):
         return self.selenium.find_element(*self._cancel_loc)
 
-    def back(self):
+    @property
+    def backBtn(self):
         return self.selenium.find_element(*self._back_loc)
 
-    def next(self):
+    @property
+    def nextBtn(self):
         return self.selenium.find_element(*self._next_loc)
 
     # actions
@@ -49,12 +54,12 @@ class DeploymentName(Base):
         self.description.send_keys(description)
 
     def click_cancel(self):
-        self.cancel.click()
+        self.cancelBtn.click()
 
     def click_back(self):
-        self.back.click()
+        self.backBtn.click()
 
     def click_next(self):
-        self.next.click()
+        self.nextBtn.click()
         return UpdateAvailability(self.base_url, self.selenium)
 

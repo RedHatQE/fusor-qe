@@ -25,15 +25,15 @@ class Insights(Base):
         return self.selenium.find_element(*self._insights_enable)
 
     @property
-    def cancel(self):
+    def cancelBtn(self):
         return self.selenium.find_element(*self._insights_cancel)
 
     @property
-    def back(self):
+    def backBtn(self):
         return self.selenium.find_element(*self._insights_back)
 
     @property
-    def next(self):
+    def nextBtn(self):
         return self.selenium.find_element(*self._insights_next)
 
     # actions
@@ -42,13 +42,13 @@ class Insights(Base):
 
 
     def click_cancel(self):
-        self.cancel.click()
+        self.cancelBtn.click()
 
     def click_back(self):
-        self.back.click()
+        self.backBtn.click()
 
     def click_next(self):
-        self.next.click()
+        self.nextBtn.click()
         # XXX: Need add code to return the next page object.
         #      This is not trivial though and will be handled
         #      by another library.

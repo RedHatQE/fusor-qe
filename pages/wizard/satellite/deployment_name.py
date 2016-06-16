@@ -1,6 +1,10 @@
 from selenium.webdriver.common.by import By
 from base import Base
 
+# This library is loaded so we can instantiate this object after
+# the next button is clicked as this is the next page.
+from pages.wizard.satellite.update_availability import UpdateAvailability
+
 class DeploymentName(Base):
     _page_title = "Deployment Name"
 
@@ -51,7 +55,6 @@ class DeploymentName(Base):
         self.back.click()
 
     def click_next(self):
-        self.next.click(
-        from pages.wizard.satellite.update_availability import UpdateAvailability
+        self.next.click()
         return UpdateAvailability(self.base_url, self.selenium)
 

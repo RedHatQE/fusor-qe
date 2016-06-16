@@ -1,6 +1,10 @@
 from selenium.webdriver.common.by import By
 from base import Base
 
+# This library is loaded so we can instantiate this object after
+# the next button is clicked as this is the next page.
+from pages.wizard.satellite.insights import Insights
+
 class UpdateAvailability(Base):
     _page_title = "Update Availability"
 
@@ -56,6 +60,5 @@ class UpdateAvailability(Base):
         self.back.click()
 
     def click_next(self):
-        self.next.click(
-        from pages.wizard.satellite.insights import Insights
+        self.next.click()
         return Insights(self.base_url, self.selenium)

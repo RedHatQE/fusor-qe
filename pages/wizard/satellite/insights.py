@@ -1,6 +1,5 @@
 from selenium.webdriver.common.by import By
-from base import Base
-
+from pages.base import Base
 
 class Insights(Base):
     _page_title = "Insights"
@@ -50,6 +49,6 @@ class Insights(Base):
 
     def click_next(self):
         self.next.click()
-        // XXX: Need add code to return the next page object.
-        //      This is not trivial though and will be handled
-        //      by another library.
+        # XXX: Need add code to return the next page object.
+        #      This is not trivial though and will be handled
+        #      by another library.

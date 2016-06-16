@@ -1,5 +1,5 @@
 from selenium.webdriver.common.by import By
-from base import Base
+from pages.base import Base
 
 # This library is loaded so we can instantiate this object after
 # the next button is clicked as this is the next page.

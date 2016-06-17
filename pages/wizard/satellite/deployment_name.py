@@ -1,9 +1,6 @@
 from selenium.webdriver.common.by import By
 from pages.base import Base
 
-# This library is loaded so we can instantiate this object after
-# the next button is clicked as this is the next page.
-from pages.wizard.satellite.update_availability import UpdateAvailability
 
 class DeploymentName(Base):
     _page_title = "Deployment Name"
@@ -58,8 +55,17 @@ class DeploymentName(Base):
 
     def click_back(self):
         self.backBtn.click()
+        # XXX: Need add code to return the previous page object.
+        #      This will be handled by the DeploymentTaskBar
+        #      In this case though it should be the product selection
+        #      page.
 
     def click_next(self):
         self.nextBtn.click()
         return UpdateAvailability(self.base_url, self.selenium)
 
+# These libraries are loaded so we can instantiate their objects after
+# the navigational buttons are clicked.
+# Also these libraries have to be loaded after our class is defined, because
+# we have circular dependencies on one another.
+from pages.wizard.satellite.update_availability import UpdateAvailability

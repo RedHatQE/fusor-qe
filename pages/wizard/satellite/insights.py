@@ -46,9 +46,16 @@ class Insights(Base):
 
     def click_back(self):
         self.backBtn.click()
+        return UpdateAvailability(self.base_url, self.selenium)
 
     def click_next(self):
         self.nextBtn.click()
         # XXX: Need add code to return the next page object.
         #      This is not trivial though and will be handled
         #      by another library.
+
+# These libraries are loaded so we can instantiate their objects after
+# the navigational buttons are clicked.
+# Also these libraries have to be loaded after our class is defined, because
+# we have circular dependencies on one another.
+from pages.wizard.satellite.update_availability import UpdateAvailability

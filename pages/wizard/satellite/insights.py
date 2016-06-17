@@ -43,6 +43,9 @@ class Insights(Base):
 
     def click_cancel(self):
         self.cancelBtn.click()
+        # XXX: This needs some work as a second modal opens when you
+        #      click this.
+
 
     def click_back(self):
         self.backBtn.click()

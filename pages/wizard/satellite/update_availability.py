@@ -57,8 +57,7 @@ class UpdateAvailability(Base):
 
     def click_cancel(self):
         self.cancelBtn.click()
-        # XXX: This needs some work as a second modal opens when you
-        #      click this.
+        return DashboardPage(self.base_url, self.selenium)
 
     def click_back(self):
         self.backBtn.click()
@@ -74,3 +73,4 @@ class UpdateAvailability(Base):
 # we have circular dependencies on one another.
 from pages.wizard.satellite.deployment_name import DeploymentName
 from pages.wizard.satellite.insights import Insights
+from pages.dashboard import DashboardPage

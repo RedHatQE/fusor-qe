@@ -58,6 +58,11 @@ class UpdateAvailability(Base):
     def click_cancel(self):
         self.cancelBtn.click()
         return DashboardPage(self.base_url, self.selenium)
+        # XXX: If we have navigated to the insights page then
+        #      the three choice modal frame will open.
+        #      See Jira card:
+        #
+        #           https://projects.engineering.redhat.com/browse/RHCIQE-124
 
     def click_back(self):
         self.backBtn.click()

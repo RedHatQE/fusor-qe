@@ -21,7 +21,6 @@ class DeploymentName(Base):
         '//button[contains(@class,"btn") and contains(., "Next")]'
     )
 
-
     # properties
     @property
     def name(self):

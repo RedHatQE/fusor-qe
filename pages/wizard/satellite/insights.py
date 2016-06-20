@@ -1,6 +1,7 @@
 from selenium.webdriver.common.by import By
 from pages.base import Base
 
+
 class Insights(Base):
     _page_title = "Insights"
 
@@ -68,7 +69,6 @@ class Insights(Base):
     def click_enable(self):
         self.enable.click()
 
-
     # Note a modal frame will open when this is clicked, with the
     # buttons:
     #
@@ -83,7 +83,6 @@ class Insights(Base):
     #   - click_continue_working()
     def click_cancel(self):
         self.cancelBtn.click()
-
 
     def click_back(self):
         self.backBtn.click()

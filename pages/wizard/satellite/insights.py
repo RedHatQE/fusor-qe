@@ -5,16 +5,16 @@ class Insights(Base):
     _page_title = "Insights"
 
     # locators
-    _insights_enable = (By.NAME, 'enable_access_insights')
-    _insights_cancel = (
+    _enable_loc = (By.NAME, 'enable_access_insights')
+    _cancel_loc = (
         By.XPATH,
         '//button[contains(@class,"btn") and contains(., "Cancel")]'
     )
-    _insights_back = (
+    _back_loc = (
         By.XPATH,
         '//a[contains(@class, "btn") and contains(., "Back")]'
     )
-    _insights_next = (
+    _next_loc = (
         By.XPATH,
         '//button[contains(@class,"btn") and contains(., "Next")]'
     )
@@ -22,19 +22,19 @@ class Insights(Base):
     # properties
     @property
     def enable(self):
-        return self.selenium.find_element(*self._insights_enable)
+        return self.selenium.find_element(*self._enable_loc)
 
     @property
     def cancelBtn(self):
-        return self.selenium.find_element(*self._insights_cancel)
+        return self.selenium.find_element(*self._cancel_loc)
 
     @property
     def backBtn(self):
-        return self.selenium.find_element(*self._insights_back)
+        return self.selenium.find_element(*self._back_loc)
 
     @property
     def nextBtn(self):
-        return self.selenium.find_element(*self._insights_next)
+        return self.selenium.find_element(*self._next_loc)
 
     # actions
     def click_enable(self):

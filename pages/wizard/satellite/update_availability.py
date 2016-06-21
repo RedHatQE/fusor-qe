@@ -14,6 +14,18 @@ class UpdateAvailability(Base):
         By.XPATH,
         '//div[@class = "ident-radio"]/label/input[@type = "radio" and @value="after_publishing"]'
     )
+
+    # These two will only show up if after publishing is selected.
+    _library_loc = (
+        By.XPATH,
+        '//input[@value="Library"]'
+    )
+    _new_environment_path_loc = (
+        By.XPATH,
+        '//button[contains(.,"New Environment Path")]'
+    )
+
+    # navigation buttons
     _cancel_loc = (
         By.XPATH,
         '//button[contains(@class,"btn") and contains(., "Cancel")]'
@@ -37,6 +49,14 @@ class UpdateAvailability(Base):
         return self.selenium.find_element(*self._after_publishing_loc)
 
     @property
+    def library(self):
+        return self.selenium.find_element(*self._library_loc)
+
+    @property
+    def new_environment_path(self):
+        return self.selenium.find_element(*self._new_environment_path_loc)
+
+    @property
     def cancelBtn(self):
         return self.selenium.find_element(*self._cancel_loc)
 
@@ -54,6 +74,12 @@ class UpdateAvailability(Base):
 
     def click_after_publishing(self):
         self.after_publishing.click()
+
+    def click_library(self):
+        self.library.click()
+
+    def click_new_environment_path(self):
+        self.new_environment_path.click()
 
     def click_cancel(self):
         self.cancelBtn.click()

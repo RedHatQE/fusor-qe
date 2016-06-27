@@ -86,7 +86,7 @@ class DeploymentStepBar(Base):
     This class provides navigation of the deployment
     wizards major deployment states.   These deployment
     states are displayed as the QCI Deployment Step Bar at
-    the top of the QCI Deoployment Wizard after the products
+    the top of the QCI Deployment Wizard after the products
     to deploy have been chosen.   For instance when
     deploying RHEV and CloudForms the QCI Deployment Step Bar
     may look like:
@@ -163,7 +163,7 @@ class DeploymentStepBar(Base):
 
     def get_page(self, direction='NEXT'):
         """
-        This is the most important it method of this
+        This is the most important method of this
         class, as it allows you to request the page object
         that is either the last page object of the previous
         deployment step or the first page object of the next

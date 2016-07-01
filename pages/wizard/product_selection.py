@@ -10,7 +10,7 @@ class SelectProductsPage(Base):
     _cloudforms_checkbox_locator = (By.XPATH,
                                     "//span[@id='is_cloudforms']/div/input")
     _openshift_checkbox_locator = (By.XPATH,
-                                   "//span[@id='is_cloudforms']/div/input")
+                                   "//span[@id='is_openshift']/div/input")
     # navigation buttons
     # XXX: These button are not like all the others.
     #      Instead of being a button they are an anchor.

@@ -60,10 +60,7 @@ class DeploymentName(Base):
 
     def click_back(self):
         self.backBtn.click()
-        # XXX: Need add code to return the previous page object.
-        #      This will be handled by the DeploymentTaskBar
-        #      In this case though it should be the product selection
-        #      page.
+        return SelectProductsPage(self.base_url, self.selenium)
 
     def click_next(self):
         self.nextBtn.click()
@@ -73,5 +70,6 @@ class DeploymentName(Base):
 # the navigational buttons are clicked.
 # Also these libraries have to be loaded after our class is defined, because
 # we have circular dependencies on one another.
+from pages.wizard.product_selection import SelectProductsPage
 from pages.wizard.satellite.update_availability import UpdateAvailability
 from pages.dashboard import DashboardPage

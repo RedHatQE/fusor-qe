@@ -1,6 +1,5 @@
 import re
 from selenium.webdriver.common.by import By
-from pages.dashboard import DashboardPage
 
 class NavigationButtons():
     """
@@ -128,10 +127,12 @@ class NavigationButtons():
 
     def click_exit_and_delete(self):
         self.exit_and_delete_btn.click()
+        from pages.dashboard import DashboardPage
         return DashboardPage(self.base_url, self.selenium)
 
     def click_exit_and_save(self):
         self.exit_and_save_btn.click()
+        from pages.dashboard import DashboardPage
         return DashboardPage(self.base_url, self.selenium)
 
     def click_continue_working(self):

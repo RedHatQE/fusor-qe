@@ -1,6 +1,7 @@
 from selenium.webdriver.common.by import By
 from pages.base import Base
 
+from pages.wizard.regions.deployment_step_bar import DeploymentStepBar
 
 class Insights(Base):
     _page_title = "Insights"
@@ -89,10 +90,10 @@ class Insights(Base):
         return UpdateAvailability(self.base_url, self.selenium)
 
     def click_next(self):
+        dsb = DeploymentStepBar(self.base_url, self.selenium)
+        nextPage = dsb.get_next_page()
         self.nextBtn.click()
-        # XXX: Need add code to return the next page object.
-        #      This is not trivial though and will be handled
-        #      by another library.
+        return nextPage
 
     def click_exit_and_delete(self):
         self.exit_and_delete_btn.click()

@@ -53,15 +53,16 @@ class SetupType(Base):
     def hypervisor_engine_btn(self):
         return self.selenium.find_element(*self._hypervisor_engine_radio_loc)
 
-    def cancelBtn(self):
+    @property
+    def cancel_btn(self):
         return self.selenium.find_element(*self._cancel_loc)
 
     @property
-    def backBtn(self):
+    def back_btn(self):
         return self.selenium.find_element(*self._back_loc)
 
     @property
-    def nextBtn(self):
+    def next_btn(self):
         return self.selenium.find_element(*self._next_loc)
 
     @property
@@ -96,7 +97,7 @@ class SetupType(Base):
     #   - click_exit_and_save()
     #   - click_continue_working()
     def click_cancel(self):
-        self.cancelBtn.click()
+        self.cancel_btn.click()
 
     def click_back(self):
         # Get the last page of the previous deployment step.
@@ -104,11 +105,11 @@ class SetupType(Base):
         # that page.
         dsb = DeploymentStepBar(self.base_url, self.selenium)
         prevPage = dsb.get_prev_page()
-        self.backBtn.click()
+        self.back_btn.click()
         return prevPage
 
     def click_next(self):
-        self.nextBtn.click()
+        self.next_btn.click()
         # XXX: Add return of next page object when next
         # page object is written.
 

@@ -1,6 +1,5 @@
 import re
 from selenium.webdriver.common.by import By
-from pages.base import Base
 
 # XXX: Still need to fill this out completely.
 # Maps deployment steps to their first and last page.
@@ -81,7 +80,7 @@ _step_to_page_map = {
 }
 
 
-class DeploymentStepBar(Base):
+class DeploymentStepBar():
     """
     This class provides navigation of the deployment
     wizards major deployment states.   These deployment
@@ -106,6 +105,9 @@ class DeploymentStepBar(Base):
 
         DSB - Deployment Step Bar
     """
+    def __init__(self, base_url, selenium):
+        self.base_url = base_url
+        self.selenium = selenium
 
     # locators:
     _DSB_loc = (By.XPATH, '//ul[@class="rhci-steps"]')

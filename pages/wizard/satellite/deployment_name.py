@@ -40,16 +40,3 @@ class DeploymentName(Base):
 
     def set_confirm_password(self, password):
         self.confirm_password.send_keys(password)
-
-    def click_back(self):
-        from pages.wizard.product_selection import SelectProductsPage
-        return super(DeploymentName, self).click_back(
-            lambda: SelectProductsPage(self.base_url, self.selenium)
-        )
-
-    def click_next(self):
-        from pages.wizard.satellite.update_availability import UpdateAvailability
-        return super(DeploymentName, self).click_next(
-            lambda: UpdateAvailability(self.base_url, self.selenium)
-        )
-

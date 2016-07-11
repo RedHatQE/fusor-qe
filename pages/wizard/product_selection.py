@@ -11,18 +11,6 @@ class SelectProductsPage(Base):
                                     "//span[@id='is_cloudforms']/div/input")
     _openshift_checkbox_locator = (By.XPATH,
                                    "//span[@id='is_openshift']/div/input")
-    # navigation buttons
-    # XXX: These button are not like all the others.
-    #      Instead of being a button they are an anchor.
-    _cancel_loc = (
-        By.XPATH,
-        '//a[contains(@class,"btn") and contains(., "Cancel")]'
-    )
-    _next_loc = (
-        By.XPATH,
-        '//a[contains(@class,"btn") and contains(., "Next")]'
-    )
-
     @property
     def rhev_checkbox(self):
         return self.selenium.find_element(*self._rhev_checkbox_locator)
@@ -39,26 +27,15 @@ class SelectProductsPage(Base):
     def openshift_checkbox(self):
         return self.selenium.find_element(*self._openshift_checkbox_locator)
 
-    @property
-    def cancelBtn(self):
-        return self.selenium.find_element(*self._cancel_loc)
-
-    @property
-    def nextBtn(self):
-        return self.selenium.find_element(*self._next_loc)
-
-    def click_cancel(self):
-        self.cancelBtn.click()
-        return DeploymentsPage(self.base_url, self.selenium)
-
+    # Navigation Buttons.
+    # We need to override base's click_next(), click_back() functions
+    # as they all ultimately use the task step bar that does not exist
+    # on this page.
     def click_next(self):
-        self.nextBtn.click()
+        from pages.wizard.satellite.deployment_name import DeploymentName
+        self.navigation_buttons.next_btn.click()
         return DeploymentName(self.base_url, self.selenium)
 
-# These libraries are loaded so we can instantiate their objects after
-# the navigational buttons are clicked.
-# Also these libraries have to be loaded after our class is defined, because
-# we have circular dependencies on one another.
-from pages.wizard.satellite.deployment_name import DeploymentName
-from pages.deployments import DeploymentsPage
-
+    # there is no back button on this page:
+    def click_back(self):
+        return None

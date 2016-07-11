@@ -16,18 +16,3 @@ class Insights(Base):
     # actions
     def click_enable(self):
         self.enable.click()
-
-    def click_back(self):
-        from pages.wizard.satellite.update_availability import UpdateAvailability
-        return super(Insights, self).click_back(
-            lambda: UpdateAvailability(self.base_url, self.selenium)
-        )
-
-    def click_next(self):
-        return super(Insights, self).click_next(
-            lambda:
-                DeploymentStepBar(
-                    self.base_url,
-                    self.selenium
-                ).get_next_page()
-        )

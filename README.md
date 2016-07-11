@@ -52,3 +52,35 @@ to define classes allowing access to each of the gui pages.
 ## API Testing
 
 These tests use fusor REST api to test QCI.
+
+## Using jupyter notebook
+
+jupyter notebook is fine way to develop tests and page objects.
+With it you can run an interactive python shell that is very 
+conducive to debugging code.
+
+Once you have jupyter and notebook installed, you will want to 
+go to the root of this source repo, and start it:
+
+    jupyter notebook
+
+Then start up a python2 notebook.   After doing this, the following code
+can be pasted into a cell, and will get you to the point of having logged 
+into QCI:   
+
+    url = 'https://10.8.196.250'
+    login = 'admin'
+    passwd = 'changeme'
+    from selenium import webdriver              
+    from selenium.webdriver.common.by import By 
+    import sys
+    sys.path.append(".")
+    driver = webdriver.Chrome()
+    driver.get(url)
+    from pages.login import LoginPage
+    loginPage = LoginPage(url, driver)
+    loginPage.login(login, passwd)
+
+Note you will need to change the url, login and passwd to match your 
+installation.
+

@@ -55,15 +55,3 @@ class UpdateAvailability(Base):
 
     def click_new_environment_path(self):
         self.new_environment_path.click()
-
-    def click_back(self):
-        from pages.wizard.satellite.deployment_name import DeploymentName
-        return super(UpdateAvailability, self).click_back(
-            lambda: DeploymentName(self.base_url, self.selenium)
-        )
-
-    def click_next(self):
-        from pages.wizard.satellite.insights import Insights
-        return super(UpdateAvailability, self).click_next(
-            lambda: Insights(self.base_url, self.selenium)
-        )

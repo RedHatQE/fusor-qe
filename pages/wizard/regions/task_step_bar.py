@@ -1,6 +1,5 @@
 import re
 from selenium.webdriver.common.by import By
-from pages.base import Base
 from pages.wizard.regions.deployment_step_bar import DeploymentStepBar
 
 # XXX: Still need to fill this out completely.
@@ -28,7 +27,7 @@ _step_to_page_map = {
 }
 
 
-class TaskStepBar(Base):
+class TaskStepBar():
     """
     This class provides navigation of each deployment's tasks
     steps.   These task steps are displayed as vertical set of
@@ -47,6 +46,9 @@ class TaskStepBar(Base):
         TSB - Task Step Bar
         DSB - Deployment Step Bar
     """
+    def __init__(self, base_url, selenium):
+        self.base_url = base_url
+        self.selenium = selenium
 
     # locators:
     _TSB_loc = (By.XPATH, '//ul[contains(@class, "nav-stacked")]')
@@ -159,7 +161,7 @@ class TaskStepBar(Base):
             return DeploymentStepBar(
                 base_url=self.base_url,
                 selenium=self.selenium
-            ).get_next_page()
+            ).get_page(direction)
 
 
         # We within our list, so let's continue on.

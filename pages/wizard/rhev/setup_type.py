@@ -31,12 +31,3 @@ class SetupType(Base):
 
     def click_hypervisor_engine(self):
         self.hypervisor_engine_btn.click()
-
-    def click_back(self):
-        return super(SetupType, self).click_back(
-            lambda:
-                DeploymentStepBar(
-                    self.base_url,
-                    self.selenium
-                ).get_prev_page()
-        )

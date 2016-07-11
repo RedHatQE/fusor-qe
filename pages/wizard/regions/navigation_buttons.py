@@ -1,5 +1,6 @@
 import re
 from selenium.webdriver.common.by import By
+from pages.wizard.regions.task_step_bar import TaskStepBar
 
 class NavigationButtons():
     """
@@ -23,11 +24,12 @@ class NavigationButtons():
     def __init__(self, base_url, selenium):
         self.base_url = base_url
         self.selenium = selenium
+        self.task_step_bar = TaskStepBar(base_url, selenium)
 
     # locators:
     _cancel_loc = (
         By.XPATH,
-        '//button[contains(@class,"btn") and contains(., "Cancel")]'
+        '(//a|//button)[contains(@class,"btn") and contains(., "Cancel")]'
     )
     _back_loc = (
         By.XPATH,
@@ -35,7 +37,7 @@ class NavigationButtons():
     )
     _next_loc = (
         By.XPATH,
-        '//button[contains(@class,"btn") and contains(., "Next")]'
+        '(//a|//button)[contains(@class,"btn") and contains(., "Next")]'
     )
 
     # These locators for the cancel model frame.   Note since the code
@@ -83,30 +85,21 @@ class NavigationButtons():
     # Actions #
     ###########
 
-    # XXX: Eventually, we should make these functions auto discover
-    #      where to go.   We can do that with the DeploymentTaskBar
-    #      we just need to extend that functionality to use the
-    #      the deployment task steps on the UI to figure out where
-    #      to go next.
-    def click_back(self, where_to=None):
-        # It's important that we call the where_to
-        # function before we actually click the navigation
+    def click_back(self):
+        # It's important that we get the previous page
+        # before we actually click the navigation
         # button, so that when determining where to go we start
         # from where we are:
-        prevPage = None
-        if where_to != None:
-            prevPage = where_to()
+        prevPage = self.task_step_bar.get_prev_page()
         self.back_btn.click()
         return prevPage
 
-    def click_next(self, where_to=None):
-        # It's important that we call the where_to
-        # function before we actually click the navigation
+    def click_next(self):
+        # It's important that we get the next page
+        # before we actually click the navigation
         # button, so that when determining where to go we start
         # from where we are:
-        nextPage = None
-        if where_to != None:
-            nextPage = where_to()
+        nextPage = self.task_step_bar.get_next_page()
         self.next_btn.click()
         return nextPage
 

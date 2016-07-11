@@ -33,11 +33,11 @@ class Base(Page):
     #############################
     # Navigation Button Methods #
     #############################
-    def click_back(self, where_to=None):
-        return self.navigation_buttons.click_back(where_to)
+    def click_back(self):
+        return self.navigation_buttons.click_back()
 
-    def click_next(self, where_to=None):
-        return self.navigation_buttons.click_next(where_to)
+    def click_next(self):
+        return self.navigation_buttons.click_next()
 
     def click_cancel(self):
         return self.navigation_buttons.click_cancel()

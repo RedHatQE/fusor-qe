@@ -2,6 +2,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.by import By
 
 from pages.page import Page
+from pages.wizard.regions.navigation_buttons import NavigationButtons
 
 
 class Base(Page):
@@ -15,6 +16,10 @@ class Base(Page):
 
     def __init__(self, base_url, selenium, **kwargs):
         super(Base, self).__init__(base_url, selenium, **kwargs)
+        self.navigation_buttons = NavigationButtons(
+            base_url,
+            selenium
+        )
 
     @property
     def page_title(self):
@@ -24,6 +29,27 @@ class Base(Page):
     @property
     def header(self):
         return Base.HeaderRegion(self, self.selenium)
+
+    #############################
+    # Navigation Button Methods #
+    #############################
+    def click_back(self, where_to=None):
+        return self.navigation_buttons.click_back(where_to)
+
+    def click_next(self, where_to=None):
+        return self.navigation_buttons.click_next(where_to)
+
+    def click_cancel(self):
+        return self.navigation_buttons.click_cancel()
+
+    def click_exit_and_delete(self):
+        return self.navigation_buttons.click_exit_and_delete()
+
+    def click_exit_and_save(self):
+        return self.navigation_buttons.click_exit_and_save()
+
+    def click_continue_working(self):
+        return self.navigation_buttons.click_continue_working()
 
     class HeaderRegion(Page):
         _site_navigation_menus_locator = (By.CSS_SELECTOR,

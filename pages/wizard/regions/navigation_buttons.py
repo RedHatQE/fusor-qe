@@ -57,15 +57,15 @@ class NavigationButtons():
 
     # properties
     @property
-    def cancelBtn(self):
+    def cancel_btn(self):
         return self.selenium.find_element(*self._cancel_loc)
 
     @property
-    def backBtn(self):
+    def back_btn(self):
         return self.selenium.find_element(*self._back_loc)
 
     @property
-    def nextBtn(self):
+    def next_btn(self):
         return self.selenium.find_element(*self._next_loc)
 
     @property
@@ -97,7 +97,7 @@ class NavigationButtons():
         prevPage = None
         if where_to != None:
             prevPage = where_to()
-        self.backBtn.click()
+        self.back_btn.click()
         return prevPage
 
     def click_next(self, where_to=None):
@@ -108,7 +108,7 @@ class NavigationButtons():
         nextPage = None
         if where_to != None:
             nextPage = where_to()
-        self.nextBtn.click()
+        self.next_btn.click()
         return nextPage
 
     # Note a modal frame will open when this is clicked, with the
@@ -124,7 +124,7 @@ class NavigationButtons():
     #   - click_exit_and_save()
     #   - click_continue_working()
     def click_cancel(self):
-        self.cancelBtn.click()
+        self.cancel_btn.click()
 
     def click_exit_and_delete(self):
         self.exit_and_delete_btn.click()

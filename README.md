@@ -75,11 +75,11 @@ into QCI:
     from selenium.webdriver.common.by import By 
     import sys
     sys.path.append(".")
-    driver = webdriver.Chrome()
+    driver = webdriver.Firefox()
     driver.get(url)
     from pages.login import LoginPage
     loginPage = LoginPage(url, driver)
-    loginPage.login(login, passwd)
+    dashboard = loginPage.login(login, passwd)
 
 Note you will need to change the url, login and passwd to match your 
 installation.

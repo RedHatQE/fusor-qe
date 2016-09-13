@@ -1,4 +1,6 @@
 from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 from pages.base import Base
 
 
@@ -39,3 +41,15 @@ class SelectProductsPage(Base):
     # there is no back button on this page:
     def click_back(self):
         return None
+
+    @property
+    def is_the_current_page(self):
+        WebDriverWait(self.selenium, self.timeout).until(
+            EC.visibility_of(self.rhev_checkbox),
+            "Expected element not present on Select Products Page")
+        return True
+
+    def cancel_deployment(self):
+        self.click_cancel()
+        from pages.deployments import DeploymentsPage
+        return DeploymentsPage(self.base_url, self.selenium)

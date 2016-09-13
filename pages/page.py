@@ -6,8 +6,8 @@ Created on Jun 21, 2010
 
 '''
 from selenium.webdriver.support.ui import WebDriverWait
-from selenium.common.exceptions import NoSuchElementException
-from selenium.common.exceptions import ElementNotVisibleException
+from selenium.common.exceptions import WebDriverException
+from selenium.webdriver.support import expected_conditions as EC
 
 
 class Page(object):
@@ -36,10 +36,6 @@ class Page(object):
             return self._url.format(base_url=self.base_url, **self.kwargs)
         return self.base_url
 
-    def wait_for_page_to_load(self):
-        self.wait.until(lambda s: self.url in s.current_url)
-        return self
-
     def get_url(self, url):
         self.selenium.get(url)
 
@@ -54,23 +50,35 @@ class Page(object):
         WebDriverWait(self.selenium, self.timeout).until(lambda s: self.selenium.title)
         return self.selenium.current_url
 
-    def is_element_present(self, *locator):
-        self.selenium.implicitly_wait(0)
-        try:
-            self.selenium.find_element(*locator)
-            return True
-        except NoSuchElementException:
-            return False
-        finally:
-            # set back to where you once belonged
-            self.selenium.implicitly_wait(self.timeout)
+    def wait_until_element_is_not_visible(self, locator):
+        WebDriverWait(self.selenium, self.timeout).until(
+            EC.invisibility_of_element_located(locator))
+        self.wait_for_ajax()
+        return True
 
-    def is_element_visible(self, *locator):
-        try:
-            return self.selenium.find_element(*locator).is_displayed()
-        except (NoSuchElementException, ElementNotVisibleException):
-            return False
+    def wait_until_element_is_visible(self, locator):
+        WebDriverWait(self.selenium, self.timeout).until(
+            EC.visibility_of_element_located(locator))
+        self.wait_for_ajax()
+        return True
 
+    def ajax_complete(self, driver):
+        """
+        Checks if all ajax activity is complete
+        """
+
+        jquery_active = False
+
+        try:
+            jquery_active = self.selenium.execute_script('return jQuery.active') > 0
+        except WebDriverException:
+            pass
+
+        return not jquery_active
+
+    def wait_for_ajax(self):
+        WebDriverWait(self.selenium, self.timeout).until(
+            self.ajax_complete, 'Timeout waiting for page to load')
     def return_to_previous_page(self):
         self.selenium.back()
 

@@ -17,7 +17,7 @@ _step_to_page_map = {
             'library': 'pages.wizard.satellite.insights',
         },
     },
-    'RHEV': {
+    'RHV': {
         'first': {
             'class': 'SetupType',
             'library': 'pages.wizard.rhev.setup_type',

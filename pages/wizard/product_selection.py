@@ -29,6 +29,19 @@ class SelectProductsPage(Base):
     def openshift_checkbox(self):
         return self.selenium.find_element(*self._openshift_checkbox_locator)
 
+    # Actions
+    def click_rhv(self):
+        return self.rhv_checkbox.click()
+
+    def click_openstack(self):
+        return self.openstack_checkbox.click()
+
+    def click_cloudforms(self):
+        return self.cloudforms_checkbox.click()
+
+    def click_openshift(self):
+        return self.openshift_checkbox.click()
+
     # Navigation Buttons.
     # We need to override base's click_next(), click_back() functions
     # as they all ultimately use the task step bar that does not exist

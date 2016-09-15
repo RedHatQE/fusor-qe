@@ -24,6 +24,14 @@ _step_to_page_map = {
         'class': 'SetupType',
         'library': 'pages.wizard.rhev.setup_type',
     },
+    'Installation Location': {
+        'class': 'InstallationLocation',
+        'library': 'pages.wizard.cloudforms.installation_location',
+    },
+    'Configuration': {
+        'class': 'Configuration',
+        'library': 'pages.wizard.cloudforms.configuration',
+    },
 }
 
 

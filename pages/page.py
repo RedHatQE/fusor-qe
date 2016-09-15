@@ -39,6 +39,10 @@ class Page(object):
     def get_url(self, url):
         self.selenium.get(url)
 
+    def wait_for_page_to_load(self):
+        self.wait.until(lambda s: self.url in s.current_url)
+        return self
+
     @property
     def is_the_current_page(self):
         WebDriverWait(self.selenium, self.timeout).until(

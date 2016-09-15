@@ -66,7 +66,7 @@ go to the root of this source repo, and start it:
 
 Then start up a python2 notebook.   After doing this, the following code
 can be pasted into a cell, and will get you to the point of having logged 
-into QCI:   
+into QCI:
 
     url = 'https://10.8.196.250'
     login = 'admin'
@@ -75,11 +75,25 @@ into QCI:
     from selenium.webdriver.common.by import By 
     import sys
     sys.path.append(".")
-    driver = webdriver.Chrome()
+    driver = webdriver.Firefox()
     driver.get(url)
     from pages.login import LoginPage
     loginPage = LoginPage(url, driver)
-    loginPage.login(login, passwd)
+    dashboard = loginPage.login(login, passwd)
+
+To start a new deployment you would do:  
+
+    selectProducts = dashboard.header\
+        .site_navigation_menu('QuickStart Cloud Installer')\
+        .sub_navigation_menu('New Deployment')\
+        .click()
+
+And to go to the deployments page you would do:
+
+    deployments = dashboard.header\
+        .site_navigation_menu('QuickStart Cloud Installer')\
+        .sub_navigation_menu('Deployments')\
+        .click()
 
 Note you will need to change the url, login and passwd to match your 
 installation.

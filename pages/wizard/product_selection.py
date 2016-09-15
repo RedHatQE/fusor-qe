@@ -6,7 +6,7 @@ from pages.base import Base
 
 class SelectProductsPage(Base):
     _page_title = "QuickStart Cloud Installer"
-    _rhev_checkbox_locator = (By.XPATH, "//span[@id='is_rhev']/div/input")
+    _rhv_checkbox_locator = (By.XPATH, "//span[@id='is_rhev']/div/input")
     _openstack_checkbox_locator = (By.XPATH,
                                    "//span[@id='is_openstack']/div/input")
     _cloudforms_checkbox_locator = (By.XPATH,
@@ -14,8 +14,8 @@ class SelectProductsPage(Base):
     _openshift_checkbox_locator = (By.XPATH,
                                    "//span[@id='is_openshift']/div/input")
     @property
-    def rhev_checkbox(self):
-        return self.selenium.find_element(*self._rhev_checkbox_locator)
+    def rhv_checkbox(self):
+        return self.selenium.find_element(*self._rhv_checkbox_locator)
 
     @property
     def openstack_checkbox(self):
@@ -28,6 +28,19 @@ class SelectProductsPage(Base):
     @property
     def openshift_checkbox(self):
         return self.selenium.find_element(*self._openshift_checkbox_locator)
+
+    # Actions
+    def click_rhv(self):
+        return self.rhv_checkbox.click()
+
+    def click_openstack(self):
+        return self.openstack_checkbox.click()
+
+    def click_cloudforms(self):
+        return self.cloudforms_checkbox.click()
+
+    def click_openshift(self):
+        return self.openshift_checkbox.click()
 
     # Navigation Buttons.
     # We need to override base's click_next(), click_back() functions
@@ -45,7 +58,7 @@ class SelectProductsPage(Base):
     @property
     def is_the_current_page(self):
         WebDriverWait(self.selenium, self.timeout).until(
-            EC.visibility_of(self.rhev_checkbox),
+            EC.visibility_of(self.rhv_checkbox),
             "Expected element not present on Select Products Page")
         return True
 

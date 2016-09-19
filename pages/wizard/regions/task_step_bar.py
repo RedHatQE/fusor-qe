@@ -3,32 +3,36 @@ from selenium.webdriver.common.by import By
 from pages.wizard.regions.deployment_step_bar import DeploymentStepBar
 
 # XXX: Still need to fill this out completely.
-# Maps deployment steps to their first and last page.
-# In particular it allows one to figure out what library
-# and class is used to implement the page object for a
-# given page.
+# Maps task steps to their class and library.
+# The deployment step name used to do the mapping is
+# the is fully qualified step name (i.e. it contains the
+# deployment and task step).   As an example the Configuration
+# step in the RHV deployment would have a fully qualified
+# step name of RHV.configuration, whereas the Configuration step
+# in the CloudForms deployment would have a fully qualified
+# step name of CloudForms.Configuration.
 _step_to_page_map = {
-    'Deployment Name': {
+    'Satellite.Deployment Name': {
         'class': 'DeploymentName',
         'library': 'pages.wizard.satellite.deployment_name',
     },
-    'Update Availability': {
+    'Satellite.Update Availability': {
         'class': 'UpdateAvailability',
         'library': 'pages.wizard.satellite.update_availability',
     },
-    'Red Hat Insights': {
+    'Satellite.Red Hat Insights': {
         'class': 'Insights',
         'library': 'pages.wizard.satellite.insights',
     },
-    'Setup Type': {
+    'RHV.Setup Type': {
         'class': 'SetupType',
         'library': 'pages.wizard.rhev.setup_type',
     },
-    'Installation Location': {
+    'CloudForms.Installation Location': {
         'class': 'InstallationLocation',
         'library': 'pages.wizard.cloudforms.installation_location',
     },
-    'Configuration': {
+    'CloudForms.Configuration': {
         'class': 'Configuration',
         'library': 'pages.wizard.cloudforms.configuration',
     },
@@ -57,6 +61,10 @@ class TaskStepBar():
     def __init__(self, base_url, selenium):
         self.base_url = base_url
         self.selenium = selenium
+        self.deployment_step_bar = DeploymentStepBar(
+            base_url=self.base_url,
+            selenium=self.selenium
+        )
 
     # locators:
     _TSB_loc = (By.XPATH, '//ul[contains(@class, "nav-stacked")]')
@@ -166,19 +174,25 @@ class TaskStepBar():
         # If we would navigate past the current list of tasks
         # then we need to your the DeploymentStepBar navigator:
         if step == None:
-            return DeploymentStepBar(
-                base_url=self.base_url,
-                selenium=self.selenium
-            ).get_page(direction)
+            return self.deployment_step_bar.get_page(direction)
 
 
-        # We within our list, so let's continue on.
+        # We are within our list, so let's continue on.
         #
         # Pull the class and library path based on the direction
-        # that was requested
+        # that was requested.  We will build a fully qualified
+        # step name from the current deployment step name and the
+        # task step name to do our lookup.
         step_name = self.get_name_of_step(step)
-        class_name = _step_to_page_map[step_name]['class']
-        library_name = _step_to_page_map[step_name]['library']
+        deployment_step_name = self.deployment_step_bar.get_name_of_step(
+            self.deployment_step_bar.DSB_active_step
+        )
+        fully_qualified_step_name = "{}.{}".format(
+            deployment_step_name,
+            step_name
+        )
+        class_name = _step_to_page_map[fully_qualified_step_name]['class']
+        library_name = _step_to_page_map[fully_qualified_step_name]['library']
 
         # import the library if necessary and instantiate an
         # instance of the class:

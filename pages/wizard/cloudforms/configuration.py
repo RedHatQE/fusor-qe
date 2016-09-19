@@ -48,6 +48,10 @@ class Configuration(Base):
         self.confirm_root_password.clear()
         self.confirm_root_password.send_keys(text)
 
+    def set_root_passwords(self, text):
+        self.set_root_password(text)
+        self.set_confirm_root_password(text)
+
     def set_admin_password(self, text):
         self.admin_password.clear()
         self.admin_password.send_keys(text)
@@ -56,6 +60,10 @@ class Configuration(Base):
         self.confirm_admin_password.clear()
         self.confirm_admin_password.send_keys(text)
 
+    def set_admin_passwords(self, text):
+        self.set_admin_password(text)
+        self.set_confirm_admin_password(text)
+
     def set_db_password(self, text):
         self.db_password.clear()
         self.db_password.send_keys(text)
@@ -63,3 +71,7 @@ class Configuration(Base):
     def set_confirm_db_password(self, text):
         self.confirm_db_password.clear()
         self.confirm_db_password.send_keys(text)
+
+    def set_db_passwords(self, text):
+        self.set_db_password(text)
+        self.set_confirm_db_password(text)

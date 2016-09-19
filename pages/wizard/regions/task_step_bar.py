@@ -36,6 +36,22 @@ _step_to_page_map = {
         'class': 'Configuration',
         'library': 'pages.wizard.cloudforms.configuration',
     },
+    'Subscriptions.Content Provider': {
+        'class': 'ContentProviderPage',
+        'library': 'pages.wizard.subscriptions.content_provider',
+    },
+    'Subscriptions.Subscription Management Application': {
+        'class': 'SubscriptionManagement',
+        'library': 'pages.wizard.subscriptions.subscription_management',
+    },
+    'Subscriptions.Add Subscriptions': {
+        'class': 'AddSubscriptions',
+        'library': 'pages.wizard.subscriptions.add_subscriptions',
+    },
+    'Subscriptions.Review Subscriptions': {
+        'class': 'ReviewSubscriptions',
+        'library': 'pages.wizard.subscriptions.review_subscriptions',
+    },
 }
 
 

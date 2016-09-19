@@ -59,12 +59,12 @@ _step_to_page_map = {
     },
     'Subscriptions': {
         'first': {
-            'class': '',
-            'library': '',
+            'class': 'ContentProviderPage',
+            'library': 'pages.wizard.subscriptions.content_provider',
         },
         'last': {
-            'class': '',
-            'library': '',
+            'class': 'ReviewSubscriptions',
+            'library': 'pages.wizard.subscriptions.review_subscriptions',
         },
     },
     'Review': {

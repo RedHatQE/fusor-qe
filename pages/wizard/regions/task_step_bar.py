@@ -48,6 +48,22 @@ _step_to_page_map = {
         'class': 'Storage',
         'library': 'pages.wizard.rhev.storage',
     },
+    'RHOSP.Detect Undercloud': {
+        'class': 'DetectUndercloud',
+        'library': 'pages.wizard.openstack.detect_undercloud',
+    },
+    'RHOSP.Register Nodes': {
+        'class': 'RegisterNodes',
+        'library': 'pages.wizard.openstack.register_nodes',
+    },
+    'RHOSP.Assign Nodes': {
+        'class': 'AssignNodes',
+        'library': 'pages.wizard.openstack.assign_nodes',
+    },
+    'RHOSP.Configure Overcloud': {
+        'class': 'ConfigureOvercloud',
+        'library': 'pages.wizard.openstack.configure_overcloud',
+    },
     'CloudForms.Installation Location': {
         'class': 'InstallationLocation',
         'library': 'pages.wizard.cloudforms.installation_location',

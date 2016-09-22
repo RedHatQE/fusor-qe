@@ -49,12 +49,12 @@ _step_to_page_map = {
     },
     'CloudForms': {
         'first': {
-            'class': '',
-            'library': '',
+            'class': 'InstallationLocation',
+            'library': 'pages.wizard.cloudforms.installation_location',
         },
         'last': {
-            'class': '',
-            'library': '',
+            'class': 'Configuration',
+            'library': 'pages.wizard.cloudforms.configuration',
         },
     },
     'Subscriptions': {
@@ -69,12 +69,12 @@ _step_to_page_map = {
     },
     'Review': {
         'first': {
-            'class': '',
-            'library': '',
+            'class': 'InstallationReview',
+            'library': 'pages.wizard.review.installation_review',
         },
         'last': {
-            'class': '',
-            'library': '',
+            'class': 'InstallationSummary',
+            'library': 'pages.wizard.review.installation_summary',
         },
     },
 }

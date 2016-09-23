@@ -28,6 +28,22 @@ _step_to_page_map = {
         'class': 'SetupType',
         'library': 'pages.wizard.rhev.setup_type',
     },
+    'RHV.Engine': {
+        'class': 'Engine',
+        'library': 'pages.wizard.rhev.engine',
+    },
+    'RHV.Hypervisor': {
+        'class': 'Hypervisor',
+        'library': 'pages.wizard.rhev.hypervisor',
+    },
+    'RHV.Configuration': {
+        'class': 'Configuration',
+        'library': 'pages.wizard.rhev.configuration',
+    },
+    'RHV.Storage': {
+        'class': 'Storage',
+        'library': 'pages.wizard.rhev.storage',
+    },
     'CloudForms.Installation Location': {
         'class': 'InstallationLocation',
         'library': 'pages.wizard.cloudforms.installation_location',

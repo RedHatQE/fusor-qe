@@ -36,6 +36,10 @@ _step_to_page_map = {
         'class': 'Hypervisor',
         'library': 'pages.wizard.rhev.hypervisor',
     },
+    'RHV.Engine/Hypervisor': {
+        'class': 'Hypervisor',
+        'library': 'pages.wizard.rhev.hypervisor',
+    },
     'RHV.Configuration': {
         'class': 'Configuration',
         'library': 'pages.wizard.rhev.configuration',

@@ -72,6 +72,18 @@ _step_to_page_map = {
         'class': 'ReviewSubscriptions',
         'library': 'pages.wizard.subscriptions.review_subscriptions',
     },
+    'Review.Installation Review': {
+        'class': 'InstallationReview',
+        'library': 'pages.wizard.review.installation_review',
+    },
+    'Review.Installation Progress': {
+        'class': 'InstallationProgress',
+        'library': 'pages.wizard.review.installation_progress',
+    },
+    'Review.Installation Summary': {
+        'class': 'InstallationSummary',
+        'library': 'pages.wizard.review.installation_summary',
+    },
 }
 
 

@@ -39,12 +39,12 @@ _step_to_page_map = {
     },
     'OpenShift': {
         'first': {
-            'class': '',
-            'library': '',
+            'class': 'Nodes',
+            'library': 'pages.wizard.openshift.nodes',
         },
         'last': {
-            'class': '',
-            'library': '',
+            'class': 'Configuration',
+            'library': 'pages.wizard.openshift.configuration',
         },
     },
     'CloudForms': {

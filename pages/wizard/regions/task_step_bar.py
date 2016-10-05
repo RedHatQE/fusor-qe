@@ -48,6 +48,14 @@ _step_to_page_map = {
         'class': 'Storage',
         'library': 'pages.wizard.rhev.storage',
     },
+    'OpenShift.Master/Nodes': {
+        'class': 'Nodes',
+        'library': 'pages.wizard.openshift.nodes',
+    },
+    'OpenShift.Configuration': {
+        'class': 'Configuration',
+        'library': 'pages.wizard.openshift.configuration',
+    },
     'RHOSP.Detect Undercloud': {
         'class': 'DetectUndercloud',
         'library': 'pages.wizard.openstack.detect_undercloud',

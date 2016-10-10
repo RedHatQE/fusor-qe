@@ -25,6 +25,13 @@ class Hypervisor(Base):
     _naming_scheme_dropwown_custom_loc = (By.XPATH, \
         "//div[@class = 'ember-power-select-search']/../ul/li[contains(., 'Custom scheme')]")
     _naming_scheme_custom_prepend_loc = (By.XPATH, "//div[@class = 'form-group ']/div/input")
+    #only for self-hosted
+    _engine_hostname_loc = (By.ID, "rhev-engine-hostname")
+
+    #only for self-hosted
+    @property
+    def engine_hostname_field(self):
+        return self.selenium.find_element(*self._engine_hostname_loc)
 
     @property
     def search_box(self):
@@ -81,6 +88,11 @@ class Hypervisor(Base):
     @property
     def naming_scheme_custom_prepend_field(self):
         return self.selenium.find_element(*self._naming_scheme_custom_prepend_loc)
+
+    #only for self-hosted
+    def set_engine_hostname(self, hostname):
+        self.engine_hostname_field.clear()
+        self.engine_hostname_field.send_keys(hostname)
 
     def search(self, phrase):
         self.search_box.clear()

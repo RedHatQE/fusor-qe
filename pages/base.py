@@ -20,6 +20,7 @@ class Base(Page):
             base_url,
             selenium
         )
+        self.wait_for_ajax()
 
     @property
     def page_title(self):
@@ -37,6 +38,7 @@ class Base(Page):
         return self.navigation_buttons.click_back()
 
     def click_next(self):
+        self.wait_for_ajax()
         return self.navigation_buttons.click_next()
 
     def click_cancel(self):

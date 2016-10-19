@@ -46,6 +46,11 @@ class SubscriptionManagement(Base):
 
     def click_sma_radio(self, name):
         """ Click the radio button for the SMA with the specified name """
+        self.wait_for_ajax()
         for sat in self.sma_radio_buttons:
-            if name == sat.get_attribute('data-qci'):
+            if name in sat.get_attribute('data-qci'):
+                # scroll to the element
+                self.scroll_to_element(sat)
                 return sat.click()
+        else:
+            raise Exception("No SMA found with name: {}".format(name))

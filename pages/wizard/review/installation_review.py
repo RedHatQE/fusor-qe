@@ -64,5 +64,6 @@ class InstallationReview(Base):
 
     def click_deploy(self):
         from pages.wizard.review.installation_progress import InstallationProgress
+        self.wait_for_ajax()
         self.deploy_button.click()
         return InstallationProgress(self.base_url, self.selenium)

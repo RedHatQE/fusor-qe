@@ -21,7 +21,7 @@ class Page(object):
         """
         self.base_url = base_url
         self.selenium = selenium
-        self.timeout = 10
+        self.timeout = 20
         self.wait = WebDriverWait(self.selenium, self.timeout)
         self.kwargs = kwargs
 
@@ -80,9 +80,17 @@ class Page(object):
 
         return not jquery_active
 
+    def scroll_to_element(self, element):
+        """
+        Given a WebElement, scrolls the element into view.
+        """
+        y = element.location['y']
+        self.selenium.execute_script("window.scrollTo(0, {});".format(y))
+
     def wait_for_ajax(self):
         WebDriverWait(self.selenium, self.timeout).until(
             self.ajax_complete, 'Timeout waiting for page to load')
+
     def return_to_previous_page(self):
         self.selenium.back()
 

@@ -13,6 +13,7 @@ class SelectProductsPage(Base):
                                     "//span[@id='is_cloudforms']/div/input")
     _openshift_checkbox_locator = (By.XPATH,
                                    "//span[@id='is_openshift']/div/input")
+
     @property
     def rhv_checkbox(self):
         return self.selenium.find_element(*self._rhv_checkbox_locator)
@@ -41,6 +42,16 @@ class SelectProductsPage(Base):
 
     def click_openshift(self):
         return self.openshift_checkbox.click()
+
+    def select_products(self, products):
+        if 'rhv' in products:
+            self.click_rhv()
+        if 'osp' in products:
+            self.click_openstack()
+        if 'cfme' in products:
+            self.click_cloudforms()
+        if 'ocp' in products:
+            self.click_openshift()
 
     # Navigation Buttons.
     # We need to override base's click_next(), click_back() functions

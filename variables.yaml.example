@@ -1,0 +1,73 @@
+credentials:
+  fusor:
+    username: "admin"
+    password: "changeme"
+  cdn:
+    username: ""
+    password: ""
+deployment:
+  deployment_id: ABC123 
+  deployment_desc: "An automated test deployment"
+  install: ['cfme', 'rhv'] # valid entries are: cfme, rhv, osp, ocp
+  products:
+    cfme:
+      cfme_address: null
+      cfme_admin_password: changeme
+      cfme_install_loc: rhv # valid entries are: rhv, osp
+      cfme_root_password: changeme
+      cfme_db_password: changeme
+    osp:
+      controller_count: 1
+      director_address: null
+      director_ui_url: http://example.com
+      director_vm_name: null
+      hypervisor_count: 1
+      overcloud_nodes:
+      - driver: pxe_ssh
+        ip_address: 10.8.0.136
+        mac_address: ff:ff:ff:ff:ff:ff
+        password: changeme
+        username: root
+      - driver: pxe_ssh
+        ip_address: 10.8.0.136
+        mac_address: ff:ff:ff:ff:ff:ff
+        password: changeme
+        username: root
+      undercloud_address: 192.0.1.254
+      undercloud_pass: changeme
+      undercloud_user: root
+    rhv:
+      cluster_name: Default
+      cpu_type: Intel Nehalem Family
+      data_center_name: Default
+      data_domain_address: 127.0.0.1
+      data_domain_name: data
+      data_domain_share_path: /var/lib/exports/vms
+      export_domain_address: 127.0.0.1
+      export_domain_name: export
+      export_domain_share_path: /var/lib/exports/exports
+      hypervisor_count: 1
+      include: true
+      rhv_setup_type: rhevhost
+      rhvh_hostname: null
+      rhvh_macs: ["ff:ff:ff:ff:ff:ff"]
+      rhvm_adminpass: changeme
+      rhvm_engine: null
+      rhvm_hostname: null
+      rhvm_hypervisors: []
+      rhvm_mac: ff:ff:ff:ff:ff:ef
+      storage_type: NFS # Options are NFS or Gluster
+    sat:
+      deploy_org: Default Organization
+      disconnected_manifest: /root/rhn_disconnected_manifest.zip
+      disconnected_url: http://example.com
+      enable_access_insights: false
+      env_path: null
+      rhsm_satellite_name: sma_name # requires a valid SMA name
+      rhsm_subs:
+      - Red Hat Cloud Infrastructure with Smart Management
+      sat_desc: description
+      sat_name: BasicDeployment
+      update_lifecycle: immediately
+      use_default_org_view: true
+      disconnected_mode: false

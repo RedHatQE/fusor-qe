@@ -185,9 +185,9 @@ class FusorApi(object):
         response = self._customer_post_resource("login", data)
 
         if response.status_code != 200:
-            return None
+            return False
 
-        return response.json()
+        return True
 
     def rhn_logout(self):
         """
@@ -201,9 +201,9 @@ class FusorApi(object):
         self.customer_session = None
 
         if response.status_code != 200:
-            return None
+            return False
 
-        return response.json()
+        return True
 
     def rhn_owner_info(self, rhn_username):
         """
@@ -289,6 +289,23 @@ class FusorApi(object):
 
         return response.json()
 
+    def rhn_get_subscriptions(self, consumer_uuid):
+        """
+        Retrieve a Satellite consumers (aka "Subscription Application Managers") available
+        subscriptions
+        """
+
+        if self.customer_session is None:
+            raise Exception("No customer login session has been created")
+
+        resource = "pools?consumer={}&listall=false".format(consumer_uuid)
+        response = self._customer_get_resource(resource)
+
+        if response.status_code != 200:
+            return None
+
+        return response.json()
+
     def rhn_get_consumer_subscriptions(self, consumer_uuid):
         """
         Retrieve a Satellite consumers (aka "Subscription Application Managers") subscriptions
@@ -297,7 +314,7 @@ class FusorApi(object):
         if self.customer_session is None:
             raise Exception("No customer login session has been created")
 
-        resource = "pools?consumer={}&listall=false".format(consumer_uuid)
+        resource = "consumers/{}/entitlements".format(consumer_uuid)
         response = self._customer_get_resource(resource)
 
         if response.status_code != 200:
@@ -620,6 +637,53 @@ class FusorDeploymentApi(FusorApi):
 
         return self.fusor_data['fusor_log']
 
+    def set_deployment_property(self, property_name, property_value):
+        """
+        Set a deployment object property directly. This is a helper function to update individual
+        properties that aren't logically grouped with other actions.
+        This is restricted to immediate children of the deployment object and will overwrite
+         the value of the specified property.
+
+        Args:
+        - property_name: name of the property you want to set
+        - value: value of the property
+        """
+        data = {'deployment': {
+            property_name: property_value, }}
+
+        resource = 'deployments/{}'.format(self.deployment_id)
+        response = self._fusor_put_resource(resource, data)
+
+        if response.status_code != 200:
+            return False
+
+        response_data = response.json()
+        for key in response_data:
+            self.fusor_data[key] = response_data[key]
+
+        return True
+
+    def ose_set_storage_size(self, disk_size):
+        """
+        Set the disk size of OpenShift docker storage.  This will be the 2nd hard drive for the
+        OSE nodes
+        """
+
+        data = {'deployment': {
+            'openshift_storage_size': disk_size, }}
+
+        resource = 'deployments/{}'.format(self.deployment_id)
+        response = self._fusor_put_resource(resource, data)
+
+        if response.status_code != 200:
+            return False
+
+        response_data = response.json()
+        for key in response_data:
+            self.fusor_data[key] = response_data[key]
+
+        return True
+
     def ose_set_master_node_specs(self, master_node_count, master_vcpu, master_ram, master_disk):
         """
         Set the master node count and specs for each master node
@@ -756,11 +820,43 @@ class FusorDeploymentApi(FusorApi):
 
         return True
 
+    def set_creds_cfme(self, pw):
+        """
+        Set the CFME credentials
+        """
+        if not self.deployment_id:
+            raise Exception("Unable to update deployment because there is no deployment id")
+
+        data = {
+            "deployment": {
+                'cfme_install_loc': self.product_install_location,
+                'cfme_root_password': pw,
+                'cfme_admin_password': pw,
+                'cfme_db_password': pw, }}
+
+        resource = 'deployments/{}'.format(self.deployment_id)
+        response = self._fusor_put_resource(resource, data)
+
+        if response.status_code != 200:
+            return False
+
+        response_data = response.json()
+        for key in response_data:
+            self.fusor_data[key] = response_data[key]
+
+        return True
+
 
 class RHEVFusorApi(FusorDeploymentApi):
     def __init__(self, fusor_ip, user, pw):
         super(RHEVFusorApi, self).__init__(fusor_ip, user, pw)
         self.product_install_location = 'RHEV'
+
+    def is_self_hosted(self):
+        if not self.fusor_data.get('deployment'):
+            return False
+
+        return self.fusor_data['deployment']['rhev_is_self_hosted']
 
     def create_deployment(
             self, name, description=None,
@@ -812,11 +908,11 @@ class RHEVFusorApi(FusorDeploymentApi):
 
         return True
 
-    def set_discovered_hosts(self, rhevm_mac, rhevh_macs, naming_scheme='Freeform'):
+    def set_discovered_hosts(self, rhevh_macs, rhevm_mac=None, naming_scheme='Freeform'):
         """
-        Set the RHEV engine and hypervisor hosts
-        rhevm_mac - (String) engine mac
+        Set the hypervisor hosts (and RHEV engine). If rhevm mac is None then deploy self hosted
         rhevh_macs - (List of Strings) hypervisor macs
+        rhevm_mac - (String) engine mac OPTIONAL
         """
 
         if not self.deployment_id:
@@ -835,44 +931,19 @@ class RHEVFusorApi(FusorDeploymentApi):
 
         for host in disco_hosts:
             if host['mac'] == rhevm_mac:
-                engine = host['id']
+                engine_id = host['id']
             elif host['mac'] in rhevh_macs:
                 hypervisor_ids.append(host['id'])
 
-        if not engine_id and not hypervisor_ids:
+        if (rhevm_mac and (not engine_id)) and not hypervisor_ids:
             return False
 
         data = {
             "deployment": {
+                'rhev_is_self_hosted': engine_id is None,
                 'host_naming_scheme': naming_scheme,
-                'rhev_engine_host_id': engine,
+                'rhev_engine_host_id': engine_id,
                 'discovered_host_ids': hypervisor_ids, }}
-
-        resource = 'deployments/{}'.format(self.deployment_id)
-        response = self._fusor_put_resource(resource, data)
-
-        if response.status_code != 200:
-            return False
-
-        response_data = response.json()
-        for key in response_data:
-            self.fusor_data[key] = response_data[key]
-
-        return True
-
-    def set_creds_cfme(self, pw):
-        """
-        Set the CFME credentials
-        """
-        if not self.deployment_id:
-            raise Exception("Unable to update deployment because there is no deployment id")
-
-        data = {
-            "deployment": {
-                'cfme_install_loc': self.product_install_location,
-                'cfme_root_password': pw,
-                'cfme_admin_password': pw,
-                'cfme_db_password': pw, }}
 
         resource = 'deployments/{}'.format(self.deployment_id)
         response = self._fusor_put_resource(resource, data)
@@ -913,9 +984,11 @@ class RHEVFusorApi(FusorDeploymentApi):
     def set_nfs_storage(self,
                         data_name, data_address, data_path,
                         export_name, export_address, export_path,
+                        hosted_storage_name=None, hosted_storage_address=None, hosted_storage_path=None,
                         rhev_data_center_name='Default', rhev_cluster_name='Default'):
         """
-        Set the nfs storage options
+        Set the nfs storage options. If rhev_self_hosted deployment then the hosted storage values
+        will be set
         """
         if not self.deployment_id:
             raise Exception(
@@ -931,7 +1004,10 @@ class RHEVFusorApi(FusorDeploymentApi):
                 'rhev_share_path': data_path,
                 'rhev_export_domain_name': export_name,
                 'rhev_export_domain_address': export_address,
-                'rhev_export_domain_path': export_path, }}
+                'rhev_export_domain_path': export_path,
+                'hosted_storage_name': hosted_storage_name,
+                'hosted_storage_address': hosted_storage_address,
+                'hosted_storage_path': hosted_storage_path, }}
 
         resource = 'deployments/{}'.format(self.deployment_id)
         response = self._fusor_put_resource(resource, data)
@@ -1025,13 +1101,9 @@ class OSPFusorApi(FusorDeploymentApi):
 
         # TODO: Verify if we need to pass the nested undercloud dict
         undercloud_data = {
-            "underhost": ip,
-            "underuser": ssh_user,
-            "underpass": ssh_pass,
-            "undercloud": {
-                "underhost": ip,
-                "underuser": ssh_user,
-                "underpass": ssh_pass, }}
+            "undercloud_host": ip,
+            "undercloud_user": ssh_user,
+            "undercloud_password": ssh_pass, }
 
         resource = "{}/underclouds".format(self.deployment_id)
         response = self._openstack_post_resource(resource, undercloud_data)
@@ -1380,31 +1452,6 @@ class OSPFusorApi(FusorDeploymentApi):
             return False
 
         self.fusor_data['osp_flavors'] = response.json()['flavors']
-
-        return True
-
-    def set_creds_cfme(self, pw):
-        """
-        Set the CFME credentials
-        """
-        if not self.deployment_id:
-            raise Exception("Unable to update deployment because there is no deployment id")
-
-        data = {
-            "deployment": {
-                'cfme_install_loc': self.product_install_location,
-                'cfme_root_password': pw,
-                'cfme_admin_password': pw, }}
-
-        resource = 'deployments/{}'.format(self.deployment_id)
-        response = self._fusor_put_resource(resource, data)
-
-        if response.status_code not in [200, 202]:
-            return False
-
-        response_data = response.json()
-        for key in response_data:
-            self.fusor_data[key] = response_data[key]
 
         return True
 

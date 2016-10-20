@@ -11,6 +11,10 @@ class Storage(Base):
     _export_domain_name_loc = (By.ID, "rhev_export_domain_name")
     _export_storage_address_loc = (By.ID, "rhev_export_domain_address")
     _export_share_path_loc = (By.ID, "rhev_export_domain_path")
+    #only for self-hosted
+    _hosted_domain_name_loc = (By.ID, "hosted_storage_name")
+    _hosted_storage_address_loc = (By.ID, "hosted_storage_address")
+    _hosted_share_path_loc = (By.ID, "hosted_storage_path")
 
     @property
     def nfs_radio_button(self):
@@ -44,6 +48,21 @@ class Storage(Base):
     def export_share_path_field(self):
         return self.selenium.find_element(*self._export_share_path_loc)
 
+    #only for self-hosted
+    @property
+    def hosted_domain_name_field(self):
+        return self.selenium.find_element(*self._hosted_domain_name_loc)
+
+    #only for self-hosted
+    @property
+    def hosted_storage_address_field(self):
+        return self.selenium.find_element(*self._hosted_storage_address_loc)
+
+    #only for self-hosted
+    @property
+    def hosted_share_path_field(self):
+        return self.selenium.find_element(*self._hosted_share_path_loc)
+
     def click_nfs(self):
         self.nfs_radio_button.click()
 
@@ -73,4 +92,16 @@ class Storage(Base):
     def set_export_share_path(self, data):
         self.export_share_path_field.clear()
         self.export_share_path_field.send_keys(data)
+
+    def set_hosted_domain_name(self, data):
+        self.hosted_domain_name_field.clear()
+        self.hosted_domain_name_field.send_keys(data)
+
+    def set_hosted_storage_address(self, data):
+        self.hosted_storage_address_field.clear()
+        self.hosted_storage_address_field.send_keys(data)
+
+    def set_hosted_share_path(self, data):
+        self.hosted_share_path_field.clear()
+        self.hosted_share_path_field.send_keys(data)
 

@@ -156,7 +156,7 @@ def test_osp_api(osp_api, variables):
                                      deploy_cfme=deploy_cfme, deploy_ose=deploy_ose)
 
     osp_api.refresh_deployment_info()
-    osp_api.add_undercloud(undercloud_ip, undercloud_user, undercloud_pass)
+    assert osp_api.add_undercloud(undercloud_ip, undercloud_user, undercloud_pass)
     osp_api.refresh_deployment_info()
 
     osp_images = osp_api.get_openstack_images()

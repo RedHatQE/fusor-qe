@@ -45,6 +45,60 @@ return the appropriate page object. This approach creates a flow between
 different pages in the application that should mirror how a user would interact
 with the website directly.
 
+Example Page Object
+^^^^^^^^^^^^^^^^^^^
+
+Below is a simplified version of the page object for the
+Deployment Name page in the QCI wizard:
+
+.. code-block:: python
+
+   from selenium.webdriver.common.by import By
+   from pages.base import Base
+
+   class DeploymentName(Base):
+
+       # locators
+       _name_loc = (By.ID, 'deployment_new_sat_name')
+       _description_loc = (By.ID, 'deployment_new_sat_desc')
+
+       # properties
+       @property
+       def name(self):
+           return self.selenium.find_element(*self._name_loc)
+
+       @property
+       def description(self):
+           return self.selenium.find_element(*self._description_loc)
+
+       # actions
+       def set_name(self, name):
+           self.name.send_keys(name)
+
+       def set_description(self, description):
+           self.description.send_keys(description)
+
+Generally, page objects will follow this format and have three sections:
+
+locators:
+    Each actionable element on a page is represented as a tuple of the format:
+    *(locator_strategy, locator_string)*. Selenium supports a number of
+    strategies for locating elements, and they are all attributes of the By
+    class. You can find more information about locating elements here:
+    `Locating Elements
+    <http://selenium-python.readthedocs.io/locating-elements.html#locating-elements>`_
+
+properties:
+    Properties take the defined locators and expose them as a property of the
+    class. The value of this becomes clear in the next section.
+
+actions:
+    These methods represent the actions that a user can take on a given page.
+    In this case, a user can set the name and description of a deployment. As
+    the methods above show, this is done by interacting with the properties of
+    the class, instead of calling ``page.selenium.find_element()`` everytime we
+    want to interact with an element on the page.
+
 Additional Reading
 ^^^^^^^^^^^^^^^^^^
 

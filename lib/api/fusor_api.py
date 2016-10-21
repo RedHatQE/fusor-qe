@@ -1105,7 +1105,7 @@ class OSPFusorApi(FusorDeploymentApi):
             "undercloud_user": ssh_user,
             "undercloud_password": ssh_pass, }
 
-        resource = "{}/underclouds".format(self.deployment_id)
+        resource = "{}/undercloud".format(self.deployment_id)
         response = self._openstack_post_resource(resource, undercloud_data)
 
         if response.status_code not in [200, 202]:

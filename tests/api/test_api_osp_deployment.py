@@ -135,6 +135,7 @@ def test_osp_api(osp_api, variables):
     overcloud_compute_count = dep_osp['controller_count']
     cinder_role_count = dep_osp.get('cinder_count', 0)
     swift_role_count = dep_osp.get('swift_count', 0)
+    ceph_role_count = dep_osp.get('ceph_count', 0)  # Ceph local storage not supported in QCI
     overcloud_admin_pass = dep_osp['undercloud_pass']  # Sync overcloud pw with undercloud
     overcloud_prov_network = '{}{}'.format(
         dep_osp['network']['provision_network']['network'],
@@ -208,6 +209,10 @@ def test_osp_api(osp_api, variables):
     # "Assigning swift role flavor ({}) and count ({})".format(flavor_name, swift_role_count))
     assert osp_api.update_role_swift(flavor_name, swift_role_count)
     # "Unable to update swift role and count"
+
+    # Local ceph storage not supported by QCI
+    assert osp_api.update_role_ceph(flavor_name, ceph_role_count)
+    # "Unable to update ceph role and count"
 
     # This should only be run for nested deployments. Baremetal doesn't need this
     assert osp_api.set_nova_libvirt_type()

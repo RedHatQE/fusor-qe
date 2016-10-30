@@ -141,7 +141,7 @@ class UIDeploymentRunner(object):
 
     def subscription_management(self, page):
         '''Subscription Management Application'''
-        page.click_sma_radio(self.sat.rhsm_satellite_name)
+        page.click_sma_radio_by_uuid(self.sat.rhsm_satellite['uuid'])
         return page.click_next()
 
     def add_subscriptions(self, page):

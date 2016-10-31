@@ -44,6 +44,17 @@ class SubscriptionManagement(Base):
     def click_submit_new_sma(self):
         return self.new_sma_submit_button.click()
 
+    def click_sma_radio_by_uuid(self, uuid):
+        """ Click the radio button for the SMA with the specified uuid """
+        self.wait_for_ajax()
+        for sat in self.sma_radio_buttons:
+            if uuid in sat.get_attribute('value'):
+                # scroll to the element
+                self.scroll_to_element(sat)
+                return sat.click()
+        else:
+            raise Exception("No SMA found with uuid: {}".format(uuid))
+
     def click_sma_radio(self, name):
         """ Click the radio button for the SMA with the specified name """
         self.wait_for_ajax()

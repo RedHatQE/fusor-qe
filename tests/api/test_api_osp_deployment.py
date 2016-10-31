@@ -147,7 +147,7 @@ def test_osp_api(osp_api, variables):
     cfme_root_password = dep_cfme['cfme_root_password']
     rhn_username = variables['credentials']['cdn']['username']
     rhn_password = variables['credentials']['cdn']['password']
-    rhn_sma_uuid = get_sma_uuid(osp_api, rhn_username, rhn_password, dep_sat['rhsm_satellite_name'])
+    rhn_sma_uuid = dep_sat['rhsm_satellite']['uuid']
     ose_sub_pool_name = dep_ose['subscription']['name']
     ose_sub_quantity = dep_ose['subscription']['quantity']
     osp_deploy_ramdisk_name = 'bm-deploy-ramdisk'

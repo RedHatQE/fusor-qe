@@ -67,7 +67,9 @@ deployment:
       disconnected_url: http://example.com
       enable_access_insights: false
       env_path: null
-      rhsm_satellite_name: sma_name # requires a valid SMA name
+      rhsm_satellite:
+        name: sma_name # requires a valid SMA name. QCI may mangle the sma name by changing '-' to '_'
+        uuid: sma_uuid # requires a valid SMA uuid
       rhsm_subs:
       - Red Hat Cloud Infrastructure with Smart Management
       sat_desc: description

@@ -2,6 +2,7 @@ import re
 import pytest
 import string
 import random
+import time
 
 from lib.api import fusor_api
 
@@ -152,6 +153,9 @@ def test_osp_api(osp_api, variables):
     ose_sub_quantity = dep_ose['subscription']['quantity']
     osp_deploy_ramdisk_name = 'bm-deploy-ramdisk'
     osp_deploy_kernel_name = 'bm-deploy-kernel'
+    osp_images = None
+    ramdisk_image = None
+    kernel_image = None
 
     assert osp_api.create_deployment(deployment_name, deployment_desc,
                                      deploy_cfme=deploy_cfme, deploy_ose=deploy_ose)
@@ -160,16 +164,41 @@ def test_osp_api(osp_api, variables):
     assert osp_api.add_undercloud(undercloud_ip, undercloud_user, undercloud_pass)
     osp_api.refresh_deployment_info()
 
-    osp_images = osp_api.get_openstack_images()
-    assert osp_images  # "Unable to get the openstack image info"
+    image_query_wait = 10
+    image_query_retries = 0
+    image_query_retries_max = 3
+    # Retry undercloud image query when automation moves faster than fusor
+    while ((not osp_images or not kernel_image or not ramdisk_image) and
+            image_query_retries < image_query_retries_max):
+        osp_images = osp_api.get_openstack_images()
+        image_query_retries += 1
 
-    ramdisk_image = next(
-        image for image in osp_images['images'] if (image['name'] == osp_deploy_ramdisk_name))
-    kernel_image = next(
-        image for image in osp_images['images'] if (image['name'] == osp_deploy_kernel_name))
+        try:
+            assert osp_images  # "Unable to get the openstack image info"
 
-    assert kernel_image  # "Unable to get the openstack kernel image info"
-    assert ramdisk_image  # "Unable to get the openstack ramdisk image info"
+            ramdisk_iterator = (
+                image for image in osp_images['images'] if (
+                    image['name'] == osp_deploy_ramdisk_name))
+            ramdisk_image = next(ramdisk_iterator, None)
+
+            kernel_iterator = (
+                image for image in osp_images['images'] if (
+                    image['name'] == osp_deploy_kernel_name))
+            kernel_image = next(kernel_iterator, None)
+
+            assert kernel_image  # "Unable to get the openstack kernel image info"
+            assert ramdisk_image  # "Unable to get the openstack ramdisk image info"
+        except AssertionError:
+            if image_query_retries >= image_query_retries_max:
+                print 'Maximum retries ({}) for querying openstack images has been reached'.format(
+                    image_query_retries)
+                raise
+
+            print 'Retrying openstack image query - ({})'.format(image_query_retries)
+            osp_images = None
+            ramdisk_image = None
+            kernel_image = None
+            time.sleep(image_query_wait)
 
     for node in overcloud_nodes:
         assert osp_api.register_nodes(

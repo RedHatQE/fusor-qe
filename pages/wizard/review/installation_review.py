@@ -18,9 +18,11 @@ class InstallationReview(Base):
                                  '//a[@data-qci="cfme_database_password"]/following-sibling::i')
     _deploy_button_loc = (By.XPATH,
                           '//button[text()="Deploy"]')
+    _build_task_spinner_locator = (
+        By.XPATH,
+        "//div[contains(@class, 'spinner-md') and contains(., 'Building task list']")
 
     # elements
-
     @property
     def rhev_root_pw_eye_icon(self):
         return self.selenium.find_element(*self._rhev_root_pw_eye_loc)
@@ -45,6 +47,10 @@ class InstallationReview(Base):
     def deploy_button(self):
         return self.selenium.find_element(*self._deploy_button_loc)
 
+    @property
+    def building_task_spinner(self):
+        return self.selenium.find_element(*self._build_task_spinner_locator)
+
     # actions
 
     def reveal_rhev_root_pw(self):
@@ -65,5 +71,6 @@ class InstallationReview(Base):
     def click_deploy(self):
         from pages.wizard.review.installation_progress import InstallationProgress
         self.wait_for_ajax()
+        self.wait_until_element_is_not_visible(*self._build_task_spinner_locator)
         self.deploy_button.click()
         return InstallationProgress(self.base_url, self.selenium)

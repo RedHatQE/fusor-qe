@@ -71,6 +71,6 @@ class InstallationReview(Base):
     def click_deploy(self):
         from pages.wizard.review.installation_progress import InstallationProgress
         self.wait_for_ajax()
-        self.wait_until_element_is_not_visible(*self._build_task_spinner_locator)
         self.deploy_button.click()
+        self.wait_until_element_is_not_visible(self._build_task_spinner_locator)
         return InstallationProgress(self.base_url, self.selenium)

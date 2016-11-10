@@ -127,8 +127,8 @@ class TaskStepBar():
 
     ABBREVIATIONS:
 
-        TSB - Task Step Bar
-        DSB - Deployment Step Bar
+        tsb - Task Step Bar
+        dsb - Deployment Step Bar
     """
     def __init__(self, base_url, selenium):
         self.base_url = base_url
@@ -139,44 +139,44 @@ class TaskStepBar():
         )
 
     # locators:
-    _TSB_loc = (By.XPATH, '//ul[contains(@class, "nav-stacked")]')
-    _TSB_steps_loc = (By.XPATH, "{}/li".format(_TSB_loc[1]))
-    _TSB_active_step_loc = (
+    _tsb_loc = (By.XPATH, '//ul[contains(@class, "nav-stacked")]')
+    _tsb_steps_loc = (By.XPATH, "{}/li".format(_tsb_loc[1]))
+    _tsb_active_step_loc = (
         By.XPATH,
-        '{}[contains(@class, "active")]'.format(_TSB_steps_loc[1])
+        '{}[contains(@class, "active")]'.format(_tsb_steps_loc[1])
     )
-    _TSB_after_active_step_loc = (
+    _tsb_after_active_step_loc = (
         By.XPATH,
-        '{}/following-sibling::li[1]'.format(_TSB_active_step_loc[1]),
+        '{}/following-sibling::li[1]'.format(_tsb_active_step_loc[1]),
     )
-    _TSB_before_active_step_loc = (
+    _tsb_before_active_step_loc = (
         By.XPATH,
-        '{}/preceding-sibling::li[1]'.format(_TSB_active_step_loc[1]),
+        '{}/preceding-sibling::li[1]'.format(_tsb_active_step_loc[1]),
     )
 
     # properties
     @property
-    def TSB(self):
-        return self.selenium.find_element(*self._TSB_loc)
+    def tsb(self):
+        return self.selenium.find_element(*self._tsb_loc)
 
     @property
-    def TSB_steps(self):
-        return self.selenium.find_elements(*self._TSB_steps_loc)
+    def tsb_steps(self):
+        return self.selenium.find_elements(*self._tsb_steps_loc)
 
     @property
-    def TSB_active_step(self):
-        return self.selenium.find_element(*self._TSB_active_step_loc)
+    def tsb_active_step(self):
+        return self.selenium.find_element(*self._tsb_active_step_loc)
 
     @property
-    def TSB_after_active_step(self):
-        return self.selenium.find_element(*self._TSB_after_active_step_loc)
+    def tsb_after_active_step(self):
+        return self.selenium.find_element(*self._tsb_after_active_step_loc)
 
     @property
-    def TSB_before_active_step(self):
-        return self.selenium.find_element(*self._TSB_before_active_step_loc)
+    def tsb_before_active_step(self):
+        return self.selenium.find_element(*self._tsb_before_active_step_loc)
 
     def number_of_steps(self):
-        steps = self.TSB_steps
+        steps = self.tsb_steps
         return len(steps)
 
     def get_name_of_step(self, step):
@@ -197,31 +197,31 @@ class TaskStepBar():
         return re.sub(r'^\d+[A-Z]\.\s+', '', step.text)
 
     def get_number_of_step(self, step):
-        alphaIndex = re.sub(r'^\d+([A-Z])\.\s+.*', r'\1', step.text)
-        numberIndex = ord(alphaIndex) - ord('A') + 1
-        return numberIndex
+        alpha_index = re.sub(r'^\d+([A-Z])\.\s+.*', r'\1', step.text)
+        number_index = ord(alpha_index) - ord('A') + 1
+        return number_index
 
     def get_step_by_number(self, index):
-        steps = self.TSB_steps
+        steps = self.tsb_steps
         return steps[index - 1]
 
     def get_current_step(self):
-        return self.TSB_active_step
+        return self.tsb_active_step
 
     def get_next_step(self):
-        active_step = self.TSB_active_step
+        active_step = self.tsb_active_step
         number_of_step = self.get_number_of_step(active_step)
         number_of_steps = self.number_of_steps()
         if number_of_step == number_of_steps:
             return None
-        return self.TSB_after_active_step
+        return self.tsb_after_active_step
 
     def get_prev_step(self):
-        active_step = self.TSB_active_step
+        active_step = self.tsb_active_step
         number_of_step = self.get_number_of_step(active_step)
         if number_of_step == 1:
             return None
-        return self.TSB_before_active_step
+        return self.tsb_before_active_step
 
     def get_page(self, direction='NEXT'):
         """
@@ -245,9 +245,8 @@ class TaskStepBar():
 
         # If we would navigate past the current list of tasks
         # then we need to your the DeploymentStepBar navigator:
-        if step == None:
+        if step is None:
             return self.deployment_step_bar.get_page(direction)
-
 
         # We are within our list, so let's continue on.
         #
@@ -257,7 +256,7 @@ class TaskStepBar():
         # task step name to do our lookup.
         step_name = self.get_name_of_step(step)
         deployment_step_name = self.deployment_step_bar.get_name_of_step(
-            self.deployment_step_bar.DSB_active_step
+            self.deployment_step_bar.dsb_active_step
         )
         fully_qualified_step_name = "{}.{}".format(
             deployment_step_name,

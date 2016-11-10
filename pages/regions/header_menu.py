@@ -41,8 +41,12 @@ class HeaderMenu(Page):
         for menu in self.items:
             if menu.name == value:
                 return menu
-        raise Exception("Menu not found: '%s'. Menus: %s" % (
-                value, [menu.name for menu in self.items]))
+        raise Exception(
+            "Menu not found: '%s'. Menus: %s" % (
+                value,
+                [menu.name for menu in self.items]
+            )
+        )
 
     @property
     def items(self):

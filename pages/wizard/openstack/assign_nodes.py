@@ -10,7 +10,6 @@ from selenium.webdriver.support.select import Select
 from selenium.webdriver.common.action_chains import ActionChains
 from pages.base import Base
 
-from pages.wizard.regions.deployment_step_bar import DeploymentStepBar
 
 # Huge map of Global Config input field names to their type.
 # Their type can be either "text" or "checkbox".   Number types
@@ -257,23 +256,28 @@ role_to_box_name = {
     'object-storage': 'Object Storage',
 }
 
+
 class GlobalConfItemUndefinedError(Exception):
     def __init__(self, name):
         self.name = name
+
     def __str__(self):
         return "Undefined global config item: {}".format(self.name)
+
 
 class GlobalConfItemTypeError(Exception):
     def __init__(self, name, needed_type, cur_type):
         self.name = name
         self.needed_type = needed_type
         self.cur_type = cur_type
+
     def __str__(self):
         return "Global config item {} needed type {} provided type {}".format(
             self.name,
             self.needed_type,
             self.cur_type,
         )
+
 
 class AssignNodes(Base):
     _page_title = "QuickStart Cloud Installer"
@@ -455,10 +459,10 @@ class AssignNodes(Base):
 
     def get_assigned_role_node_count_options(self, role):
         selector = self.get_selector_assigned_role_node_count(role)
-        nodeChoices = []
+        node_choices = []
         for option in selector.options():
-            nodeChoices.append(options.get_attribute('value'))
-        return nodeChoices
+            node_choices.append(option.get_attribute('value'))
+        return node_choices
 
     def hover_assigned_role(self, role):
         locator_type = self._assigned_role_template_loc[0]
@@ -497,10 +501,10 @@ class AssignNodes(Base):
     #       combination.   At this point the locators are set the way
     #       development suggested.
     def assign_role_by_drag(self, role):
-        roleBoxSource = self.get_role_box(role)
-        assignRoleTarget = self.assign_role_draggable_target
+        role_box_source = self.get_role_box(role)
+        assign_role_target = self.assign_role_draggable_target
         actions = ActionChains(self.selenium)
-        actions.drag_and_drop(roleBoxSource, assignRoleTarget).perform()
+        actions.drag_and_drop(role_box_source, assign_role_target).perform()
 
     #
     # <<< Edit Global Config >>>
@@ -519,7 +523,7 @@ class AssignNodes(Base):
         element = self.global_config_element(name)
         if global_config_to_type_map[name] == 'checkbox':
             raise GlobalConfItemTypeError(
-                name==name,
+                name=name,
                 needed_type='text',
                 cur_type='checkbox',
             )

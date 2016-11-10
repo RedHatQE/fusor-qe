@@ -9,7 +9,6 @@
 from selenium.webdriver.common.by import By
 from pages.base import Base
 
-from pages.wizard.regions.deployment_step_bar import DeploymentStepBar
 
 class ConfigureOvercloud(Base):
     _page_title = "QuickStart Cloud Installer"
@@ -156,4 +155,3 @@ class ConfigureOvercloud(Base):
     def set_glance_rbd_pool_name(self, text):
         self.glance_rbd_pool_name.clear()
         self.glance_rbd_pool_name.send_keys(text)
-

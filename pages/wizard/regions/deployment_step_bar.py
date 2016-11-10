@@ -103,65 +103,65 @@ class DeploymentStepBar():
 
     ABBREVIATIONS:
 
-        DSB - Deployment Step Bar
+        dsb - Deployment Step Bar
     """
     def __init__(self, base_url, selenium):
         self.base_url = base_url
         self.selenium = selenium
 
     # locators:
-    _DSB_loc = (By.XPATH, '//ul[@class="rhci-steps"]')
-    _DSB_steps_loc = (By.XPATH, "{}/li".format(_DSB_loc[1]))
-    _DSB_active_step_loc = (
+    _dsb_loc = (By.XPATH, '//ul[@class="rhci-steps"]')
+    _dsb_steps_loc = (By.XPATH, "{}/li".format(_dsb_loc[1]))
+    _dsb_active_step_loc = (
         By.XPATH,
-        '{}[contains(@class, "active")]'.format(_DSB_steps_loc[1])
+        '{}[contains(@class, "active")]'.format(_dsb_steps_loc[1])
     )
-    _DSB_after_active_step_loc = (
+    _dsb_after_active_step_loc = (
         By.XPATH,
-        '{}/following-sibling::li[1]'.format(_DSB_active_step_loc[1]),
+        '{}/following-sibling::li[1]'.format(_dsb_active_step_loc[1]),
     )
-    _DSB_before_active_step_loc = (
+    _dsb_before_active_step_loc = (
         By.XPATH,
-        '{}/preceding-sibling::li[1]'.format(_DSB_active_step_loc[1]),
+        '{}/preceding-sibling::li[1]'.format(_dsb_active_step_loc[1]),
     )
 
     # properties
     @property
-    def DSB(self):
-        return self.selenium.find_element(*self._DSB_loc)
+    def dsb(self):
+        return self.selenium.find_element(*self._dsb_loc)
 
     @property
-    def DSB_steps(self):
-        return self.selenium.find_elements(*self._DSB_steps_loc)
+    def dsb_steps(self):
+        return self.selenium.find_elements(*self._dsb_steps_loc)
 
     @property
-    def DSB_active_step(self):
-        return self.selenium.find_element(*self._DSB_active_step_loc)
+    def dsb_active_step(self):
+        return self.selenium.find_element(*self._dsb_active_step_loc)
 
     @property
-    def DSB_after_active_step(self):
-        return self.selenium.find_element(*self._DSB_after_active_step_loc)
+    def dsb_after_active_step(self):
+        return self.selenium.find_element(*self._dsb_after_active_step_loc)
 
     @property
-    def DSB_before_active_step(self):
-        return self.selenium.find_element(*self._DSB_before_active_step_loc)
+    def dsb_before_active_step(self):
+        return self.selenium.find_element(*self._dsb_before_active_step_loc)
 
     def number_of_steps(self):
-        steps = self.DSB_steps
+        steps = self.dsb_steps
         return len(steps)
 
     def get_name_of_step(self, step):
         return re.sub('^\d+\.\s+', '', step.text)
 
     def get_step_by_number(self, index):
-        steps = self.DSB_steps
+        steps = self.dsb_steps
         return steps[index - 1]
 
     def get_next_step(self):
-        return self.DSB_after_active_step
+        return self.dsb_after_active_step
 
     def get_prev_step(self):
-        return self.DSB_before_active_step
+        return self.dsb_before_active_step
 
     def get_page(self, direction='NEXT'):
         """

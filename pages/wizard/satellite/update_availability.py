@@ -25,7 +25,6 @@ class UpdateAvailability(Base):
         '//button[contains(.,"New Environment Path")]'
     )
 
-
     # properties
     @property
     def immediately(self):

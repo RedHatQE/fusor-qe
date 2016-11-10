@@ -32,7 +32,6 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.select import Select
 from pages.base import Base
 
-from pages.wizard.regions.deployment_step_bar import DeploymentStepBar
 
 class RegisterNodes(Base):
     _page_title = "QuickStart Cloud Installer"
@@ -166,7 +165,7 @@ class RegisterNodes(Base):
     # <<< Node Auto Detection >>>
     @property
     def rescan(self):
-        return  self.selenium.find_element(*self._rescan_loc)
+        return self.selenium.find_element(*self._rescan_loc)
 
     @property
     def node_list_rows(self):
@@ -270,7 +269,7 @@ class RegisterNodes(Base):
         selector = self.node_list_row_get_interface_select(row_id)
         macs = []
         for option in selector.options:
-           macs.append(option.get_attribute('value'))
+            macs.append(option.get_attribute('value'))
         return macs
 
     def node_list_row_select_interface(self, row_id, mac):

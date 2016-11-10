@@ -1,5 +1,3 @@
-flake8
-
 # Documentation requirements
 Sphinx
 sphinx-autobuild
@@ -9,3 +7,8 @@ sphinx_rtd_theme
 pytest
 pytest-selenium
 pytest-variables[yaml]
+
+# Code Lint Tools
+flake8
+pylint
+pep8-naming

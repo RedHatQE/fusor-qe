@@ -2,6 +2,7 @@ from selenium.webdriver.common.by import By
 from pages.base import Base
 from pages.wizard.rhv.hosts import Hosts
 
+
 class Engine(Base):
     _page_title = "QuickStart Cloud Installer"
     _search_box_loc = (By.XPATH, "//div[@class = 'rhev-search-box']/input[@type = 'text']")
@@ -26,4 +27,3 @@ class Engine(Base):
 
     def click_refresh_data(self):
         self.refresh_data_button.click()
-

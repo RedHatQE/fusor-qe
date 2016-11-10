@@ -1,5 +1,6 @@
 # Python Virtual Environments
 *.virtenv
+*.venv
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

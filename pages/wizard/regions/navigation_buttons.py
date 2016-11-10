@@ -1,6 +1,6 @@
-import re
 from selenium.webdriver.common.by import By
 from pages.wizard.regions.task_step_bar import TaskStepBar
+
 
 class NavigationButtons():
     """
@@ -90,18 +90,18 @@ class NavigationButtons():
         # before we actually click the navigation
         # button, so that when determining where to go we start
         # from where we are:
-        prevPage = self.task_step_bar.get_prev_page()
+        prev_page = self.task_step_bar.get_prev_page()
         self.back_btn.click()
-        return prevPage
+        return prev_page
 
     def click_next(self):
         # It's important that we get the next page
         # before we actually click the navigation
         # button, so that when determining where to go we start
         # from where we are:
-        nextPage = self.task_step_bar.get_next_page()
+        next_page = self.task_step_bar.get_next_page()
         self.next_btn.click()
-        return nextPage
+        return next_page
 
     # Note a modal frame will open when this is clicked, with the
     # buttons:

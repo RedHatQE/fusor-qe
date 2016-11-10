@@ -3,6 +3,7 @@ from pages.base import Base
 from pages.wizard.rhv.hosts import Hosts
 
 
+
 class Hypervisor(Base):
     _page_title = "QuickStart Cloud Installer"
     _search_box_loc = (By.XPATH, "//input[@placeholder=' Search ...']")

@@ -57,6 +57,18 @@ A really good guide to learning about virtual environments is:
 
     http://docs.python-guide.org/en/latest/dev/virtualenvs/
 
+# Checking source against pep8 standard
+
+You can use the flake8 program to verify that source adheres to the
+pep8 standard.  To do so with the configuration for this repo run:
+
+    flake8 --config=setup.cfg $src
+
+or:
+
+    flake8 --config=setup.cfg $srcDir
+
+
 # Testing
 
 Presently testing is broken down into:

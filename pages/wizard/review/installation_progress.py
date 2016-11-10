@@ -16,6 +16,13 @@ class InstallationProgress(QCIPage):
     _debug_checkbox_loc = (By.XPATH, '//input[@name="debug"]')
     _logs_dropdown_loc = (By.XPATH, '//select[@id="log-file-select"]')
 
+    _progress_bar_all = (By.XPATH, '//div[@role="progressbar"]')
+    _progress_bar_satellite = (By.XPATH, '//div[@class="ember-view row"]/div[contains(@class, "rhci-review-product-name")]/h3[text()="Satellite"]/../..//div[@role="progressbar"]')
+    _progress_bar_rhv = (By.XPATH, '//div[@class="ember-view row"]/div[contains(@class, "rhci-review-product-name")]/h3[text()="RHV"]/../..//div[@role="progressbar"]')
+    _progress_bar_cloudforms = (By.XPATH, '//div[@class="ember-view row"]/div[contains(@class, "rhci-review-product-name")]/h3[text()="CloudForms"]/../..//div[@role="progressbar"]')
+    _progress_bar_openshift = (By.XPATH, '//div[@class="ember-view row"]/div[contains(@class, "rhci-review-product-name")]/h3[text()="OpenShift"]/../..//div[@role="progressbar"]')
+    _progress_bar_openstack = (By.XPATH, '//div[@class="ember-view row"]/div[contains(@class, "rhci-review-product-name")]/h3[text()="OpenStack"]/../..//div[@role="progressbar"]')
+
     # elements
     @property
     def overview_tab(self):
@@ -46,6 +53,18 @@ class InstallationProgress(QCIPage):
         return self.selenium.find_element(*self._debug_checkbox_loc)
 
     @property
+    def progress_bar_satellite(self):
+        return self.selenium.find_element(*self._progress_bar_satellite)
+
+    @property
+    def progress_bar_rhv(self):
+        return self.selenium.find_element(*self._progress_bar_rhv)
+
+    @property
+    def progress_bar_cloudforms(self):
+        return self.selenium.find_element(*self._progress_bar_cloudforms)
+
+    @property
     def logs_dropdown(self):
         return Select(self.selenium.find_element(*self._logs_dropdown_loc))
 
@@ -68,3 +87,43 @@ class InstallationProgress(QCIPage):
         """
         self.click_log_tab()
         self.logs_dropdown.select_by_value(log_file)
+
+    def deployment_complete(self):
+        return False
+
+    def deployment_result(self):
+        """
+        Check the result of all products being deployed.
+        Return True if deployment was successful, False otherwise
+        """
+        return False
+
+    def satellite_success(self):
+        """
+        Return True if Satellite progress is successful, False otherwise
+        """
+        return False
+
+    def rhv_success(self):
+        """
+        Return True if Satellite progress is successful, False otherwise
+        """
+        return False
+
+    def cloudforms_success(self):
+        """
+        Return True if Satellite progress is successful, False otherwise
+        """
+        return False
+
+    def openshift_success(self):
+        """
+        Return True if Satellite progress is successful, False otherwise
+        """
+        return False
+
+    def openstack_success(self):
+        """
+        Return True if Satellite progress is successful, False otherwise
+        """
+        return False

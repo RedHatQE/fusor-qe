@@ -6,9 +6,9 @@ class InstallationReview(Base):
 
     # locators
 
-    _rhev_root_pw_eye_loc = (By.XPATH,
+    _rhv_root_pw_eye_loc = (By.XPATH,
                              '//a[@data-qci="root_password_engine_&_hypervisor"]/following-sibling::i')
-    _rhev_admin_pw_eye_loc = (By.XPATH,
+    _rhv_admin_pw_eye_loc = (By.XPATH,
                               '//a[@data-qci="engine_admin_password"]/following-sibling::i')
     _cfme_root_pw_eye_loc = (By.XPATH,
                              '//a[@data-qci="cfme_root_password"]/following-sibling::i')
@@ -22,12 +22,12 @@ class InstallationReview(Base):
     # elements
 
     @property
-    def rhev_root_pw_eye_icon(self):
-        return self.selenium.find_element(*self._rhev_root_pw_eye_loc)
+    def rhv_root_pw_eye_icon(self):
+        return self.selenium.find_element(*self._rhv_root_pw_eye_loc)
 
     @property
-    def rhev_admin_pw_eye_icon(self):
-        return self.selenium.find_element(*self._rhev_admin_pw_eye_loc)
+    def rhv_admin_pw_eye_icon(self):
+        return self.selenium.find_element(*self._rhv_admin_pw_eye_loc)
 
     @property
     def cfme_admin_pw_eye_icon(self):
@@ -47,11 +47,11 @@ class InstallationReview(Base):
 
     # actions
 
-    def reveal_rhev_root_pw(self):
-        return self.rhev_root_pw_eye_icon.click()
+    def reveal_rhv_root_pw(self):
+        return self.rhv_root_pw_eye_icon.click()
 
-    def reveal_rhev_admin_pw(self):
-        return self.rhev_admin_pw_eye_icon.click()
+    def reveal_rhv_admin_pw(self):
+        return self.rhv_admin_pw_eye_icon.click()
 
     def reveal_cfme_admin_pw(self):
         return self.cfme_admin_pw_eye_icon.click()

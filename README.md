@@ -4,7 +4,7 @@ This repo is for code to test the QCI product (Quickstart Cloud
 Installer).   The QCI product runs inside of Satellite, and 
 provides an easier way to deploy some Red Hat products:
 
-* RHEV 
+* RHV (RedHat Virtualization)
 * OSP (Open Stack)
 * CFME (Cloud Forms)
 * OSE  (Open Shift)

@@ -20,11 +20,11 @@ _step_to_page_map = {
     'RHV': {
         'first': {
             'class': 'SetupType',
-            'library': 'pages.wizard.rhev.setup_type',
+            'library': 'pages.wizard.rhv.setup_type',
         },
         'last': {
             'class': 'Storage',
-            'library': 'pages.wizard.rhev.storage',
+            'library': 'pages.wizard.rhv.storage',
         },
     },
     'RHOSP': {
@@ -87,14 +87,14 @@ class DeploymentStepBar():
     states are displayed as the QCI Deployment Step Bar at
     the top of the QCI Deployment Wizard after the products
     to deploy have been chosen.   For instance when
-    deploying RHEV and CloudForms the QCI Deployment Step Bar
+    deploying RHV and CloudForms the QCI Deployment Step Bar
     may look like:
 
-        1. Satellite 2. RHEV  3. CloudForms 4. Subscriptions 5. Review
+        1. Satellite 2. RHV  3. CloudForms 4. Subscriptions 5. Review
         1. Satellite 2. RHOSP 3. CloudForms 4. Subscriptions 5. Review
-        1. Satellite 2. RHEV 3. RHOSP 4. CloudForms 5. Subscriptions 6. Review
-        1. Satellite 2. RHEV 3. RHOSP 4. OpenShift 5. CloudForms 6. Subscriptions 7. Review
-        1. Satellite 2. RHEV 3. OpenShift 4. Subscriptions 5. Review
+        1. Satellite 2. RHV 3. RHOSP 4. CloudForms 5. Subscriptions 6. Review
+        1. Satellite 2. RHV 3. RHOSP 4. OpenShift 5. CloudForms 6. Subscriptions 7. Review
+        1. Satellite 2. RHV 3. OpenShift 4. Subscriptions 5. Review
 
     These are not all permutations, just some samples.
 

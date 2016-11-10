@@ -1,6 +1,6 @@
 from selenium.webdriver.common.by import By
 from pages.base import Base
-from pages.wizard.rhev.hosts import Hosts
+from pages.wizard.rhv.hosts import Hosts
 
 class Hypervisor(Base):
     _page_title = "QuickStart Cloud Installer"

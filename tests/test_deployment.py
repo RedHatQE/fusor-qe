@@ -68,14 +68,24 @@ def test_e2e_deployment(new_deployment_pg, variables):
     if isinstance(next_pg, ReviewSubscriptions):
         review_subs_pg = next_pg
         review_dep_pg = runner.review_subscriptions(review_subs_pg)
-        progress_pg = runner.installation_review(review_dep_pg)
+        next_pg = runner.installation_review(review_dep_pg)
         # TODO test that deployment completes via API
         #
         # This just asserts that we have made it to the deployment progress
         # page successfully. To match the functionality of the existing
         # robottelo test, the API will need to track the progress of the
         # deployment from here.
-        assert isinstance(progress_pg, InstallationProgress)
+        assert isinstance(next_pg, InstallationProgress)
+
+    if isinstance(next_pg, InstallationProgress):
+        deployment_time = 0
+        deployment_time_max = variables['deployment'].get('deployment_timeout', 240)
+        deployment_time_wait = 1
+        while deployment_time < deployment_time_max and not next_pg.deployment_complete():
+            sleep(deployment_time_wait)
+            deployment_time += deployment_time_wait
+
+        assert next_pg.deployment_result()
     else:
         # if we aren't at the Review Subscriptions page, something went wrong.
         assert False

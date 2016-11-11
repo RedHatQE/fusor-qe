@@ -5,7 +5,9 @@ from pages.base import Base
 class DetectUndercloud(Base):
     _page_title = "QuickStart Cloud Installer"
 
-    # locators
+    ############
+    # locators #
+    ############
     _undercloud_ip_loc = (By.XPATH, "//input[@id = 'undercloudIpInput']")
     _ssh_user_loc = (By.XPATH, "//input[@id = 'undercloudSshUserInput']")
     _ssh_password_loc = (By.XPATH, "//input[@id = 'undercloudSshPasswordInput']")
@@ -15,7 +17,21 @@ class DetectUndercloud(Base):
         "//a[contains(., 'click here to enter new credentials')]"
     )
 
-    # properties
+    # Overcloud Already Running
+    #   When the overcloud is already running after you enter the information
+    #   for the undercloud, you will end up with two links displayed:
+    #
+    #       - Delete overcloud
+    #       - use a different undercloud
+    _delete_overcloud_loc = (By.XPATH, "//a[contains(., 'Delete overcloud')]")
+    _use_different_overcloud_loc = (
+        By.XPATH,
+        "//a[contains(., 'use a different undercloud')]"
+    )
+
+    ##############
+    # properties #
+    ##############
     @property
     def undercloud_ip(self):
         return self.selenium.find_element(*self._undercloud_ip_loc)
@@ -36,7 +52,18 @@ class DetectUndercloud(Base):
     def new_credentials(self):
         return self.selenium.find_element(*self._new_credentials_loc)
 
-    # actions
+    # Overcloud Already Running
+    @property
+    def delete_overcloud(self):
+        return self.selenium.find_element(*self._delete_overcloud_loc)
+
+    @property
+    def use_different_overcloud(self):
+        return self.selenium.find_element(*self._use_different_overcloud_loc)
+
+    ###########
+    # actions #
+    ###########
     def set_undercloud_ip(self, text):
         self.undercloud_ip.clear()
         self.undercloud_ip.send_keys(text)
@@ -54,3 +81,10 @@ class DetectUndercloud(Base):
 
     def click_new_credentials(self):
         self.new_credentials.click()
+
+    # Overcloud Already Running
+    def click_delete_overcloud(self):
+        self.delete_overcloud.click()
+
+    def click_use_different_overcloud(self):
+        self.use_different_overcloud.click()

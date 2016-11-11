@@ -30,7 +30,7 @@ this repository.
 * pytest.ini.example - example config for pytest.
 * README.md - this file.
 * requirements.txt - python libraries needed by this repository.
-* setup.cfg 
+* setup.cfg - flake8 config.
 * variables.json.example - contains data needed by the tests.
 
 # Updating Python Requirements
@@ -48,10 +48,10 @@ of commands:
     . ${workspace}.venv/bin/activate
     pip install -r requirements.txt
 
-Note, git is configured to ignore files that end in `.venv` and
-`.virtenv`, so though adding one of these extensions is not required
-it will make it so the virtual environment does not pollute your
-`git status` calls.
+Note, git is configured in this repository to ignore files that end 
+in `.venv` and `.virtenv`, so though adding one of these extensions 
+is not required it will make it so the virtual environment does not
+pollute your `git status` calls.
 
 A really good guide to learning about virtual environments is:
 

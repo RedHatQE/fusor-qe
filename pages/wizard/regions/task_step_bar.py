@@ -26,27 +26,27 @@ _step_to_page_map = {
     },
     'RHV.Setup Type': {
         'class': 'SetupType',
-        'library': 'pages.wizard.rhev.setup_type',
+        'library': 'pages.wizard.rhv.setup_type',
     },
     'RHV.Engine': {
         'class': 'Engine',
-        'library': 'pages.wizard.rhev.engine',
+        'library': 'pages.wizard.rhv.engine',
     },
     'RHV.Hypervisor': {
         'class': 'Hypervisor',
-        'library': 'pages.wizard.rhev.hypervisor',
+        'library': 'pages.wizard.rhv.hypervisor',
     },
     'RHV.Engine/Hypervisor': {
         'class': 'Hypervisor',
-        'library': 'pages.wizard.rhev.hypervisor',
+        'library': 'pages.wizard.rhv.hypervisor',
     },
     'RHV.Configuration': {
         'class': 'Configuration',
-        'library': 'pages.wizard.rhev.configuration',
+        'library': 'pages.wizard.rhv.configuration',
     },
     'RHV.Storage': {
         'class': 'Storage',
-        'library': 'pages.wizard.rhev.storage',
+        'library': 'pages.wizard.rhv.storage',
     },
     'OpenShift.Master/Nodes': {
         'class': 'Nodes',

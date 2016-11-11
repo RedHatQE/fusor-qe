@@ -16,6 +16,8 @@ class InstallationProgress(QCIPage):
     _debug_checkbox_loc = (By.XPATH, '//input[@name="debug"]')
     _logs_dropdown_loc = (By.XPATH, '//select[@id="log-file-select"]')
 
+    _progress_bar_class_success_name = 'progress-bar-success'
+    _progress_bar_class_error_name = 'progress-bar-danger'
     _progress_bar_all = (By.XPATH, '//div[@role="progressbar"]')
     _progress_bar_satellite = (By.XPATH, '//div[@class="ember-view row"]/div[contains(@class, "rhci-review-product-name")]/h3[text()="Satellite"]/../..//div[@role="progressbar"]')
     _progress_bar_satellite_label = (By.XPATH, '//div[@class="ember-view row"]/div[contains(@class, "rhci-review-product-name")]/h3[text()="Satellite"]/../..//div[@class="progress-bar-label"]')
@@ -27,7 +29,6 @@ class InstallationProgress(QCIPage):
     _progress_bar_openshift_label = (By.XPATH, '//div[@class="ember-view row"]/div[contains(@class, "rhci-review-product-name")]/h3[text()="OpenShift"]/../..//div[@class="progress-bar-label"]')
     _progress_bar_openstack = (By.XPATH, '//div[@class="ember-view row"]/div[contains(@class, "rhci-review-product-name")]/h3[text()="RHOSP"]/../..//div[@role="progressbar"]')
     _progress_bar_openstack_label = (By.XPATH, '//div[@class="ember-view row"]/div[contains(@class, "rhci-review-product-name")]/h3[text()="RHOSP"]/../..//div[@class="progress-bar-label"]')
-    _progress_bar_class_success_name = 'progress-bar-success'
 
     # elements
     @property
@@ -88,7 +89,7 @@ class InstallationProgress(QCIPage):
 
     @property
     def progress_bar_openshift(self):
-        return self.selenium.find_element(*self._progress_bar_cloudforms)
+        return self.selenium.find_element(*self._progress_bar_openshift)
 
     @property
     def progress_bar_openshift_label(self):
@@ -96,7 +97,7 @@ class InstallationProgress(QCIPage):
 
     @property
     def progress_bar_openstack(self):
-        return self.selenium.find_element(*self._progress_bar_cloudforms)
+        return self.selenium.find_element(*self._progress_bar_openstack)
 
     @property
     def progress_bar_openstack_label(self):
@@ -128,13 +129,15 @@ class InstallationProgress(QCIPage):
 
     def deployment_complete(self):
         """
-        Iterate through all of the progress bars on the page and return t
+        Iterate through all of the progress bars on the page and return true if there is an error
+        or all are successful
         """
-        dep_is_complete = True
+        dep_is_complete = False
         for progress_bar in self.progress_bar_all:
-            if not ((self._progress_bar_class_success_name in progress_bar.get_attribute('class')) or
-                    self._progress_bar_class_error_name in progress_bar.get_attribute('class')):
-                dep_is_complete = False
+            if (
+               self._progress_bar_class_success_name not in progress_bar.get_attribute('class') or
+               (self._progress_bar_class_error_name in progress_bar.get_attribute('class'))):
+                dep_is_complete = True
 
         return dep_is_complete
 
@@ -143,12 +146,12 @@ class InstallationProgress(QCIPage):
         Check the result of all products being deployed.
         Return True if deployment was successful, False otherwise
         """
-        dep_is_complete = True
+        result = True
         for progress_bar in self.progress_bar_all:
             if self._progress_bar_class_success_name not in progress_bar.get_attribute('class'):
-                dep_is_complete = False
+                result = False
 
-        return dep_is_complete
+        return result
 
     def satellite_success(self):
         """

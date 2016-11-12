@@ -132,14 +132,17 @@ class InstallationProgress(QCIPage):
         Iterate through all of the progress bars on the page and return true if there is an error
         or all are successful
         """
-        dep_is_complete = False
-        for progress_bar in self.progress_bar_all:
-            if (
-               self._progress_bar_class_success_name not in progress_bar.get_attribute('class') or
-               (self._progress_bar_class_error_name in progress_bar.get_attribute('class'))):
-                dep_is_complete = True
+        all_success = True
+        error_found = False
 
-        return dep_is_complete
+        for progress_bar in self.progress_bar_all:
+            if self._progress_bar_class_success_name not in progress_bar.get_attribute('class'):
+                all_success = False
+
+            if self._progress_bar_class_error_name in progress_bar.get_attribute('class'):
+                error_found = True
+
+        return error_found or all_success
 
     def deployment_result(self):
         """

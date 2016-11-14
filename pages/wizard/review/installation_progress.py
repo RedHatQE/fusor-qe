@@ -19,16 +19,26 @@ class InstallationProgress(QCIPage):
     _progress_bar_class_success_name = 'progress-bar-success'
     _progress_bar_class_error_name = 'progress-bar-danger'
     _progress_bar_all = (By.XPATH, '//div[@role="progressbar"]')
-    _progress_bar_satellite = (By.XPATH, '//div[@class="ember-view row"]/div[contains(@class, "rhci-review-product-name")]/h3[text()="Satellite"]/../..//div[@role="progressbar"]')
-    _progress_bar_satellite_label = (By.XPATH, '//div[@class="ember-view row"]/div[contains(@class, "rhci-review-product-name")]/h3[text()="Satellite"]/../..//div[@class="progress-bar-label"]')
-    _progress_bar_rhv = (By.XPATH, '//div[@class="ember-view row"]/div[contains(@class, "rhci-review-product-name")]/h3[text()="RHV"]/../..//div[@role="progressbar"]')
-    _progress_bar_rhv_label = (By.XPATH, '//div[@class="ember-view row"]/div[contains(@class, "rhci-review-product-name")]/h3[text()="RHV"]/../..//div[@class="progress-bar-label"]')
-    _progress_bar_cloudforms = (By.XPATH, '//div[@class="ember-view row"]/div[contains(@class, "rhci-review-product-name")]/h3[text()="CloudForms"]/../..//div[@role="progressbar"]')
-    _progress_bar_cloudforms_label = (By.XPATH, '//div[@class="ember-view row"]/div[contains(@class, "rhci-review-product-name")]/h3[text()="CloudForms"]/../..//div[@class="progress-bar-label"]')
-    _progress_bar_openshift = (By.XPATH, '//div[@class="ember-view row"]/div[contains(@class, "rhci-review-product-name")]/h3[text()="OpenShift"]/../..//div[@role="progressbar"]')
-    _progress_bar_openshift_label = (By.XPATH, '//div[@class="ember-view row"]/div[contains(@class, "rhci-review-product-name")]/h3[text()="OpenShift"]/../..//div[@class="progress-bar-label"]')
-    _progress_bar_openstack = (By.XPATH, '//div[@class="ember-view row"]/div[contains(@class, "rhci-review-product-name")]/h3[text()="RHOSP"]/../..//div[@role="progressbar"]')
-    _progress_bar_openstack_label = (By.XPATH, '//div[@class="ember-view row"]/div[contains(@class, "rhci-review-product-name")]/h3[text()="RHOSP"]/../..//div[@class="progress-bar-label"]')
+
+    _progress_bar_satellite_row = (By.XPATH, '//div[@class="ember-view row"]/div[contains(@class, "rhci-review-product-name")]/h3[text()="Satellite"]/../..')
+    _progress_bar_satellite = (By.XPATH, '{}//div[@role="progressbar"]'.format(_progress_bar_satellite_row[1]))
+    _progress_bar_satellite_label = (By.XPATH, '{}//div[@class="progress-bar-label"]'.format(_progress_bar_satellite_row[1]))
+
+    _progress_bar_rhv_row = (By.XPATH, '//div[@class="ember-view row"]/div[contains(@class, "rhci-review-product-name")]/h3[text()="RHV"]/../..')
+    _progress_bar_rhv = (By.XPATH, '{}//div[@role="progressbar"]'.format(_progress_bar_rhv_row[1]))
+    _progress_bar_rhv_label = (By.XPATH, '{}//div[@class="progress-bar-label"]'.format(_progress_bar_rhv_row[1]))
+
+    _progress_bar_cloudforms_row = (By.XPATH, '//div[@class="ember-view row"]/div[contains(@class, "rhci-review-product-name")]/h3[text()="CloudForms"]/../..')
+    _progress_bar_cloudforms = (By.XPATH, '{}//div[@role="progressbar"]'.format(_progress_bar_cloudforms_row[1]))
+    _progress_bar_cloudforms_label = (By.XPATH, '{}//div[@class="progress-bar-label"]'.format(_progress_bar_cloudforms_row[1]))
+
+    _progress_bar_openshift_row = (By.XPATH, '//div[@class="ember-view row"]/div[contains(@class, "rhci-review-product-name")]/h3[text()="OpenShift"]/../..')
+    _progress_bar_openshift = (By.XPATH, '{}//div[@role="progressbar"]'.format(_progress_bar_openshift_row))
+    _progress_bar_openshift_label = (By.XPATH, '{}//div[@class="progress-bar-label"]'.format(_progress_bar_openshift_row))
+
+    _progress_bar_openstack_row = (By.XPATH, '//div[@class="ember-view row"]/div[contains(@class, "rhci-review-product-name")]/h3[text()="RHOSP"]/../..')
+    _progress_bar_openstack = (By.XPATH, '{}//div[@role="progressbar"]'.format(_progress_bar_openstack_row))
+    _progress_bar_openstack_label = (By.XPATH, '{}//div[@class="progress-bar-label"]'.format(_progress_bar_openstack_row))
 
     # elements
     @property

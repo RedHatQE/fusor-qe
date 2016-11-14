@@ -1,7 +1,6 @@
 from selenium.webdriver.common.by import By
 from pages.base import Base
 
-from pages.wizard.regions.deployment_step_bar import DeploymentStepBar
 
 class Configuration(Base):
     _page_title = "Configuration"

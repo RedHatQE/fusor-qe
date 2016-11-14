@@ -30,8 +30,44 @@ this repository.
 * pytest.ini.example - example config for pytest.
 * README.md - this file.
 * requirements.txt - python libraries needed by this repository.
-* setup.cfg 
+* setup.cfg - flake8 config.
 * variables.json.example - contains data needed by the tests.
+
+# Updating Python Requirements
+
+If you want to just update the python libraries on your box, then become
+root, go to the root of this source tree, and run the command:
+
+    pip install -r requirements.txt
+
+If however you want use a python virtual environment (see 
+https://virtualenv.pypa.io/en/stable/) then you can use this set 
+of commands:
+
+    virtualenv ${workspace}.venv
+    . ${workspace}.venv/bin/activate
+    pip install -r requirements.txt
+
+Note, git is configured in this repository to ignore files that end 
+in `.venv` and `.virtenv`, so though adding one of these extensions 
+is not required it will make it so the virtual environment does not
+pollute your `git status` calls.
+
+A really good guide to learning about virtual environments is:
+
+    http://docs.python-guide.org/en/latest/dev/virtualenvs/
+
+# Checking source against pep8 standard
+
+You can use the flake8 program to verify that source adheres to the
+pep8 standard.  To do so with the configuration for this repo run:
+
+    flake8 --config=setup.cfg $src
+
+or:
+
+    flake8 --config=setup.cfg $srcDir
+
 
 # Testing
 

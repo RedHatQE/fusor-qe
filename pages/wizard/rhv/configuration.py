@@ -1,6 +1,7 @@
 from selenium.webdriver.common.by import By
 from pages.base import Base
 
+
 class Configuration(Base):
     _page_title = "QuickStart Cloud Installer"
     _root_password_loc = (By.ID, "rhev-root-password")
@@ -101,4 +102,3 @@ class Configuration(Base):
             except StaleElementReferenceException:
                 pass
         raise NameError("Can't find specified cpu type.")
-

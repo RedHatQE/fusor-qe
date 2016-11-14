@@ -1,6 +1,7 @@
 from selenium.webdriver.common.by import By
 from pages.base import Base
 
+
 class Configuration(Base):
     _page_title = "QuickStart Cloud Installer"
     _nfs_radio_loc = (By.XPATH, "//input[@value='NFS']")
@@ -85,4 +86,3 @@ class Configuration(Base):
 
     def click_hello_world(self):
         self.hello_world_checkbox.click()
-

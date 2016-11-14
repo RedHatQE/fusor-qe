@@ -2,6 +2,7 @@ from selenium.webdriver.common.by import By
 from pages.base import Base
 from pages.wizard.rhv.hosts import Hosts
 
+
 class Hypervisor(Base):
     _page_title = "QuickStart Cloud Installer"
     _search_box_loc = (By.XPATH, "//input[@placeholder=' Search ...']")
@@ -9,26 +10,40 @@ class Hypervisor(Base):
     _naming_scheme_loc = (By.XPATH, "//button[contains(.,'Edit Naming Scheme')]")
     _select_all_loc = (By.XPATH, "//span[@class = 'rhev-select-all']/a")
     _host_table_loc = (By.XPATH, "//div[@class = 'col-lg-9']/table")
-    _naming_scheme_cancel_loc = (By.XPATH, \
-        "//div[@class = 'modal-footer']/button[contains(., 'Cancel')]")
-    _naming_scheme_edit_loc = (By.XPATH, \
-        "//div[@class = 'modal-footer']/button[contains(., 'Edit')]")
+    _naming_scheme_cancel_loc = (
+        By.XPATH,
+        "//div[@class = 'modal-footer']/button[contains(., 'Cancel')]"
+    )
+    _naming_scheme_edit_loc = (
+        By.XPATH,
+        "//div[@class = 'modal-footer']/button[contains(., 'Edit')]"
+    )
     _naming_scheme_dropdown_loc = (By.XPATH, "//div[@role = 'button']")
-    _naming_scheme_dropwown_search_loc = (By.XPATH, \
-        "//div[@class = 'ember-power-select-search']/input")
-    _naming_scheme_dropwown_free_loc = (By.XPATH, \
-        "//div[@class = 'ember-power-select-search']/../ul/li[contains(., 'Freeform')]")
-    _naming_scheme_dropwown_mac_loc = (By.XPATH, \
-        "//div[@class = 'ember-power-select-search']/../ul/li[contains(., 'MAC address')]")
-    _naming_scheme_dropwown_hyper_loc = (By.XPATH, \
-        "//div[@class = 'ember-power-select-search']/../ul/li[contains(., 'hypervisorN')]")
-    _naming_scheme_dropwown_custom_loc = (By.XPATH, \
-        "//div[@class = 'ember-power-select-search']/../ul/li[contains(., 'Custom scheme')]")
+    _naming_scheme_dropwown_search_loc = (
+        By.XPATH,
+        "//div[@class = 'ember-power-select-search']/input"
+    )
+    _naming_scheme_dropwown_free_loc = (
+        By.XPATH,
+        "//div[@class = 'ember-power-select-search']/../ul/li[contains(., 'Freeform')]"
+    )
+    _naming_scheme_dropwown_mac_loc = (
+        By.XPATH,
+        "//div[@class = 'ember-power-select-search']/../ul/li[contains(., 'MAC address')]"
+    )
+    _naming_scheme_dropwown_hyper_loc = (
+        By.XPATH,
+        "//div[@class = 'ember-power-select-search']/../ul/li[contains(., 'hypervisorN')]"
+    )
+    _naming_scheme_dropwown_custom_loc = (
+        By.XPATH,
+        "//div[@class = 'ember-power-select-search']/../ul/li[contains(., 'Custom scheme')]"
+    )
     _naming_scheme_custom_prepend_loc = (By.XPATH, "//div[@class = 'form-group ']/div/input")
-    #only for self-hosted
+    # only for self-hosted
     _engine_hostname_loc = (By.ID, "rhev-engine-hostname")
 
-    #only for self-hosted
+    # only for self-hosted
     @property
     def engine_hostname_field(self):
         return self.selenium.find_element(*self._engine_hostname_loc)
@@ -89,7 +104,7 @@ class Hypervisor(Base):
     def naming_scheme_custom_prepend_field(self):
         return self.selenium.find_element(*self._naming_scheme_custom_prepend_loc)
 
-    #only for self-hosted
+    # only for self-hosted
     def set_engine_hostname(self, hostname):
         self.engine_hostname_field.clear()
         self.engine_hostname_field.send_keys(hostname)
@@ -135,4 +150,3 @@ class Hypervisor(Base):
 
     def choose_naming_scheme_dropdown(self):
         self.naming_scheme_dropdown.click()
-

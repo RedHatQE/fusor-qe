@@ -1,7 +1,6 @@
 from selenium.webdriver.common.by import By
 from pages.base import Base
 
-from pages.wizard.regions.deployment_step_bar import DeploymentStepBar
 
 class InstallationLocation(Base):
     _page_title = "Installation Location"

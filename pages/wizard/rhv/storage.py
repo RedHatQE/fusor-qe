@@ -1,6 +1,7 @@
 from selenium.webdriver.common.by import By
 from pages.base import Base
 
+
 class Storage(Base):
     _page_title = "QuickStart Cloud Installer"
     _nfs_radio_loc = (By.XPATH, "//input[@value='NFS']")
@@ -11,7 +12,7 @@ class Storage(Base):
     _export_domain_name_loc = (By.ID, "rhev_export_domain_name")
     _export_storage_address_loc = (By.ID, "rhev_export_domain_address")
     _export_share_path_loc = (By.ID, "rhev_export_domain_path")
-    #only for self-hosted
+    # only for self-hosted
     _hosted_domain_name_loc = (By.ID, "hosted_storage_name")
     _hosted_storage_address_loc = (By.ID, "hosted_storage_address")
     _hosted_share_path_loc = (By.ID, "hosted_storage_path")
@@ -48,17 +49,17 @@ class Storage(Base):
     def export_share_path_field(self):
         return self.selenium.find_element(*self._export_share_path_loc)
 
-    #only for self-hosted
+    # only for self-hosted
     @property
     def hosted_domain_name_field(self):
         return self.selenium.find_element(*self._hosted_domain_name_loc)
 
-    #only for self-hosted
+    #        only for self-hosted
     @property
     def hosted_storage_address_field(self):
         return self.selenium.find_element(*self._hosted_storage_address_loc)
 
-    #only for self-hosted
+    # only for self-hosted
     @property
     def hosted_share_path_field(self):
         return self.selenium.find_element(*self._hosted_share_path_loc)
@@ -104,4 +105,3 @@ class Storage(Base):
     def set_hosted_share_path(self, data):
         self.hosted_share_path_field.clear()
         self.hosted_share_path_field.send_keys(data)
-

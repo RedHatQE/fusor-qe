@@ -1,4 +1,4 @@
-#allows operations with multiple hosts for RHV Engine and Hypervisor pages
+# allows operations with multiple hosts for RHV Engine and Hypervisor pages
 class Hosts():
 
     def __init__(self, table):
@@ -7,25 +7,25 @@ class Hosts():
         self.table = table
 
     def _make_host_objects(self, table):
-        return [self.Host(tr) for tr in \
-            table.find_element_by_tag_name('tbody').\
-            find_elements_by_tag_name('tr')]
+        return [
+            self.Host(tr) for tr in table.find_element_by_tag_name('tbody').find_elements_by_tag_name('tr')
+        ]
 
     def _make_heads(self, table):
-        return [head for head in \
-            table.find_element_by_tag_name('thead').\
-            find_elements_by_tag_name('th')]
+        return [
+            head for head in table.find_element_by_tag_name('thead').find_elements_by_tag_name('th')
+        ]
 
     def _get_host_with_attribute(self, attr, is_max):
         dct = {}
         for host in self.hosts:
-            dct.update({host:host.get_attr(attr)})
+            dct.update({host: host.get_attr(attr)})
         if is_max:
             return max(dct, key=dct.get)
         else:
             return min(dct, key=dct.get)
 
-    #Methods for choosing single host with minimum or maximum value of an attribute
+    # Methods for choosing single host with minimum or maximum value of an attribute
     def get_host_max_cpu(self):
         return self._get_host_with_attribute('cpu', True)
 
@@ -44,8 +44,8 @@ class Hosts():
     def get_host_min_disk_space(self):
         return self._get_host_with_attribute('space', False)
 
-    #Methods for choosing host by attribute
-    #First host that matches the attribute is returned
+    # Methods for choosing host by attribute
+    # First host that matches the attribute is returned
     def get_host_by_name(self, name):
         sname = str(name)
         for host in self.hosts:
@@ -109,7 +109,7 @@ class Hosts():
             if text == attr:
                 head.click()
 
-    #Methods for choosing host by the position in the table
+    # Methods for choosing host by the position in the table
     def get_first_host(self):
         new_hosts = self._make_host_objects(self.table)
         return new_hosts[0]
@@ -118,7 +118,7 @@ class Hosts():
         new_hosts = self._make_host_objects(self.table)
         return new_hosts[-1]
 
-    #Methods for sorting hosts in the table by attribute
+    # Methods for sorting hosts in the table by attribute
     def sort_hosts_by_name(self):
         self._sort_hosts_by_attribute("Host Name")
 
@@ -143,19 +143,19 @@ class Hosts():
     def sort_hosts_by_network(self):
         self._sort_hosts_by_attribute("Network")
 
-    #Represents a single host
+    # Represents a single host
     class Host():
 
         def __init__(self, table_row):
-            #data[0] - checkbox
-            #data[1] - host name
-            #data[2] - MAC address
-            #data[3] - host type
-            #data[4] - CPU
-            #data[5] - memory
-            #data[6] - disks
-            #data[7] - disk space
-            #data[8] - network
+            # data[0] - checkbox
+            # data[1] - host name
+            # data[2] - MAC address
+            # data[3] - host type
+            # data[4] - CPU
+            # data[5] - memory
+            # data[6] - disks
+            # data[7] - disk space
+            # data[8] - network
             self.data = table_row.find_elements_by_tag_name('td')
 
         def get_attr(self, attr):
@@ -179,8 +179,9 @@ class Hosts():
             return str(self.data[2].text)
 
         def htype(self):
-            return str(self.data[3].find_element_by_tag_name('span').\
-                get_attribute('data-original-title'))
+            return str(
+                self.data[3].find_element_by_tag_name('span').get_attribute('data-original-title')
+            )
 
         def cpu(self):
             return int(filter(str.isdigit, str(self.data[4].text)))
@@ -198,14 +199,13 @@ class Hosts():
             return str(self.data[8].text)
 
         def set_name(self, name):
-            #name can be set only to choosen hypervisor
+            # name can be set only to choosen hypervisor
             self.choose()
             sname = str(name)
             name_field = self.data[1].find_element_by_tag_name('input')
             name_field.clear()
-            #this is here because the name field looses focus when hypervisors are sorted
-            #sorting is automatic as user writes the name
+            # this is here because the name field looses focus when hypervisors are sorted
+            # sorting is automatic as user writes the name
             for c in sname:
                 name_field.send_keys(c)
                 name_field.click()
-

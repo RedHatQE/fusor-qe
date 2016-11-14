@@ -1,6 +1,7 @@
 from selenium.webdriver.common.by import By
 from pages.base import Base
 
+
 class Nodes(Base):
     _page_title = "QuickStart Cloud Installer"
     _rhv_radio_loc = (By.XPATH, "//input[@value='RHEV']")
@@ -121,4 +122,3 @@ class Nodes(Base):
     def set_worker_disk(self, number):
         self.worker_disk.clear()
         self.worker_disk.send_keys(number)
-

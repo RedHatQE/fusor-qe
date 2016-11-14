@@ -21,7 +21,7 @@ class Storage(Base):
     _spinner_storage_mount_text = (By.XPATH, "//div[contains(@class, 'spinner-md')]/../span[@class='spinner-text' and contains(., 'Trying to mount storage paths')]")
 
     @property
-    def alert_storage(self):
+    def alert_rhv_storage(self):
         return self.selenium.find_element(*self._alert_rhv_storage)
 
     @property
@@ -87,6 +87,7 @@ class Storage(Base):
             alert_messages.append(alert.text)
 
         return alert_messages
+
     def click_nfs(self):
         self.nfs_radio_button.click()
 

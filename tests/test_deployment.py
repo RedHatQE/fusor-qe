@@ -1,3 +1,4 @@
+from time import sleep
 from lib.deployment_runner import UIDeploymentRunner
 from pages.wizard.rhv.setup_type import SetupType
 from pages.wizard.rhv.engine import Engine
@@ -21,6 +22,10 @@ def test_e2e_deployment(new_deployment_pg, variables):
     update_avail_pg = runner.deployment_name(deployment_name_pg)
     insights_pg = runner.update_availability(update_avail_pg)
     next_pg = runner.access_insights(insights_pg)
+
+    # Number of retry attempts if there is failure to mount the rhv storage domains
+    rhv_storage_fail_retry_max = 3
+
     # check if we are on the RHV Setup Type page
     if isinstance(next_pg, SetupType):
         setuptype_pg = next_pg
@@ -33,6 +38,17 @@ def test_e2e_deployment(new_deployment_pg, variables):
         rhv_config_pg = runner.hypervisor(rhv_hyper_pg)
         rhv_storage_pg = runner.rhv_configuration(rhv_config_pg)
         next_pg = runner.rhv_storage(rhv_storage_pg)
+
+        # Attempt to retry the storage mounts if there is a failure
+        rhv_storage_mount_failures = 0
+        rhv_storage_mount_retry_wait = 3
+        while rhv_storage_pg.get_alerts() and rhv_storage_mount_failures < rhv_storage_fail_retry_max:
+            rhv_storage_mount_failures += 1
+            print "Attempt {}: Alert on RHV storage configuration: {}".format(
+                rhv_storage_mount_failures, rhv_storage_pg.alert_storage.text)
+            sleep(rhv_storage_mount_retry_wait)
+            next_pg = rhv_storage_pg.click_next()
+
     # check if we are on the CFME install location page)
     if isinstance(next_pg, InstallationLocation):
         cfmeinstall_pg = next_pg

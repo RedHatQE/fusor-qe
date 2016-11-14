@@ -16,6 +16,21 @@ class Storage(Base):
     _hosted_domain_name_loc = (By.ID, "hosted_storage_name")
     _hosted_storage_address_loc = (By.ID, "hosted_storage_address")
     _hosted_share_path_loc = (By.ID, "hosted_storage_path")
+    _alert_rhv_storage = (By.XPATH, "//div[contains(@class, 'rhci-alert')]")
+    _spinner_storage_mount = (By.XPATH, "//div[contains(@class, 'spinner-md')]")
+    _spinner_storage_mount_text = (By.XPATH, "//div[contains(@class, 'spinner-md')]/../span[@class='spinner-text' and contains(., 'Trying to mount storage paths')]")
+
+    @property
+    def alert_rhv_storage(self):
+        return self.selenium.find_element(*self._alert_rhv_storage)
+
+    @property
+    def spinner_storage(self):
+        return self.selenium.find_element(*self._spinner_storage_mount)
+
+    @property
+    def spinner_storage_text(self):
+        return self.selenium.find_element(*self._spinner_storage_mount_text)
 
     @property
     def nfs_radio_button(self):
@@ -63,6 +78,15 @@ class Storage(Base):
     @property
     def hosted_share_path_field(self):
         return self.selenium.find_element(*self._hosted_share_path_loc)
+
+    def get_alerts(self):
+        alerts = self.selenium.find_elements(*self._alert_rhv_storage)
+        alert_messages = []
+
+        for alert in alerts:
+            alert_messages.append(alert.text)
+
+        return alert_messages
 
     def click_nfs(self):
         self.nfs_radio_button.click()

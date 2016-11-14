@@ -1,5 +1,6 @@
 from selenium.webdriver.common.by import By
 from pages.base import Base
+from pages.qci_ui_tools import QciUiTools
 
 
 class DetectUndercloud(Base):
@@ -24,7 +25,7 @@ class DetectUndercloud(Base):
     #       - Delete overcloud
     #       - use a different undercloud
     _delete_overcloud_loc = (By.XPATH, "//a[contains(., 'Delete overcloud')]")
-    _use_different_overcloud_loc = (
+    _use_different_undercloud_loc = (
         By.XPATH,
         "//a[contains(., 'use a different undercloud')]"
     )
@@ -58,8 +59,8 @@ class DetectUndercloud(Base):
         return self.selenium.find_element(*self._delete_overcloud_loc)
 
     @property
-    def use_different_overcloud(self):
-        return self.selenium.find_element(*self._use_different_overcloud_loc)
+    def use_different_undercloud(self):
+        return self.selenium.find_element(*self._use_different_undercloud_loc)
 
     ###########
     # actions #
@@ -86,5 +87,8 @@ class DetectUndercloud(Base):
     def click_delete_overcloud(self):
         self.delete_overcloud.click()
 
-    def click_use_different_overcloud(self):
-        self.use_different_overcloud.click()
+        qci_ui_tools = QciUiTools(page=self)
+        qci_ui_tools.wait_for_spinner(timeout=300)
+
+    def click_use_different_undercloud(self):
+        self.use_different_undercloud.click()

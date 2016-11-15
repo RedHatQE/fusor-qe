@@ -54,16 +54,22 @@ class Page(object):
         WebDriverWait(self.selenium, self.timeout).until(lambda s: self.selenium.title)
         return self.selenium.current_url
 
-    def wait_until_element_is_not_visible(self, locator):
-        WebDriverWait(self.selenium, self.timeout).until(
+    def wait_until_element_is_not_visible(self, locator, timeout=None):
+        if timeout is None:
+            timeout = self.timeout
+
+        WebDriverWait(self.selenium, timeout).until(
             EC.invisibility_of_element_located(locator))
-        self.wait_for_ajax()
+        self.wait_for_ajax(timeout=timeout)
         return True
 
-    def wait_until_element_is_visible(self, locator):
-        WebDriverWait(self.selenium, self.timeout).until(
+    def wait_until_element_is_visible(self, locator, timeout=None):
+        if timeout is None:
+            timeout = self.timeout
+
+        WebDriverWait(self.selenium, timeout).until(
             EC.visibility_of_element_located(locator))
-        self.wait_for_ajax()
+        self.wait_for_ajax(timeout=timeout)
         return True
 
     def ajax_complete(self, driver):
@@ -87,8 +93,11 @@ class Page(object):
         y = element.location['y']
         self.selenium.execute_script("window.scrollTo(0, {});".format(y))
 
-    def wait_for_ajax(self):
-        WebDriverWait(self.selenium, self.timeout).until(
+    def wait_for_ajax(self, timeout=None):
+        if timeout is None:
+            timeout = self.timeout
+
+        WebDriverWait(self.selenium, timeout).until(
             self.ajax_complete, 'Timeout waiting for page to load')
 
     def return_to_previous_page(self):

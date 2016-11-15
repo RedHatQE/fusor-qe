@@ -50,14 +50,20 @@ class Page(object):
         return self
 
     @property
-    def is_the_current_page(self):
-        WebDriverWait(self.selenium, self.timeout).until(
+    def is_the_current_page(self, timeout=None):
+        if timeout is None:
+            timeout = self.timeout
+
+        WebDriverWait(self.selenium, timeout).until(
             lambda s: s.title == self._page_title,
             "Expected page title: %s. Actual page title: %s" % (self._page_title, self.selenium.title))
         return True
 
-    def get_url_current_page(self):
-        WebDriverWait(self.selenium, self.timeout).until(lambda s: self.selenium.title)
+    def get_url_current_page(self, timeout=None):
+        if timeout is None:
+            timeout = self.timeout
+
+        WebDriverWait(self.selenium, timeout).until(lambda s: self.selenium.title)
         return self.selenium.current_url
 
     def wait_until_element_is_not_visible(self, locator, timeout=None):

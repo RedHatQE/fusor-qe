@@ -7,9 +7,9 @@ class InstallationReview(Base):
     # locators
 
     _rhv_root_pw_eye_loc = (By.XPATH,
-                             '//a[@data-qci="root_password_engine_&_hypervisor"]/following-sibling::i')
+                            '//a[@data-qci="root_password_engine_&_hypervisor"]/following-sibling::i')
     _rhv_admin_pw_eye_loc = (By.XPATH,
-                              '//a[@data-qci="engine_admin_password"]/following-sibling::i')
+                             '//a[@data-qci="engine_admin_password"]/following-sibling::i')
     _cfme_root_pw_eye_loc = (By.XPATH,
                              '//a[@data-qci="cfme_root_password"]/following-sibling::i')
     _cfme_admin_pw_eye_loc = (By.XPATH,

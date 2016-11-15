@@ -146,10 +146,10 @@ class InstallationProgress(QCIPage):
         error_found = False
 
         for progress_bar in self.progress_bar_all:
-            if self._progress_bar_class_success_name not in progress_bar.get_attribute('class'):
+            if not self.progress_bar_success(progress_bar):
                 all_success = False
 
-            if self._progress_bar_class_error_name in progress_bar.get_attribute('class'):
+            if self.progress_bar_error(progress_bar):
                 error_found = True
 
         return error_found or all_success
@@ -161,42 +161,21 @@ class InstallationProgress(QCIPage):
         """
         result = True
         for progress_bar in self.progress_bar_all:
-            if self._progress_bar_class_success_name not in progress_bar.get_attribute('class'):
+            if not self.progress_bar_success(progress_bar):
                 result = False
 
         return result
 
-    def satellite_success(self):
-        """
-        Return True if Satellite progress is successful, False otherwise
-        """
-        return (self._progress_bar_class_success_name in
-                self.progress_bar_satellite.get_attribute('class'))
+    def progress_bar_success(self, progress_bar):
+        return self._progress_bar_class_success_name in progress_bar.get_attribute('class')
 
-    def rhv_success(self):
-        """
-        Return True if Satellite progress is successful, False otherwise
-        """
-        return (self._progress_bar_class_success_name in
-                self.progress_bar_rhv.get_attribute('class'))
+    def progress_bar_error(self, progress_bar):
+        return self._progress_bar_class_error_name in progress_bar.get_attribute('class')
 
-    def cloudforms_success(self):
-        """
-        Return True if Satellite progress is successful, False otherwise
-        """
-        return (self._progress_bar_class_success_name in
-                self.progress_bar_cloudforms.get_attribute('class'))
+    def progress_bar_waiting(self, progress_bar):
+        return (not (self.progress_bar_success(progress_bar) or self.progress_bar_error(progress_bar)) and
+                (int(progress_bar.get_attribute('aria-valuemin')) == int(progress_bar.get_attribute('aria-valuenow'))))
 
-    def openshift_success(self):
-        """
-        Return True if Satellite progress is successful, False otherwise
-        """
-        return (self._progress_bar_class_success_name in
-                self.progress_bar_openshift.get_attribute('class'))
-
-    def openstack_success(self):
-        """
-        Return True if Satellite progress is successful, False otherwise
-        """
-        return (self._progress_bar_class_success_name in
-                self.progress_bar_openstack.get_attribute('class'))
+    def progress_bar_processing(self, progress_bar):
+        return (not (self.progress_bar_success(progress_bar) or self.progress_bar_error(progress_bar)) and
+                (int(progress_bar.get_attribute('aria-valuemin')) < int(progress_bar.get_attribute('aria-valuenow')) < int(progress_bar.get_attribute('aria-valuemax'))))

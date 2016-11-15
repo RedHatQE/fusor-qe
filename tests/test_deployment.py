@@ -45,7 +45,7 @@ def test_e2e_deployment(new_deployment_pg, variables):
         while rhv_storage_pg.get_alerts() and rhv_storage_mount_failures < rhv_storage_fail_retry_max:
             rhv_storage_mount_failures += 1
             print "Attempt {}: Alert on RHV storage configuration: {}".format(
-                rhv_storage_mount_failures, rhv_storage_pg.alert_storage.text)
+                rhv_storage_mount_failures, rhv_storage_pg.alert_rhv_storage.text)
             sleep(rhv_storage_mount_retry_wait)
             next_pg = rhv_storage_pg.click_next()
 

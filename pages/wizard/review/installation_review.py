@@ -1,8 +1,8 @@
 from selenium.webdriver.common.by import By
-from pages.base import Base
+from pages.qci_page import QCIPage
 
 
-class InstallationReview(Base):
+class InstallationReview(QCIPage):
 
     # locators
 

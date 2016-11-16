@@ -8,7 +8,7 @@
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.select import Select
 from selenium.webdriver.common.action_chains import ActionChains
-from pages.base import Base
+from pages.qci_page import QCIPage
 
 
 # Huge map of Global Config input field names to their type.
@@ -279,7 +279,7 @@ class GlobalConfItemTypeError(Exception):
         )
 
 
-class AssignNodes(Base):
+class AssignNodes(QCIPage):
     _page_title = "QuickStart Cloud Installer"
 
     # * locators *

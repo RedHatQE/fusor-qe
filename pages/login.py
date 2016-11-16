@@ -1,8 +1,8 @@
 from selenium.webdriver.common.by import By
-from base import Base
+from qci_page import QCIPage
 
 
-class LoginPage(Base):
+class LoginPage(QCIPage):
     _page_title = "Login"
     # locators
     _login_username_field_locator = (By.ID, 'login_login')

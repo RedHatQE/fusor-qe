@@ -12,7 +12,8 @@ from selenium.webdriver.support import expected_conditions as EC
 
 class Page(object):
     """
-    Base class for all Pages.
+    Base class for all Pages.   Provides methods generic to all
+    web pages.
     """
 
     def __init__(self, base_url, selenium, **kwargs):
@@ -24,6 +25,11 @@ class Page(object):
         self.timeout = 20
         self.wait = WebDriverWait(self.selenium, self.timeout)
         self.kwargs = kwargs
+
+    @property
+    def page_title(self):
+        WebDriverWait(self.selenium, self.timeout).until(lambda s: self.selenium.title)
+        return self.selenium.title
 
     def open(self):
         self.selenium.get(self.url)

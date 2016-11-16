@@ -1,6 +1,6 @@
-from pages.base import Base
+from pages.qci_page import QCIPage
 
 
-class ReviewSubscriptions(Base):
+class ReviewSubscriptions(QCIPage):
 
     pass

@@ -1,8 +1,8 @@
 from selenium.webdriver.common.by import By
-from pages.base import Base
+from pages.qci_page import QCIPage
 
 
-class Insights(Base):
+class Insights(QCIPage):
     _page_title = "Insights"
 
     # locators

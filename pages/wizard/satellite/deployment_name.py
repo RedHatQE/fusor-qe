@@ -1,8 +1,8 @@
 from selenium.webdriver.common.by import By
-from pages.base import Base
+from pages.qci_page import QCIPage
 
 
-class DeploymentName(Base):
+class DeploymentName(QCIPage):
     _page_title = "Deployment Name"
 
     # locators

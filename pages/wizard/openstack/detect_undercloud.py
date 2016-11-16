@@ -1,9 +1,8 @@
 from selenium.webdriver.common.by import By
-from pages.base import Base
-from pages.qci_ui_tools import QciUiTools
+from pages.qci_page import QCIPage
 
 
-class DetectUndercloud(Base):
+class DetectUndercloud(QCIPage):
     _page_title = "QuickStart Cloud Installer"
 
     ############
@@ -87,8 +86,7 @@ class DetectUndercloud(Base):
     def click_delete_overcloud(self):
         self.delete_overcloud.click()
 
-        qci_ui_tools = QciUiTools(page=self)
-        qci_ui_tools.wait_for_spinner(timeout=300)
+        self.wait_for_spinner(timeout=300)
 
     def click_use_different_undercloud(self):
         self.use_different_undercloud.click()

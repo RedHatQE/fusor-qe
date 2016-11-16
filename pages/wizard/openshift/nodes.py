@@ -1,8 +1,8 @@
 from selenium.webdriver.common.by import By
-from pages.base import Base
+from pages.qci_page import QCIPage
 
 
-class Nodes(Base):
+class Nodes(QCIPage):
     _page_title = "QuickStart Cloud Installer"
     _rhv_radio_loc = (By.XPATH, "//input[@value='RHEV']")
     _master_node_count_loc = (By.XPATH, "//span[@data-qci='master-1']")

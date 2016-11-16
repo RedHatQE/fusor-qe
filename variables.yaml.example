@@ -8,7 +8,7 @@ credentials:
 deployment:
   deployment_id: ABC123
   deployment_desc: "An automated test deployment"
-  deployment_timeout: 240 # Max time(minutes) we should wait after deployment starts
+  deployment_timeout: 14400 # Max time(seconds) we should wait after deployment starts
   install: ['cfme', 'rhv'] # valid entries are: cfme, rhv, osp, ocp
   products:
     cfme:

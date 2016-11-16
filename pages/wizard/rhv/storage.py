@@ -1,8 +1,8 @@
 from selenium.webdriver.common.by import By
-from pages.base import Base
+from pages.qci_page import QCIPage
 
 
-class Storage(Base):
+class Storage(QCIPage):
     _page_title = "QuickStart Cloud Installer"
     _nfs_radio_loc = (By.XPATH, "//input[@value='NFS']")
     _gluster_radio_loc = (By.XPATH, "//input[@value='glusterfs']")

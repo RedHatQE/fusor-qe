@@ -1,8 +1,8 @@
 from selenium.webdriver.common.by import By
-from pages.base import Base
+from pages.qci_page import QCIPage
 
 
-class ContentProviderPage(Base):
+class ContentProviderPage(QCIPage):
 
     # locators
     _redhat_cdn_radio_loc = (By.XPATH, '//input[@type="radio" and @value="redhat_cdn"]')

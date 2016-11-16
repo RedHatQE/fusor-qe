@@ -2,10 +2,10 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
-from base import Base
+from qci_page import QCIPage
 
 
-class DeploymentsPage(Base):
+class DeploymentsPage(QCIPage):
     _page_title = "QuickStart Cloud Installer"
     _search_box_locator = (By.XPATH, '//input[contains(@class, "filter-input")]')
     _search_btn_locator = (By.XPATH, '//button[contains(.,"Search")]')

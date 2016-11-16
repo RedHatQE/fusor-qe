@@ -30,10 +30,10 @@
 
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.select import Select
-from pages.base import Base
+from pages.qci_page import QCIPage
 
 
-class RegisterNodes(Base):
+class RegisterNodes(QCIPage):
     _page_title = "QuickStart Cloud Installer"
 
     # locators

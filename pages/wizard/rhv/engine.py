@@ -1,9 +1,9 @@
 from selenium.webdriver.common.by import By
-from pages.base import Base
+from pages.qci_page import QCIPage
 from pages.wizard.rhv.hosts import Hosts
 
 
-class Engine(Base):
+class Engine(QCIPage):
     _page_title = "QuickStart Cloud Installer"
     _search_box_loc = (By.XPATH, "//div[@class = 'rhev-search-box']/input[@type = 'text']")
     _refresh_data_loc = (By.XPATH, "//button[contains(.,'Refresh Data')]")

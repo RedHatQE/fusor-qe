@@ -1,8 +1,8 @@
 from selenium.webdriver.common.by import By
-from pages.base import Base
+from pages.qci_page import QCIPage
 
 
-class UpdateAvailability(Base):
+class UpdateAvailability(QCIPage):
     _page_title = "Update Availability"
 
     # locators

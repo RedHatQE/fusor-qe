@@ -1,10 +1,10 @@
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from pages.base import Base
+from pages.qci_page import QCIPage
 
 
-class SelectProductsPage(Base):
+class SelectProductsPage(QCIPage):
     _page_title = "QuickStart Cloud Installer"
     _rhv_checkbox_locator = (By.XPATH, "//span[@id='is_rhev']/div/input")
     _openstack_checkbox_locator = (By.XPATH,

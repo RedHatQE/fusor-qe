@@ -5,17 +5,13 @@ from pages.page import Page
 from pages.wizard.regions.navigation_buttons import NavigationButtons
 
 
-class Base(Page):
+class QCIPage(Page):
     '''
-    Base class for global project specific functions
+    Base class for QCI Page Objects.  Contains methods
+    common to QCI pages.
     '''
-
-    _url = '{base_url}'
-
-    # locators
-
     def __init__(self, base_url, selenium, **kwargs):
-        super(Base, self).__init__(base_url, selenium, **kwargs)
+        super(QCIPage, self).__init__(base_url, selenium, **kwargs)
         self.navigation_buttons = NavigationButtons(
             base_url,
             selenium
@@ -23,13 +19,43 @@ class Base(Page):
         self.wait_for_ajax()
 
     @property
-    def page_title(self):
-        WebDriverWait(self.selenium, self.timeout).until(lambda s: self.selenium.title)
-        return self.selenium.title
-
-    @property
     def header(self):
-        return Base.HeaderRegion(self, self.selenium)
+        return QCIPage.HeaderRegion(self, self.selenium)
+
+    #######################
+    # QCI Spinner Methods #
+    #######################
+    def build_qci_spinner_xpath(self, text=None):
+        # QCI spinners are done via a div tag with a class of spinner-md
+        qci_spinner_xpath_str = "div[contains(@class, 'spinner-md')]"
+
+        # If they want to to catch a spinner with specific text
+        # build the xpath string to include that.   At the time of
+        # writing this, the spinner div and the text span tag are peer
+        # nodes in the HTML tree.
+        if text is not None:
+            qci_spinner_text_xpath_str = "//span[@class = 'spinner-text' and contains(., '{}')]".format(text)
+            qci_spinner_xpath_str = "{}/../{}".format(
+                qci_spinner_text_xpath_str,
+                qci_spinner_xpath_str,
+            )
+
+        # Otherwise we need to prepend the // so we can find the
+        # spinner anywhere in the document tree:
+        else:
+            qci_spinner_xpath_str = "//{}".format(qci_spinner_xpath_str)
+
+        return qci_spinner_xpath_str
+
+    def wait_on_spinner(self, text=None, timeout=None):
+        qci_spinner_xpath_str = self.build_qci_spinner_xpath(text)
+
+        qci_spinner_loc = (By.XPATH, qci_spinner_xpath_str)
+
+        self.wait_until_element_is_not_visible(
+            qci_spinner_loc,
+            timeout
+        )
 
     #############################
     # Navigation Button Methods #
@@ -54,6 +80,9 @@ class Base(Page):
         return self.navigation_buttons.click_continue_working()
 
     class HeaderRegion(Page):
+        '''
+        Inner class to contain code for managing the QCI header region.
+        '''
         _site_navigation_menus_locator = (By.CSS_SELECTOR,
                                           "div.navbar > div.container > ul.navbar-menu > li")
         _site_navigation_min_number_menus = 1

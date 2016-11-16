@@ -1,8 +1,8 @@
 from selenium.webdriver.common.by import By
-from pages.base import Base
+from pages.qci_page import QCIPage
 
 
-class InstallationSummary(Base):
+class InstallationSummary(QCIPage):
 
     # locators
     _view_deployments_loc = (By.XPATH, "//a[contains(.,'View Deployments')]")

@@ -1,5 +1,5 @@
-from pages.base import Base
+from pages.qci_page import QCIPage
 
 
-class DashboardPage(Base):
+class DashboardPage(QCIPage):
     _page_title = "Overview"

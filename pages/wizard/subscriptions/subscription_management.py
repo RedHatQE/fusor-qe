@@ -1,8 +1,8 @@
 from selenium.webdriver.common.by import By
-from pages.base import Base
+from pages.qci_page import QCIPage
 
 
-class SubscriptionManagement(Base):
+class SubscriptionManagement(QCIPage):
 
     # locators
     _new_sma_button_loc = (By.XPATH,

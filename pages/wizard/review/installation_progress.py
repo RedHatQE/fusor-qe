@@ -1,9 +1,9 @@
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.select import Select
-from pages.base import Base
+from pages.qci_page import QCIPage
 
 
-class InstallationProgress(Base):
+class InstallationProgress(QCIPage):
 
     # locators
     _overview_tab_loc = (By.XPATH, '//li[contains(@class,"ember-view")]/a[text()="Overview"]')

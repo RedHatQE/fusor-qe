@@ -1,9 +1,9 @@
 from selenium.webdriver.common.by import By
-from pages.base import Base
+from pages.qci_page import QCIPage
 from pages.wizard.rhv.hosts import Hosts
 
 
-class Hypervisor(Base):
+class Hypervisor(QCIPage):
     _page_title = "QuickStart Cloud Installer"
     _search_box_loc = (By.XPATH, "//input[@placeholder=' Search ...']")
     _refresh_data_loc = (By.XPATH, "//button[contains(.,'Refresh Data')]")

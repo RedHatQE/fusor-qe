@@ -7,10 +7,10 @@
 #   - ceph storage information
 #
 from selenium.webdriver.common.by import By
-from pages.base import Base
+from pages.qci_page import QCIPage
 
 
-class ConfigureOvercloud(Base):
+class ConfigureOvercloud(QCIPage):
     _page_title = "QuickStart Cloud Installer"
 
     ############

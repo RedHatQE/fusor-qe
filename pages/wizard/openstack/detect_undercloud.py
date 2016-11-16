@@ -86,7 +86,7 @@ class DetectUndercloud(QCIPage):
     def click_delete_overcloud(self):
         self.delete_overcloud.click()
 
-        self.wait_for_spinner(timeout=300)
+        self.wait_on_spinner(timeout=300)
 
     def click_use_different_undercloud(self):
         self.use_different_undercloud.click()

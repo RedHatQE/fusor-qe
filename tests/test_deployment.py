@@ -22,7 +22,7 @@ def test_e2e_deployment(new_deployment_pg, variables):
     update_avail_pg = runner.deployment_name(deployment_name_pg)
     insights_pg = runner.update_availability(update_avail_pg)
     next_pg = runner.access_insights(insights_pg)
-    deployment_time_max = variables['deployment'].get('deployment_timeout', 14400)
+    deployment_time_max = variables['deployment'].get('deployment_timeout', 240)
 
     # Number of retry attempts if there is failure to mount the rhv storage domains
     rhv_storage_fail_retry_max = 3
@@ -81,7 +81,7 @@ def test_e2e_deployment(new_deployment_pg, variables):
     if isinstance(next_pg, InstallationProgress):
         install_progress_pg = next_pg
         deployment_time = 0
-        deployment_time_wait = 1
+        deployment_time_wait = 60  # Time (seconds) to poll for deployment status
         while deployment_time < deployment_time_max and not install_progress_pg.deployment_complete():
             sleep(deployment_time_wait)
             deployment_time += deployment_time_wait

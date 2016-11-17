@@ -144,7 +144,7 @@ def test_osp_api(osp_api, variables, deployment_name):
     undercloud_pass = dep_osp['undercloud_pass']
     overcloud_nodes = dep_osp['overcloud_nodes']
     overcloud_controller_count = dep_osp['controller_count']
-    overcloud_compute_count = dep_osp['controller_count']
+    overcloud_compute_count = dep_osp['compute_count']
     cinder_role_count = dep_osp.get('cinder_count', 0)
     swift_role_count = dep_osp.get('swift_count', 0)
     ceph_role_count = dep_osp.get('ceph_count', 0)  # Ceph local storage not supported in QCI

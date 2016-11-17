@@ -81,12 +81,13 @@ def test_e2e_deployment(new_deployment_pg, variables):
     if isinstance(next_pg, InstallationProgress):
         install_progress_pg = next_pg
         deployment_time = 0
-        deployment_time_wait = 60  # Time (seconds) to poll for deployment status
+        deployment_time_wait = 1  # Time (minutes) to poll for deployment status
         while deployment_time < deployment_time_max and not install_progress_pg.deployment_complete():
-            sleep(deployment_time_wait)
+            sleep(deployment_time_wait * 60)  # Convert minute to seconds
             deployment_time += deployment_time_wait
 
-        assert install_progress_pg.deployment_result()
+        assert install_progress_pg.deployment_result(), "Deployment failed after {} minutes".format(deployment_time)
+
     else:
         # if we aren't at the Review Subscriptions page, something went wrong.
         assert False

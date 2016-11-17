@@ -2,7 +2,7 @@ import re
 import pytest
 import string
 import random
-import time
+from time import sleep
 
 from lib.api import fusor_api
 
@@ -198,7 +198,7 @@ def test_osp_api(osp_api, variables):
             osp_images = None
             ramdisk_image = None
             kernel_image = None
-            time.sleep(image_query_wait)
+            sleep(image_query_wait)
 
     for node in overcloud_nodes:
         assert osp_api.register_nodes(
@@ -276,3 +276,50 @@ def test_osp_api(osp_api, variables):
     # "Starting OpenStack deployment")
 
     assert osp_api.deploy()
+
+
+def test_osp_api_deployment_success(osp_api, variables):
+    """
+    Query the fusor deployment object for the status of the Deploy task
+    """
+    dep = variables['deployment']
+
+    deployment_time_max = dep.get('deployment_timeout', 240)
+    deployment_success = False
+    fail_message = "Deployment FAILED"
+    # Wait a while for the deployment to complete (or fail),
+    #  checking every 60s on its progress for 5 hrs.
+    for minutes in range(deployment_time_max):
+        sleep(60)
+        progress = osp_api.get_deployment_progress()
+        osp_api.refresh_deployment_info()
+
+        if(progress['result'] == 'success' and
+           progress['state'] == 'stopped' and
+           progress['progress'] == 1.0):
+            print 'OpenStack Deployment Succeeded!'
+            deployment_success = True
+            break
+        elif progress['result'] == 'error' and progress['state'] == 'paused':
+            deployment_success = False
+            deployment_task_uuid = osp_api.fusor_data['deployment']['foreman_task_uuid']
+            print 'Failed task uuid: {}'.format(deployment_task_uuid)
+            foreman_task = next(
+                task for task in osp_api.fusor_data['foreman_tasks'] if(
+                    task['id'] == deployment_task_uuid))
+
+            # Loop through all sub tasks until we find one paused w/ error
+            for sub_task in foreman_task['sub_tasks']:
+                if sub_task['result'] == 'error':
+                    sub_task_info = osp_api.foreman_task(sub_task['id'])['foreman_task']
+                    print 'Failed Task: {}'.format(sub_task_info['label'])
+                    fail_message = 'Deployment Failed: {}'.format(
+                        sub_task_info['humanized_errors'])
+                    break
+
+            # If we got here then the logic for finding the failed task needs to be fixed
+            fail_message = "Unable to find the failed subtask for task: {}".format(
+                '\n'.join([step['action_class'] for step in foreman_task['failed_steps']]))
+            break
+
+    assert deployment_success, fail_message

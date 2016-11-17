@@ -50,17 +50,27 @@ def test_e2e_deployment(new_deployment_pg, variables):
             sleep(rhv_storage_mount_retry_wait)
             next_pg = rhv_storage_pg.click_next()
 
+    # Check if we are on the RHOSP install
+    if isinstance(next_pg, DetectUndercloud):
+        detect_undercloud_pg = next_pg
+        register_nodes_pg = runner.osp_detect_undercloud(detect_undercloud_pg)
+        assign_nodes_pg = runner.osp_register_nodes(register_nodes_pg)
+        configure_overcloud_pg = osp_runner.assign_nodes(assign_nodes_pg)
+        next_pg = runner.osp_configure_overcloud(configure_overcloud_pg)
+
     # check if we are on the CFME install location page)
     if isinstance(next_pg, InstallationLocation):
         cfmeinstall_pg = next_pg
         cfmeconfig_pg = runner.cfme_install(cfmeinstall_pg)
         next_pg = runner.cfme_config(cfmeconfig_pg)
+
     # check if we are at the Content Provider Page
     if isinstance(next_pg, ContentProviderPage):
         contentprov_pg = next_pg
         sma_pg = runner.content_provider(contentprov_pg)
         add_subs_pg = runner.subscription_management(sma_pg)
         next_pg = runner.add_subscriptions(add_subs_pg)
+
     # check if we are at Review Subscriptions page
     # this handles the case where a manifest is already attached
     # and the subscriptions pages in the wizard are skipped

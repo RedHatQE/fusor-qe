@@ -22,7 +22,7 @@ class UIDeploymentRunner(object):
         self.rhv = ProductConfig(self.conf['deployment']['products']['rhv'])
         self.sat = ProductConfig(self.conf['deployment']['products']['sat'])
         self.cfme = ProductConfig(self.conf['deployment']['products']['cfme'])
-
+        self.osp = ProductConfig(self.conf['deployment']['products']['osp'])
         self.products = self.conf['deployment']['install']
         self.deployment_id = self.conf['deployment']['deployment_id']
         self.password = self.conf['credentials']['fusor']['password']
@@ -108,6 +108,26 @@ class UIDeploymentRunner(object):
             # TODO: self-hosted elements not implemented yet for storage page
             # object
             pass
+        return page.click_next()
+
+    def osp_detect_undercloud(self, page):
+        '''OSP Detect Undercloud Page filler'''
+        page.set_undercloud_ip(self.osp.undercloud_address)
+        page.set_ssh_user(self.osp.undercloud_user)
+        page.set_ssh_password(self.osp.undercloud_pass)
+        page.click_detect_undercloud()
+        return page.click_next()
+
+    def osp_register_nodes(self, page):
+
+        return page.click_next()
+
+    def osp_assign_nodes(self, page):
+
+        return page.click_next()
+
+    def osp_configure_overcloud(self, page):
+
         return page.click_next()
 
     def cfme_install(self, page):

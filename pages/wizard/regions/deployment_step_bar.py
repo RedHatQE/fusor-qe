@@ -29,7 +29,7 @@ _step_to_page_map = {
     },
     'RHOSP': {
         'first': {
-            'class': 'DetectUnder',
+            'class': 'DetectUndercloud',
             'library': 'pages.wizard.openstack.detect_undercloud',
         },
         'last': {

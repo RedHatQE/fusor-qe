@@ -38,8 +38,8 @@ class Page(object):
 
     @property
     def url(self):
-        if self._url is not None:
-            return self._url.format(base_url=self.base_url, **self.kwargs)
+        if self.base_url is not None:
+            return self.base_url.format(base_url=self.base_url, **self.kwargs)
         return self.base_url
 
     def get_url(self, url):

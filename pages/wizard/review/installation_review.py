@@ -20,7 +20,11 @@ class InstallationReview(QCIPage):
                           '//button[text()="Deploy"]')
     _build_task_spinner_locator = (
         By.XPATH,
-        "//div[contains(@class, 'spinner-md') and contains(., 'Building task list']")
+        "//div[contains(@class, 'spinner-md')]")
+
+    _build_task_spinner_locator_text = (
+        By.XPATH,
+        "//span[contains(@class, 'spinner-text') and contains(., 'Building task list']")
 
     # elements
     @property
@@ -51,6 +55,10 @@ class InstallationReview(QCIPage):
     def building_task_spinner(self):
         return self.selenium.find_element(*self._build_task_spinner_locator)
 
+    @property
+    def building_task_spinner_text(self):
+        return self.selenium.find_element(*self._build_task_spinner_locator_text)
+
     # actions
 
     def reveal_rhv_root_pw(self):
@@ -72,5 +80,5 @@ class InstallationReview(QCIPage):
         from pages.wizard.review.installation_progress import InstallationProgress
         self.wait_for_ajax()
         self.deploy_button.click()
-        self.wait_until_element_is_not_visible(self._build_task_spinner_locator)
+        self.wait_until_element_is_not_visible(self._build_task_spinner_locator, timeout=120)
         return InstallationProgress(self.base_url, self.selenium)

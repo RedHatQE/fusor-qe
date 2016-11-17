@@ -22,6 +22,7 @@ def test_e2e_deployment(new_deployment_pg, variables):
     update_avail_pg = runner.deployment_name(deployment_name_pg)
     insights_pg = runner.update_availability(update_avail_pg)
     next_pg = runner.access_insights(insights_pg)
+    deployment_time_max = variables['deployment'].get('deployment_timeout', 240)
 
     # Number of retry attempts if there is failure to mount the rhv storage domains
     rhv_storage_fail_retry_max = 3
@@ -68,14 +69,25 @@ def test_e2e_deployment(new_deployment_pg, variables):
     if isinstance(next_pg, ReviewSubscriptions):
         review_subs_pg = next_pg
         review_dep_pg = runner.review_subscriptions(review_subs_pg)
-        progress_pg = runner.installation_review(review_dep_pg)
+        next_pg = runner.installation_review(review_dep_pg)
         # TODO test that deployment completes via API
         #
         # This just asserts that we have made it to the deployment progress
         # page successfully. To match the functionality of the existing
         # robottelo test, the API will need to track the progress of the
         # deployment from here.
-        assert isinstance(progress_pg, InstallationProgress)
+        assert isinstance(next_pg, InstallationProgress)
+
+    if isinstance(next_pg, InstallationProgress):
+        install_progress_pg = next_pg
+        deployment_time = 0
+        deployment_time_wait = 1  # Time (minutes) to poll for deployment status
+        while deployment_time < deployment_time_max and not install_progress_pg.deployment_complete():
+            sleep(deployment_time_wait * 60)  # Convert minute to seconds
+            deployment_time += deployment_time_wait
+
+        assert install_progress_pg.deployment_result(), "Deployment failed after {} minutes".format(deployment_time)
+
     else:
         # if we aren't at the Review Subscriptions page, something went wrong.
         assert False

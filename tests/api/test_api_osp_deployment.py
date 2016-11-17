@@ -63,9 +63,7 @@ def osp_api(fusor_admin_username, fusor_admin_password, base_url):
 
 
 def test_create_deployment(osp_api, deployment_id, deployment_name):
-    if not deployment_name:
-        deployment_name = 'pytest-{}-osp-cfme'.format(deployment_id)
-
+    deployment_name = 'pytest-{}-osp-cfme'.format(deployment_id)
     deployment_desc = 'pytest for OSP API deployment'
 
     assert osp_api.create_deployment(deployment_name, deployment_desc)
@@ -127,7 +125,7 @@ def get_sma_uuid(osp_api, rhn_username, rhn_password, sma_name):
     return sma_uuid
 
 
-def test_osp_api(osp_api, variables):
+def test_osp_api(osp_api, variables, deployment_name):
     dep = variables['deployment']
     dep_osp = dep['products']['osp']
     dep_cfme = dep['products']['cfme']
@@ -137,8 +135,9 @@ def test_osp_api(osp_api, variables):
 
     deploy_cfme = 'cfme' in dep['install']
     deploy_ose = 'ocp' in dep['install']
-    deployment_name = 'pytest-{}-osp{}{}'.format(
-        dep['deployment_id'], '-cfme' if deploy_cfme else '', '-ocp' if deploy_ose else '')
+    if not deployment_name:
+        deployment_name = 'pytest-osp-api-{}{}'.format(
+            dep['deployment_id'], '-cfme' if deploy_cfme else '', '-ocp' if deploy_ose else '')
     deployment_desc = 'Pytest of the fusor api for deploying OSP'
     undercloud_ip = dep_osp['undercloud_address']
     undercloud_user = dep_osp['undercloud_user']
@@ -290,6 +289,7 @@ def test_osp_api(osp_api, variables):
     assert osp_api.deploy()
 
 
+# TODO: This should be generic for any type of deployment
 def test_osp_api_deployment_success(osp_api, variables, deployment_name):
     """
     Query the fusor deployment object for the status of the Deploy task

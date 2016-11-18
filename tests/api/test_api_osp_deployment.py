@@ -62,21 +62,6 @@ def osp_api(fusor_admin_username, fusor_admin_password, base_url):
     return fusor_api.OSPFusorApi(fusor_ip, fusor_admin_username, fusor_admin_password)
 
 
-def test_create_deployment(osp_api, deployment_id, deployment_name):
-    deployment_name = 'pytest-{}-osp-cfme'.format(deployment_id)
-    deployment_desc = 'pytest for OSP API deployment'
-
-    assert osp_api.create_deployment(deployment_name, deployment_desc)
-
-
-def test_list_deployment(osp_api):
-    assert osp_api.list_deployments()
-
-
-def test_delete_deployment(osp_api, deployment_id):
-    assert osp_api.delete_deployment()
-
-
 def deployment_attach_sub(
         osp_api, rhn_username, rhn_password, rhn_sma_uuid, sub_name, sub_quantity, **kwargs):
     """
@@ -303,7 +288,6 @@ def test_osp_api_deployment_success(osp_api, variables, deployment_name):
     deployment_success = False
     fail_message = "Deployment FAILED"
     # Wait a while for the deployment to complete (or fail),
-    #  checking every 60s on its progress for 5 hrs.
     for minutes in range(deployment_time_max):
         sleep(60)
         progress = osp_api.get_deployment_progress()

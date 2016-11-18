@@ -29,6 +29,7 @@ deployment:
         mac_address: ff:ff:ff:ff:ff:ff
         host_password: changeme
         host_username: root
+        vendor: kvm
       undercloud_address: 192.0.1.254
       undercloud_pass: changeme
       undercloud_user: root

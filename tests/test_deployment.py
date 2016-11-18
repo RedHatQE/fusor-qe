@@ -2,6 +2,7 @@ from time import sleep
 from lib.deployment_runner import UIDeploymentRunner
 from pages.wizard.rhv.setup_type import SetupType
 from pages.wizard.rhv.engine import Engine
+from pages.wizard.openstack.detect_undercloud import DetectUndercloud
 from pages.wizard.cloudforms.installation_location import InstallationLocation
 from pages.wizard.subscriptions.content_provider import ContentProviderPage
 from pages.wizard.subscriptions.review_subscriptions import ReviewSubscriptions
@@ -55,7 +56,7 @@ def test_e2e_deployment(new_deployment_pg, variables):
         detect_undercloud_pg = next_pg
         register_nodes_pg = runner.osp_detect_undercloud(detect_undercloud_pg)
         assign_nodes_pg = runner.osp_register_nodes(register_nodes_pg)
-        configure_overcloud_pg = osp_runner.assign_nodes(assign_nodes_pg)
+        configure_overcloud_pg = runner.osp_assign_nodes(assign_nodes_pg)
         next_pg = runner.osp_configure_overcloud(configure_overcloud_pg)
 
     # check if we are on the CFME install location page)

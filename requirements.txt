@@ -7,6 +7,7 @@ sphinx_rtd_theme
 pytest
 pytest-selenium
 pytest-variables[yaml]
+ipaddress
 
 # Code Lint Tools
 flake8

@@ -36,6 +36,7 @@ deployment:
       undercloud_pass: changeme
       undercloud_user: root
       network:
+        external_interface: nic2
         provision_network:
           subnet: 255.255.255.0
           network: 192.0.3.0

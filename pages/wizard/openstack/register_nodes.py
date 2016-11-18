@@ -63,6 +63,7 @@ class RegisterNodes(QCIPage):
     _mac_addresses_loc = (By.XPATH, "//textarea[@id = 'newNodeMacAddressManualInput']")
     _ssh_vendor_loc = (By.XPATH, "//select[@id = 'newNodeVendorInputSsh']")
     _ipmi_vendor_loc = (By.XPATH, "//select[@id = 'newNodeVendorInputIpmi']")
+    _autodetect_or_specify_loc = (By.XPATH, "//input[@value = 'specify']")
     _upload_csv_loc = (By.XPATH, "//input[@value = 'csv_upload']")
 
     # <<< Browse CSV Screen >>>
@@ -169,6 +170,10 @@ class RegisterNodes(QCIPage):
         return self.selenium.find_element(*self._mac_addresses_loc)
 
     @property
+    def autodetct_or_specify(self):
+        return self.selenium.find_element(*self._autodetect_or_specify_loc)
+
+    @property
     def upload_csv(self):
         return self.selenium.find_element(*self._upload_csv_loc)
 
@@ -232,6 +237,9 @@ class RegisterNodes(QCIPage):
     def set_mac_addresses(self, text):
         self.mac_addresses.clear()
         self.mac_addresses.send_keys(text)
+
+    def click_autodetct_or_specify(self):
+        self.autodetct_or_specify.click()
 
     def click_upload_csv(self):
         self.upload_csv.click()

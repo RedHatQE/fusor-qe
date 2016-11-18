@@ -48,7 +48,18 @@ class RegisterNodes(QCIPage):
     _driver_loc = (By.XPATH, "//select[@id = 'newNodeDriverInput']")
     _username_loc = (By.XPATH, "//input[@id = 'newNodeIpmiUserInput']")
     _password_loc = (By.XPATH, "//input[@id = 'newNodePasswordInput']")
+    #
+    # The autodetect "widget" is kind of bizarre (translate I don't really
+    # understand it.  If you try to click on the actual radio button that
+    # represents it, it will never changes.   However if you click on the
+    # span tag that that encloses it, it will change.   However if you want
+    # to know if autodetect is selected or not you have to get that from
+    # the radio button.   So that is why there are two locaters here.
     _autodetect_loc = (By.XPATH, "//span[@class='bootstrap-switch-label']")
+    _autodetect_radio_btn_loc = (
+        By.XPATH,
+        "//div[@class = 'bootstrap-switch-container']/input"
+    )
     _mac_addresses_loc = (By.XPATH, "//textarea[@id = 'newNodeMacAddressManualInput']")
     _ssh_vendor_loc = (By.XPATH, "//select[@id = 'newNodeVendorInputSsh']")
     _ipmi_vendor_loc = (By.XPATH, "//select[@id = 'newNodeVendorInputIpmi']")
@@ -142,6 +153,10 @@ class RegisterNodes(QCIPage):
         return self.selenium.find_element(*self._autodetect_loc)
 
     @property
+    def autodetect_radio_btn(self):
+        return self.selenium.find_element(*self._autodetect_radio_btn_loc)
+
+    @property
     def ssh_vendor(self):
         return Select(self.selenium.find_element(*self._ssh_vendor_loc))
 
@@ -210,6 +225,9 @@ class RegisterNodes(QCIPage):
 
     def click_autodetect(self):
         self.autodetect.click()
+
+    def is_autodetect_enabled(self):
+        return self.autodetect_radio_btn.is_selected()
 
     def set_mac_addresses(self, text):
         self.mac_addresses.clear()

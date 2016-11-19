@@ -284,12 +284,16 @@ def test_osp_api_deployment_success(osp_api, variables, deployment_name):
 
     dep = variables['deployment']
 
+    deployment_time = 0
+    deployment_time_wait = 1  # Time (minutes) to wait between polling for progress
     deployment_time_max = dep.get('deployment_timeout', 240)
     deployment_success = False
     fail_message = "Deployment FAILED"
     # Wait a while for the deployment to complete (or fail),
-    for minutes in range(deployment_time_max):
-        sleep(60)
+
+    while not deployment_success and deployment_time < deployment_time_max:
+        deployment_time += deployment_time_wait
+        sleep(deployment_time_wait * 60)
         progress = osp_api.get_deployment_progress()
         osp_api.refresh_deployment_info()
 
@@ -298,7 +302,6 @@ def test_osp_api_deployment_success(osp_api, variables, deployment_name):
            progress['progress'] == 1.0):
             deployment_success = True
             print 'OpenStack Deployment Succeeded!'
-            assert deployment_success
         elif progress['result'] == 'error' and progress['state'] == 'paused':
             deployment_success = False
             deployment_task_uuid = osp_api.fusor_data['deployment']['foreman_task_uuid']

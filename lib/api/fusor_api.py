@@ -136,6 +136,8 @@ class FusorApi(object):
             "state": deploy_task['state'],
             "result": deploy_task['result'],
             "started_at": deploy_task['started_at'],
+            "id": deploy_task['id'],
+            "label": deploy_task['label'],
         }
 
         return result

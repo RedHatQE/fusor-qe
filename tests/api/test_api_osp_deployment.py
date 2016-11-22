@@ -2,7 +2,7 @@ import re
 import pytest
 import string
 import random
-import time
+from time import sleep
 
 from lib.api import fusor_api
 
@@ -24,11 +24,21 @@ def parse_ip_from_url(url):
     return ip
 
 
+# TODO: Make this global for all QCI tests
+@pytest.fixture(scope="module")
+def deployment_name(request):
+    dep_name = request.config.getoption("--deployment-name")
+    print "Deployment name to test: {}".format(dep_name)
+    return dep_name
+
+
+# TODO: Make this global for all QCI tests
 @pytest.fixture(scope="module")
 def fusor_admin_username(variables):
     return variables['credentials']['fusor']['username']
 
 
+# TODO: Make this global for all QCI tests
 @pytest.fixture(scope="module")
 def fusor_admin_password(variables):
     return variables['credentials']['fusor']['password']
@@ -50,21 +60,6 @@ def osp_api(fusor_admin_username, fusor_admin_password, base_url):
     """
     fusor_ip = parse_ip_from_url(base_url)
     return fusor_api.OSPFusorApi(fusor_ip, fusor_admin_username, fusor_admin_password)
-
-
-def test_create_deployment(osp_api, deployment_id):
-    deployment_name = 'pytest-{}-osp-cfme'.format(deployment_id)
-    deployment_desc = 'pytest for OSP API deployment'
-
-    assert osp_api.create_deployment(deployment_name, deployment_desc)
-
-
-def test_list_deployment(osp_api):
-    assert osp_api.list_deployments()
-
-
-def test_delete_deployment(osp_api, deployment_id):
-    assert osp_api.delete_deployment()
 
 
 def deployment_attach_sub(
@@ -115,7 +110,7 @@ def get_sma_uuid(osp_api, rhn_username, rhn_password, sma_name):
     return sma_uuid
 
 
-def test_osp_api(osp_api, variables):
+def test_osp_api(osp_api, variables, deployment_name):
     dep = variables['deployment']
     dep_osp = dep['products']['osp']
     dep_cfme = dep['products']['cfme']
@@ -125,15 +120,16 @@ def test_osp_api(osp_api, variables):
 
     deploy_cfme = 'cfme' in dep['install']
     deploy_ose = 'ocp' in dep['install']
-    deployment_name = 'pytest-{}-osp{}{}'.format(
-        dep['deployment_id'], '-cfme' if deploy_cfme else '', '-ocp' if deploy_ose else '')
+    if not deployment_name:
+        deployment_name = 'pytest-osp-api-{}{}'.format(
+            dep['deployment_id'], '-cfme' if deploy_cfme else '', '-ocp' if deploy_ose else '')
     deployment_desc = 'Pytest of the fusor api for deploying OSP'
     undercloud_ip = dep_osp['undercloud_address']
     undercloud_user = dep_osp['undercloud_user']
     undercloud_pass = dep_osp['undercloud_pass']
     overcloud_nodes = dep_osp['overcloud_nodes']
     overcloud_controller_count = dep_osp['controller_count']
-    overcloud_compute_count = dep_osp['controller_count']
+    overcloud_compute_count = dep_osp['compute_count']
     cinder_role_count = dep_osp.get('cinder_count', 0)
     swift_role_count = dep_osp.get('swift_count', 0)
     ceph_role_count = dep_osp.get('ceph_count', 0)  # Ceph local storage not supported in QCI
@@ -198,7 +194,7 @@ def test_osp_api(osp_api, variables):
             osp_images = None
             ramdisk_image = None
             kernel_image = None
-            time.sleep(image_query_wait)
+            sleep(image_query_wait)
 
     for node in overcloud_nodes:
         assert osp_api.register_nodes(
@@ -276,3 +272,55 @@ def test_osp_api(osp_api, variables):
     # "Starting OpenStack deployment")
 
     assert osp_api.deploy()
+
+
+# TODO: This should be generic for any type of deployment
+def test_osp_api_deployment_success(osp_api, variables, deployment_name):
+    """
+    Query the fusor deployment object for the status of the Deploy task
+    """
+    if deployment_name:
+        osp_api.load_deployment(deployment_name)
+
+    dep = variables['deployment']
+
+    deployment_time = 0
+    deployment_time_wait = 1  # Time (minutes) to wait between polling for progress
+    deployment_time_max = dep.get('deployment_timeout', 240)
+    deployment_success = False
+    fail_message = "Deployment FAILED"
+    # Wait a while for the deployment to complete (or fail),
+
+    while not deployment_success and deployment_time < deployment_time_max:
+        deployment_time += deployment_time_wait
+        sleep(deployment_time_wait * 60)
+        progress = osp_api.get_deployment_progress()
+        osp_api.refresh_deployment_info()
+
+        if(progress['result'] == 'success' and
+           progress['state'] == 'stopped' and
+           progress['progress'] == 1.0):
+            deployment_success = True
+            print 'OpenStack Deployment Succeeded!'
+        elif progress['result'] == 'error' and progress['state'] == 'paused':
+            deployment_success = False
+            deployment_task_uuid = osp_api.fusor_data['deployment']['foreman_task_uuid']
+            foreman_task = next(
+                task for task in osp_api.fusor_data['foreman_tasks'] if(
+                    task['id'] == deployment_task_uuid))
+
+            # Loop through all sub tasks until we find one paused w/ error
+            for sub_task in foreman_task['sub_tasks']:
+                if sub_task['result'] == 'error':
+                    sub_task_info = osp_api.foreman_task(sub_task['id'])['foreman_task']
+                    fail_message = 'Deployment Failed: {} -> {}'.format(
+                        sub_task_info['label'], sub_task_info['humanized_errors'])
+                    assert deployment_success, fail_message
+
+            # If we got here then the logic for finding the failed task needs to be fixed
+            fail_message = "Unable to find the failed subtask for task: {}".format(
+                '\n'.join([step['action_class'] for step in foreman_task['failed_steps']]))
+
+            assert deployment_success, fail_message
+
+    assert deployment_success, "DEFAULT: {}".format(fail_message)

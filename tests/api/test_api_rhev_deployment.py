@@ -2,6 +2,7 @@ import pytest
 import string
 import random
 from urlparse import urlsplit
+from time import sleep
 
 from lib.api import fusor_api
 
@@ -233,5 +234,56 @@ def test_rhv_api(rhv_api, variables, deployment_name):
         rhv_api, rhn_username, rhn_password, rhn_sma_uuid, ose_sub_pool_name, ose_sub_quantity)
 
     # log.info("Starting RHEV deployment")
-    assert 0
     assert rhv_api.deploy()
+
+
+# TODO: This should be generic for any type of deployment
+def test_rhv_api_deployment_success(rhv_api, variables, deployment_name):
+    """
+    Query the fusor deployment object for the status of the Deploy task
+    """
+    if deployment_name:
+        rhv_api.load_deployment(deployment_name)
+
+    dep = variables['deployment']
+
+    deployment_time = 0
+    deployment_time_wait = 1  # Time (minutes) to wait between polling for progress
+    deployment_time_max = dep.get('deployment_timeout', 240)
+    deployment_success = False
+    fail_message = "Deployment FAILED"
+    # Wait a while for the deployment to complete (or fail),
+
+    while not deployment_success and deployment_time < deployment_time_max:
+        deployment_time += deployment_time_wait
+        sleep(deployment_time_wait * 60)
+        progress = rhv_api.get_deployment_progress()
+        rhv_api.refresh_deployment_info()
+
+        if(progress['result'] == 'success' and
+           progress['state'] == 'stopped' and
+           progress['progress'] == 1.0):
+            deployment_success = True
+            print 'OpenStack Deployment Succeeded!'
+        elif progress['result'] == 'error' and progress['state'] == 'paused':
+            deployment_success = False
+            deployment_task_uuid = rhv_api.fusor_data['deployment']['foreman_task_uuid']
+            foreman_task = next(
+                task for task in rhv_api.fusor_data['foreman_tasks'] if(
+                    task['id'] == deployment_task_uuid))
+
+            # Loop through all sub tasks until we find one paused w/ error
+            for sub_task in foreman_task['sub_tasks']:
+                if sub_task['result'] == 'error':
+                    sub_task_info = rhv_api.foreman_task(sub_task['id'])['foreman_task']
+                    fail_message = 'Deployment Failed: {} -> {}'.format(
+                        sub_task_info['label'], sub_task_info['humanized_errors'])
+                    assert deployment_success, fail_message
+
+            # If we got here then the logic for finding the failed task needs to be fixed
+            fail_message = "Unable to find the failed subtask for task: {}".format(
+                '\n'.join([step['action_class'] for step in foreman_task['failed_steps']]))
+
+            assert deployment_success, fail_message
+
+    assert deployment_success, "DEFAULT: {}".format(fail_message)

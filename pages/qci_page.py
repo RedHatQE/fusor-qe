@@ -25,30 +25,32 @@ class QCIPage(Page):
     #######################
     # QCI Spinner Methods #
     #######################
-    def build_qci_spinner_xpath(self, text=None):
+    def build_qci_spinner_xpath(self, text=None, spin_class=None):
+        if spin_class is None:
+            spin_class = 'spinner_md'
+
         # QCI spinners are done via a div tag with a class of spinner-md
-        qci_spinner_xpath_str = "div[contains(@class, 'spinner-md')]"
+        qci_spinner_xpath_str = \
+            "(//span|//div)[contains(@class, '{}')]".format(spin_class)
 
         # If they want to to catch a spinner with specific text
         # build the xpath string to include that.   At the time of
         # writing this, the spinner div and the text span tag are peer
         # nodes in the HTML tree.
         if text is not None:
-            qci_spinner_text_xpath_str = "//span[@class = 'spinner-text' and contains(., '{}')]".format(text)
+            qci_spinner_text_xpath_str = "span[@class = 'spinner-text' and contains(., '{}')]".format(text)
             qci_spinner_xpath_str = "{}/../{}".format(
-                qci_spinner_text_xpath_str,
                 qci_spinner_xpath_str,
+                qci_spinner_text_xpath_str,
             )
-
-        # Otherwise we need to prepend the // so we can find the
-        # spinner anywhere in the document tree:
-        else:
-            qci_spinner_xpath_str = "//{}".format(qci_spinner_xpath_str)
 
         return qci_spinner_xpath_str
 
-    def wait_on_spinner(self, text=None, timeout=None):
-        qci_spinner_xpath_str = self.build_qci_spinner_xpath(text)
+    def wait_on_spinner(self, text=None, timeout=None, spin_class=None):
+        qci_spinner_xpath_str = self.build_qci_spinner_xpath(
+            text=text,
+            spin_class=spin_class
+        )
 
         qci_spinner_loc = (By.XPATH, qci_spinner_xpath_str)
 

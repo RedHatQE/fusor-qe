@@ -30,6 +30,7 @@
 
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.select import Select
+from selenium.webdriver.common.action_chains import ActionChains
 from pages.qci_page import QCIPage
 
 
@@ -111,6 +112,38 @@ class RegisterNodes(QCIPage):
 
     )
 
+    # <<< Node Group Table >>>
+    # After you have selected nodes they show up in a table that has the IP address
+    # of the hypervisor the nodes are on.   In this table the nodes are listed.
+    # While being registered a progress bar is shown, and the mac address is always
+    # displayed.   If you hover over one of the these records, a trash can appears
+    # beside which if clicked allows you to de-register the node.
+    _registered_node_list_loc = (
+        By.XPATH,
+        "//div[contains(@class, 'osp-node-manager-nodes-list-section')]"
+    )
+    _registered_node_rows_loc = (
+        By.XPATH,
+        "{}/div[contains(@class, 'osp-node-row')]".format(
+            _registered_node_list_loc[1]
+        )
+    )
+    _registered_node_macs_loc = (
+        By.XPATH,
+        "//span[@class = 'osp-node-progress-bar-label']"
+    )
+    _registered_node_by_mac_fmt = "{}/div/div/div/span[contains(., '{{}}')]".format(
+        _registered_node_rows_loc[1]
+    )
+    _registered_node_container_by_mac_fmt =\
+         "//span[contains(., '{}')]/../../../../../div[contains(@class, 'osp-node-row')]"
+    _registered_node_delete_btn_fmt =\
+        "//div[@id = '{}']/div/button[contains(@class, 'btn-delete-node')]"
+
+    # <<< Delete Node Modal >>>
+    _delete_node_cancel_btn_loc = (By.XPATH, "//button[@id = 'deleteNodeCancelButton']")
+    _delete_node_confirm_btn_loc = (By.XPATH, "//button[@id = 'deleteNodeConfirmButton']")
+
     # <<< Modal Navigation Buttons >>>
     _register_loc = (By.XPATH, "//button[@id = 'newNodeSubmitButton']")
     _inner_cancel_loc = (
@@ -190,6 +223,28 @@ class RegisterNodes(QCIPage):
     @property
     def node_list_rows(self):
         return self.selenium.find_elements(*self._node_list_rows_loc)
+
+    # <<< Node Group Table >>>
+    @property
+    def registered_node_list(self):
+        return self.selenium.find_element(*self._registered_node_list_loc)
+
+    @property
+    def registered_node_rows(self):
+        return self.selenium.find_elements(*self._registered_node_rows_loc)
+
+    @property
+    def registered_node_macs(self):
+        return self.selenium.find_elements(*self._registered_node_macs_loc)
+
+    # <<< Delete Node Modal >>>
+    @property
+    def delete_node_cancel_btn(self):
+        return self.selenium.find_element(*self._delete_node_cancel_btn_loc)
+
+    @property
+    def delete_node_confirm_btn(self):
+        return self.selenium.find_element(*self._delete_node_confirm_btn_loc)
 
     # <<< Modal Navigation Buttons >>>
     @property
@@ -313,6 +368,77 @@ class RegisterNodes(QCIPage):
             if node_name == cur_node_name:
                 return row_id
         return None
+
+    # <<< Node Group Table >>>
+    def get_registered_node_macs(self):
+        mac_addrs  = []
+        mac_entries = self.registered_node_macs
+        for mac_entry in mac_entries:
+            mac_addr = mac_entry.text
+            mac_addrs.append(mac_addr)
+        return mac_addrs
+
+    def registered_node_in_table_loc(self, mac):
+        return (
+            By.XPATH,
+            self._registered_node_by_mac_fmt.format(mac)
+        )
+
+    def find_registered_node_in_table(self, mac):
+        locator = self.registered_node_in_table_loc(mac)
+        return self.selenium.find_element(*locator)
+
+    def registered_node_container_loc(self, mac):
+        return (
+            By.XPATH,
+            self._registered_node_container_by_mac_fmt.format(mac)
+        )
+
+    def find_registered_node_container(self, mac):
+        locator = self.registered_node_container_loc(mac)
+        return self.selenium.find_element(*locator)
+
+    def get_registered_node_id(self, mac):
+        registered_node = self.find_registered_node_container(mac)
+        return registered_node.get_attribute('id')
+
+    def registered_node_delete_btn_loc(self, mac):
+        id = self.get_registered_node_id(mac)
+        return (
+            By.XPATH,
+            self._registered_node_delete_btn_fmt.format(id)
+        )
+
+    def find_registered_node_delete_btn(self, mac):
+        locator = self.registered_node_delete_btn_loc(mac)
+        return self.selenium.find_element(*locator)
+
+    # Must hover over the registered node before you can
+    # click the delete button.
+    def click_registered_node_delete_btn(self, mac):
+        self.find_registered_node_delete_btn(mac).click()
+
+    def deregister_node(self, mac):
+        hover_element = self.find_registered_node_in_table(mac)
+        hover = ActionChains(self.selenium).move_to_element(hover_element)
+        hover.perform()
+        self.click_registered_node_delete_btn(mac)
+        self.delete_node_confirm_btn.click()
+        self.wait_on_spinner()
+
+    def deregister_all_nodes(self):
+        macs = self.get_registered_node_macs()
+        for mac in macs:
+            self.deregister_node(mac)
+
+    # <<< Delete Node Modal >>>
+    @property
+    def click_delete_node_cancel_btn(self):
+        self.delete_node_cancel_btn.click()
+
+    @property
+    def click_delete_node_confirm_btn(self):
+        self.delete_node_confirm_btn.click()
 
     # <<< Modal Navigation Buttons >>>
     def click_register(self):

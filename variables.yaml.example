@@ -18,11 +18,13 @@ deployment:
       cfme_root_password: changeme
       cfme_db_password: changeme
     osp:
+      compute_count: 1
       controller_count: 1
+      block_storage_count: 0
+      object_storage_count: 0                
       director_address: null
       director_ui_url: http://example.com
       director_vm_name: null
-      compute_count: 1
       overcloud_nodes:
       - driver_type: pxe_ssh
         host_ip: 10.8.0.136

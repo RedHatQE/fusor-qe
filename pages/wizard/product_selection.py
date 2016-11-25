@@ -20,6 +20,8 @@ class SelectProductsPage(QCIPage):
                                   "//span[@id='is_cloudforms']/div/div/span[2]")
     _openshift_i_icon_locator = (By.XPATH,
                                  "//span[@id='is_openshift']/div/div/span[2]")
+    _requirement_download_locator = (By.XPATH,
+                                 "//div[@class='download-reqs']/a")
 
     @property
     def rhv_checkbox(self):
@@ -52,6 +54,10 @@ class SelectProductsPage(QCIPage):
     @property
     def openshift_i_icon(self):
         return self.selenium.find_element(*self._openshift_i_icon_locator)
+
+    @property
+    def requirement_download(self):
+        return self.selenium.find_element(*self._requirement_download_locator)
 
     # Actions
     def click_rhv(self):

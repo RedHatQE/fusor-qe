@@ -13,6 +13,13 @@ class SelectProductsPage(QCIPage):
                                     "//span[@id='is_cloudforms']/div/input")
     _openshift_checkbox_locator = (By.XPATH,
                                    "//span[@id='is_openshift']/div/input")
+    _rhv_i_icon_locator = (By.XPATH, "//span[@id='is_rhev']/div/div/span[2]")
+    _openstack_i_icon_locator = (By.XPATH,
+                                 "//span[@id='is_openstack']/div/div/span[2]")
+    _cloudforms_i_icon_locator = (By.XPATH,
+                                  "//span[@id='is_cloudforms']/div/div/span[2]")
+    _openshift_i_icon_locator = (By.XPATH,
+                                 "//span[@id='is_openshift']/div/div/span[2]")
 
     @property
     def rhv_checkbox(self):
@@ -29,6 +36,22 @@ class SelectProductsPage(QCIPage):
     @property
     def openshift_checkbox(self):
         return self.selenium.find_element(*self._openshift_checkbox_locator)
+
+    @property
+    def rhv_i_icon(self):
+        return self.selenium.find_element(*self._rhv_i_icon_locator)
+
+    @property
+    def openstack_i_icon(self):
+        return self.selenium.find_element(*self._openstack_i_icon_locator)
+
+    @property
+    def cloudforms_i_icon(self):
+        return self.selenium.find_element(*self._cloudforms_i_icon_locator)
+
+    @property
+    def openshift_i_icon(self):
+        return self.selenium.find_element(*self._openshift_i_icon_locator)
 
     # Actions
     def click_rhv(self):
@@ -52,6 +75,33 @@ class SelectProductsPage(QCIPage):
             self.click_cloudforms()
         if 'ocp' in products:
             self.click_openshift()
+
+    def i_icon_hover_text(self, div_id):
+        return self.selenium.find_element(By.XPATH,
+                                          "//div[@id='{}']".format(div_id))
+
+    def _product_icon(self, product):
+        dct = {
+            'rhv': self.rhv_i_icon,
+            'osp': self.openstack_i_icon,
+            'cfme': self.cloudforms_i_icon,
+            'ocp': self.openshift_i_icon
+        }
+        return dct[product]
+
+    # Note: if you get 'Element is not clickable' error when using this,
+    # it's most probably because another tooltip is already covering
+    # the area of the 'i' icon you want to click.
+    # Example:
+    # First you get the text on the osp tooltip
+    # Then you want to get the rhv tooltip, but that is covered by
+    # the osp tooltip that is still being displayed.
+    # Solution would be to move the cursor away or to click anywhere
+    # on the page to make the tooltip go away.
+    def get_i_icon_text(self, product):
+        self._product_icon(product).click()
+        div_id = self._product_icon(product).get_attribute('aria-describedby')
+        return self.i_icon_hover_text(div_id).text
 
     # Navigation Buttons.
     # We need to override base's click_next(), click_back() functions

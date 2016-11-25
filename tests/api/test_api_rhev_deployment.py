@@ -251,7 +251,7 @@ def test_rhv_api_deployment_success(rhv_api, variables, deployment_name):
     deployment_time_wait = 1  # Time (minutes) to wait between polling for progress
     deployment_time_max = dep.get('deployment_timeout', 240)
     deployment_success = False
-    fail_message = "Deployment FAILED"
+    fail_message = "Deployment timed out after {} hours".format(deployment_time_max / 60)
     # Wait a while for the deployment to complete (or fail),
 
     while not deployment_success and deployment_time < deployment_time_max:

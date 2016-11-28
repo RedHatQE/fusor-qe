@@ -136,7 +136,7 @@ class RegisterNodes(QCIPage):
         _registered_node_rows_loc[1]
     )
     _registered_node_container_by_mac_fmt =\
-         "//span[contains(., '{}')]/../../../../../div[contains(@class, 'osp-node-row')]"
+        "//span[contains(., '{}')]/../../../../../div[contains(@class, 'osp-node-row')]"
     _registered_node_delete_btn_fmt =\
         "//div[@id = '{}']/div/button[contains(@class, 'btn-delete-node')]"
 
@@ -371,7 +371,7 @@ class RegisterNodes(QCIPage):
 
     # <<< Node Group Table >>>
     def get_registered_node_macs(self):
-        mac_addrs  = []
+        mac_addrs = []
         mac_entries = self.registered_node_macs
         for mac_entry in mac_entries:
             mac_addr = mac_entry.text

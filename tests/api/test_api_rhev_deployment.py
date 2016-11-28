@@ -57,7 +57,7 @@ def rhv_api(fusor_admin_username, fusor_admin_password, base_url):
     return fusor_api.RHEVFusorApi(fusor_ip, fusor_admin_username, fusor_admin_password)
 
 
-def deployment_attach_sub(
+def deployment_attach_subscriptions(
         rhv_api, rhn_username, rhn_password, rhn_sma_uuid, sub_name, sub_quantity, **kwargs):
     """
     Attach the specified subscriptions to the deployment loaded in the rhv_api object
@@ -234,7 +234,7 @@ def test_rhv_api(rhv_api, variables, deployment_name):
                     assert rhv_api.set_deployment_property(
                         ose_sample_app_name, True), 'Unable to enable OpenShift sample application hello_world'
 
-    deployment_attach_sub(
+    deployment_attach_subscriptions(
         rhv_api, rhn_username, rhn_password, rhn_sma_uuid, ose_sub_pool_name, ose_sub_quantity)
 
     dep_validation = rhv_api.get_deployment_validation()['validation']

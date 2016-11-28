@@ -165,7 +165,8 @@ def test_rhv_api(rhv_api, variables, deployment_name):
     # log.info("Assigning RHEV Hypervisors: {}".format(rhevh_macs))
     assert rhv_api.set_discovered_hosts(rhevh_macs, rhevm_mac), "Unable to set the RHEV Hosts"
 
-    rhv_api.set_deployment_property('rhev_self_hosted_engine_hostname', selfhosted_engine_hostname)
+    if rhv_is_self_hosted:
+        rhv_api.set_deployment_property('rhev_self_hosted_engine_hostname', selfhosted_engine_hostname)
 
     # log.info("Setting the RHEV credentials")
     assert rhv_api.set_creds_rhev(rhev_admin_password), "Unable to set RHEV credentials"

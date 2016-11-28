@@ -62,6 +62,10 @@ deployment:
       rhvm_hypervisors: []
       rhvm_mac: ff:ff:ff:ff:ff:ef
       storage_type: NFS # Options are NFS or Gluster
+      selfhosted_domain_name: null
+      selfhosted_domain_address: null
+      selfhosted_domain_share_path: null
+      self_hosted_engine_hostname: null
     sat:
       deploy_org: Default Organization
       disconnected_manifest: /root/rhn_disconnected_manifest.zip

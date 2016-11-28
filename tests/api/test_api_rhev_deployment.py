@@ -124,6 +124,7 @@ def test_rhv_api(rhv_api, variables, deployment_name):
     selfhosted_name = dep_rhv['selfhosted_domain_name']
     selfhosted_address = dep_rhv['selfhosted_domain_address']
     selfhosted_path = dep_rhv['selfhosted_domain_share_path']
+    selfhosted_engine_hostname = dep_rhv['self_hosted_engine_hostname'] or 'rhv-selfhosted-engine'
     deploy_cfme = 'cfme' in dep['install']
     deploy_ose = 'ocp' in dep['install']
     rhev_admin_password = dep_rhv['rhvm_adminpass']
@@ -144,7 +145,7 @@ def test_rhv_api(rhv_api, variables, deployment_name):
     ose_storage_size = dep_ose['storage_size']
     ose_storage_name = dep_ose['storage_name']
     ose_storage_host = dep_ose['storage_host']
-    ose_export_path = dep_ose['storage_path']
+    ose_export_path = dep_ose['export_path']
     ose_username = dep_ose['username']
     ose_user_password = dep_ose['user_password']
     ose_subdomain_name = dep_ose['subdomain_name'] if dep_ose['subdomain_name'] else dep['deployment_id']
@@ -163,6 +164,8 @@ def test_rhv_api(rhv_api, variables, deployment_name):
 
     # log.info("Assigning RHEV Hypervisors: {}".format(rhevh_macs))
     assert rhv_api.set_discovered_hosts(rhevh_macs, rhevm_mac), "Unable to set the RHEV Hosts"
+
+    rhv_api.set_deployment_property('rhev_self_hosted_engine_hostname', selfhosted_engine_hostname)
 
     # log.info("Setting the RHEV credentials")
     assert rhv_api.set_creds_rhev(rhev_admin_password), "Unable to set RHEV credentials"
@@ -233,6 +236,10 @@ def test_rhv_api(rhv_api, variables, deployment_name):
     deployment_attach_sub(
         rhv_api, rhn_username, rhn_password, rhn_sma_uuid, ose_sub_pool_name, ose_sub_quantity)
 
+    dep_validation = rhv_api.get_deployment_validation()['validation']
+
+    assert not dep_validation['errors'], ("Validation contains errors:\n{}".format(
+        '\n'.join(dep_validation['errors'])))
     # log.info("Starting RHEV deployment")
     assert rhv_api.deploy()
 

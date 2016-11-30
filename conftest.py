@@ -5,7 +5,8 @@ py.test to load it.
 """
 
 pytest_plugins = "plugin.selenium",\
-    "plugin.navigation"
+    "plugin.navigation",\
+    "plugin.expected_text"
 
 ####################################################################################################
 # Command line options available as fixtures for QCI tests
@@ -30,4 +31,10 @@ def pytest_addoption(parser):
         "--deployment-name",
         action="store",
         help="Name of the deployment to test",
+        default=None)
+
+    parser.addoption(
+        "--qci-expected-text",
+        action="store",
+        help="File with the expected text lines in json format",
         default=None)

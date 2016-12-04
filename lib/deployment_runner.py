@@ -74,6 +74,8 @@ class UIDeploymentRunner(object):
 
     def hypervisor(self, page):
         '''Hypervisor'''
+        # Since WebUI pre-populates the SH engine vm name w/ default value
+        # use yaml value if it isn't null
         if self.rhv.rhv_setup_type == 'selfhost' and self.rhv.self_hosted_engine_hostname:
             page.set_engine_hostname(self.rhv.self_hosted_engine_hostname)
 

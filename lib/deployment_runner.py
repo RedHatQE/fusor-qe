@@ -74,6 +74,9 @@ class UIDeploymentRunner(object):
 
     def hypervisor(self, page):
         '''Hypervisor'''
+        if self.rhv.rhv_setup_type == 'selfhost' and self.rhv.self_hosted_engine_hostname:
+            page.set_engine_hostname(self.rhv.self_hosted_engine_hostname)
+
         for mac in self.rhv.rhvh_macs:
             rhv_h = page.hosts.get_host_by_mac(mac)
             rhv_h.choose()
@@ -83,8 +86,11 @@ class UIDeploymentRunner(object):
         '''Configuration'''
         page.set_root_passwords(self.password)
         page.set_engine_passwords(self.password)
-        page.set_data_center_name(self.rhv.data_center_name)
-        page.set_cluster_name(self.rhv.cluster_name)
+
+        if self.rhv.rhv_setup_type != 'selfhost':
+            page.set_data_center_name(self.rhv.data_center_name)
+            page.set_cluster_name(self.rhv.cluster_name)
+
         page.set_cpu_type(self.rhv.cpu_type)
         return page.click_next()
 
@@ -104,10 +110,12 @@ class UIDeploymentRunner(object):
             page.set_export_domain_name(self.rhv.export_domain_name)
             page.set_export_storage_address(self.rhv.export_domain_address)
             page.set_export_share_path(self.rhv.export_domain_share_path)
+
         if self.rhv.rhv_setup_type == 'selfhost':
-            # TODO: self-hosted elements not implemented yet for storage page
-            # object
-            pass
+            page.set_hosted_domain_name(self.rhv.selfhosted_domain_name)
+            page.set_hosted_storage_address(self.rhv.selfhosted_domain_address)
+            page.set_hosted_share_path(self.rhv.selfhosted_domain_share_path)
+
         return page.click_next()
 
     def cfme_install(self, page):

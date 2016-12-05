@@ -7,6 +7,7 @@ from pages.wizard.cloudforms.installation_location import InstallationLocation
 from pages.wizard.subscriptions.content_provider import ContentProviderPage
 from pages.wizard.subscriptions.review_subscriptions import ReviewSubscriptions
 from pages.wizard.review.installation_progress import InstallationProgress
+from pages.wizard.openshift.nodes import Nodes
 
 
 def test_e2e_deployment(new_deployment_pg, variables):
@@ -58,6 +59,12 @@ def test_e2e_deployment(new_deployment_pg, variables):
         assign_nodes_pg = runner.osp_register_nodes(register_nodes_pg)
         configure_overcloud_pg = runner.osp_assign_nodes(assign_nodes_pg)
         next_pg = runner.osp_configure_overcloud(configure_overcloud_pg)
+
+    # check if we are on the OpenShift node page
+    if isinstance(next_pg, Nodes):
+        ocp_node_spec_pg = next_pg
+        ocp_configuration_pg = runner.ocp_nodes(ocp_node_spec_pg)
+        next_pg = runner.ocp_configuration(ocp_configuration_pg)
 
     # check if we are on the CFME install location page)
     if isinstance(next_pg, InstallationLocation):

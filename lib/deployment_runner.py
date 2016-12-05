@@ -1,7 +1,7 @@
 import yaml
-import time
 import ipaddress
 from selenium.webdriver.common.by import By
+
 
 class UnknownDriverTypeError(Exception):
     '''
@@ -36,6 +36,8 @@ class UIDeploymentRunner(object):
         self.sat = ProductConfig(self.conf['deployment']['products']['sat'])
         self.cfme = ProductConfig(self.conf['deployment']['products']['cfme'])
         self.osp = ProductConfig(self.conf['deployment']['products']['osp'])
+        self.ocp = ProductConfig(self.conf['deployment']['products']['ose'])
+
         self.products = self.conf['deployment']['install']
         self.deployment_id = self.conf['deployment']['deployment_id']
         self.password = self.conf['credentials']['fusor']['password']
@@ -241,17 +243,17 @@ class UIDeploymentRunner(object):
         #
         #   https://github.com/RedHatQE/fusor-qe/pull/70#discussion_r90135582
 
-# TODO: When we support autodetect add this back.   It worked, and its
-#       going back so I'm not deleting it, and just commenting it out.
-#        # Handle the vendor select widget
-#        if driver_type == 'pxe_ssh':
-#            vendor_selector = page.ssh_vendor
-#        elif driver_type == 'pxe_ipmitool':
-#            vendor_selector = page.ipmi_vendor
-#        else:
-#            raise UnknownDriverTypeError(driver_type)
-#
-#        vendor_selector.select_by_value(vendor)
+        # TODO: When we support autodetect add this back.   It worked, and its
+        #       going back so I'm not deleting it, and just commenting it out.
+        #        # Handle the vendor select widget
+        #        if driver_type == 'pxe_ssh':
+        #            vendor_selector = page.ssh_vendor
+        #        elif driver_type == 'pxe_ipmitool':
+        #            vendor_selector = page.ipmi_vendor
+        #        else:
+        #            raise UnknownDriverTypeError(driver_type)
+        #
+        #        vendor_selector.select_by_value(vendor)
 
         # Send the mac address:
         page.set_mac_addresses(mac_address)
@@ -345,6 +347,44 @@ class UIDeploymentRunner(object):
         page.set_floating_ip_net(floating_ip_network.exploded)
         page.set_floating_ip_net_gateway(floating_ip_network_gateway)
         page.set_admin_passwords(admin_password)
+
+    def ocp_nodes(self, page):
+        '''
+        OpenShift Master/Nodes specs
+        NOTE: Does not automate the input of custom node details
+        '''
+        if self.ocp.install_loc == 'rhv':
+            page.click_rhv()
+        else:
+            raise Exception("QCI install of OpenShift only support on RHV")
+
+        page.click_worker_nodes(self.ocp.number_worker_nodes)
+        page.click_additional_storage(self.ocp.node_disk)
+
+        return page.click_next()
+
+    def ocp_configuration(self, page):
+        '''
+        OpenShift Configuration
+        '''
+
+        if self.ocp.storage_type == 'gluster':
+            page.click_gluster_radio()
+        elif self.ocp.storage_type == 'NFS':
+            page.click_nfs_radio()
+        else:
+            raise Exception('Invalid storage type for OpenShift: {}'.format(
+                self.ocp.storage_type))
+
+        page.set_host(self.ocp.storage_host)
+        page.set_export_path(self.ocp.export_path)
+        page.set_username(self.ocp.username)
+        page.set_password(self.ocp.user_password)
+        page.set_confirm_password(self.ocp.user_password)
+        page.set_subdomain(self.ocp.subdomain_name)
+
+        if 'openshift_hello_world' in self.ocp.sample_apps:
+            page.click_hello_world()
 
         return page.click_next()
 

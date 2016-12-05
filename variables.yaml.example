@@ -79,7 +79,11 @@ deployment:
       - Red Hat Cloud Infrastructure with Smart Management
       sat_desc: description
       sat_name: BasicDeployment
-      update_lifecycle: immediately
+      update_lifecycle_immediately: true
+      create_new_env: true # comes into play when update_lifecycle_immediately is set to false
+      new_env:
+      - new_env_name: NewEnvironment
+        new_env_desc: NewDescription
       use_default_org_view: true
       disconnected_mode: false
     ose:

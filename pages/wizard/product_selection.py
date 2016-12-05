@@ -13,6 +13,9 @@ class SelectProductsPage(QCIPage):
                                     "//span[@id='is_cloudforms']/div/input")
     _openshift_checkbox_locator = (By.XPATH,
                                    "//span[@id='is_openshift']/div/input")
+    # This is the "To deploy the selected products, you will need:" part of
+    # the Product Selection screen
+    _requirement_block_locator = (By.XPATH, "//div[@class='req-block']")
     _rhv_i_icon_locator = (By.XPATH, "//span[@id='is_rhev']/div/div/span[2]")
     _openstack_i_icon_locator = (By.XPATH,
                                  "//span[@id='is_openstack']/div/div/span[2]")
@@ -36,6 +39,10 @@ class SelectProductsPage(QCIPage):
     @property
     def openshift_checkbox(self):
         return self.selenium.find_element(*self._openshift_checkbox_locator)
+
+    @property
+    def requirement_block(self):
+        return self.selenium.find_element(*self._requirement_block_locator)
 
     @property
     def rhv_i_icon(self):
@@ -67,14 +74,48 @@ class SelectProductsPage(QCIPage):
         return self.openshift_checkbox.click()
 
     def select_products(self, products):
-        if 'rhv' in products:
+        if 'rhv' in products and not self.rhv_checkbox.is_selected():
             self.click_rhv()
-        if 'osp' in products:
+        if 'osp' in products and not self.openstack_checkbox.is_selected():
             self.click_openstack()
-        if 'cfme' in products:
+        if 'cfme' in products and not self.cloudforms_checkbox.is_selected():
             self.click_cloudforms()
-        if 'ocp' in products:
+        if 'ocp' in products and not self.openshift_checkbox.is_selected():
             self.click_openshift()
+
+    def unselect_products(self, products):
+        if 'rhv' in products and self.rhv_checkbox.is_selected():
+            self.click_rhv()
+        if 'osp' in products and self.openstack_checkbox.is_selected():
+            self.click_openstack()
+        if 'cfme' in products and self.cloudforms_checkbox.is_selected():
+            self.click_cloudforms()
+        if 'ocp' in products and self.openshift_checkbox.is_selected():
+            self.click_openshift()
+
+    def get_requirements(self, product):
+        # Requires all the products selected.
+        self.select_products(['rhv', 'osp', 'cfme', 'ocp'])
+
+        # reqs[0] = General
+        # reqs[1] = RHV
+        # reqs[2] = OSP
+        # reqs[3] = CFME
+        # reqs[4] = OCP
+        # reqs[5] = Disconnected
+        reqs = self.requirement_block.find_elements_by_tag_name('div')
+
+        dct = {
+            'general': reqs[0].text,
+            'rhv': reqs[1].text,
+            'osp': reqs[2].text,
+            'cfme': reqs[3].text,
+            'ocp': reqs[4].text,
+            'disconnected': reqs[5].text
+        }
+
+        return dct[product]
+
 
     def i_icon_hover_text(self, div_id):
         return self.selenium.find_element(By.XPATH,

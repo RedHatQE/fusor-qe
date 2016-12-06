@@ -203,7 +203,7 @@ class RegisterNodes(QCIPage):
         return self.selenium.find_element(*self._mac_addresses_loc)
 
     @property
-    def autodetct_or_specify(self):
+    def autodetect_or_specify(self):
         return self.selenium.find_element(*self._autodetect_or_specify_loc)
 
     @property
@@ -293,8 +293,8 @@ class RegisterNodes(QCIPage):
         self.mac_addresses.clear()
         self.mac_addresses.send_keys(text)
 
-    def click_autodetct_or_specify(self):
-        self.autodetct_or_specify.click()
+    def click_autodetect_or_specify(self):
+        self.autodetect_or_specify.click()
 
     def click_upload_csv(self):
         self.upload_csv.click()

@@ -89,6 +89,8 @@ class UIDeploymentRunner(object):
         page.set_root_passwords(self.password)
         page.set_engine_passwords(self.password)
 
+        # Custom data center & cluster name in RHVSH disabled for QCI 1.0
+        # See https://bugzilla.redhat.com/show_bug.cgi?id=1367777
         if self.rhv.rhv_setup_type != 'selfhost':
             page.set_data_center_name(self.rhv.data_center_name)
             page.set_cluster_name(self.rhv.cluster_name)

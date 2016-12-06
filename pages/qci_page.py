@@ -25,10 +25,7 @@ class QCIPage(Page):
     #######################
     # QCI Spinner Methods #
     #######################
-    def build_qci_spinner_xpath(self, text=None, spin_class=None):
-        if spin_class is None:
-            spin_class = 'spinner_md'
-
+    def build_qci_spinner_xpath(self, text=None, spin_class='spinner_md'):
         # QCI spinners are done via a div tag with a class of spinner-md
         qci_spinner_xpath_str = \
             "(//span|//div)[contains(@class, '{}')]".format(spin_class)

@@ -22,7 +22,7 @@ class Page(object):
         """
         self.base_url = base_url
         self.selenium = selenium
-        self.timeout = 20
+        self.timeout = 60
         self.wait = WebDriverWait(self.selenium, self.timeout)
         self.kwargs = kwargs
 

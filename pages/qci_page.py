@@ -43,16 +43,35 @@ class QCIPage(Page):
 
         return qci_spinner_xpath_str
 
-    def wait_on_spinner(self, text=None, timeout=None, spin_class=None):
-        qci_spinner_xpath_str = self.build_qci_spinner_xpath(
-            text=text,
-            spin_class=spin_class
-        )
+    def wait_on_spinner(
+        self,
+        text=None,
+        timeout=None,
+        spin_class=None,
+        spin_locator=None
+    ):
+        '''
+        Waits on a qci spinner.
 
-        qci_spinner_loc = (By.XPATH, qci_spinner_xpath_str)
+        Arguments:
+          text          Text the spinner has associated with it.   By default
+                        none is looked for, unless you specify.
+          timeout       How long to wait until giving up on the spinner ending.
+          spin_class    The CSS class the spinner has associated with it.
+                        by default we use spinner_md.
+          spin_locator  We usually build a locator, however if there is
+                        something non standard about this spinner's
+                        construction, you can just specify your own locator.
+        '''
+        if spin_locator is None:
+            qci_spinner_xpath_str = self.build_qci_spinner_xpath(
+                text=text,
+                spin_class=spin_class
+            )
+            spin_locator = (By.XPATH, qci_spinner_xpath_str)
 
         self.wait_until_element_is_not_visible(
-            qci_spinner_loc,
+            spin_locator,
             timeout
         )
 

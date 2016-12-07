@@ -138,6 +138,7 @@ class InstallationProgress(QCIPage):
     @property
     def redeploy_button(self):
         return self.selenium.find_element(*self._redeploy_button)
+
     # actions
 
     def click_overview_tab(self):
@@ -202,3 +203,28 @@ class InstallationProgress(QCIPage):
     def progress_bar_processing(self, progress_bar):
         return (not (self.progress_bar_success(progress_bar) or self.progress_bar_error(progress_bar)) and
                 (int(progress_bar.get_attribute('aria-valuemin')) < int(progress_bar.get_attribute('aria-valuenow')) < int(progress_bar.get_attribute('aria-valuemax'))))
+
+    ############################################################################
+    # Content Error Actions
+    ############################################################################
+    def has_content_error(self):
+        """
+        Return True if installation progress shows that a content error occurred
+        """
+        result = True
+        try:
+            # Exception thrown if content error property doesn't exist
+            self.content_error_container.is_displayed()
+        except:
+            result = False
+
+        return result
+
+    def click_abandon_button(self):
+        return self.abandon_button.click()
+
+    def click_abandon_delete_button(self):
+        return self.abandon_delete_button.click()
+
+    def click_redeploy_button(self):
+        return self.redeploy_button.click()

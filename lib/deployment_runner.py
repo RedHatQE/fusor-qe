@@ -1,4 +1,17 @@
 import yaml
+import time
+import ipaddress
+from selenium.webdriver.common.by import By
+
+class UnknownDriverTypeError(Exception):
+    '''
+    Exception for unknown host driver type.
+    '''
+    def __init__(self, name):
+        self.name = name
+
+    def __str__(self):
+        return "Unknown driver type: '{}'".format(self.name)
 
 
 class ProductConfig(object):
@@ -22,7 +35,7 @@ class UIDeploymentRunner(object):
         self.rhv = ProductConfig(self.conf['deployment']['products']['rhv'])
         self.sat = ProductConfig(self.conf['deployment']['products']['sat'])
         self.cfme = ProductConfig(self.conf['deployment']['products']['cfme'])
-
+        self.osp = ProductConfig(self.conf['deployment']['products']['osp'])
         self.products = self.conf['deployment']['install']
         self.deployment_id = self.conf['deployment']['deployment_id']
         self.password = self.conf['credentials']['fusor']['password']
@@ -119,6 +132,223 @@ class UIDeploymentRunner(object):
             page.set_hosted_domain_name(self.rhv.selfhosted_domain_name)
             page.set_hosted_storage_address(self.rhv.selfhosted_domain_address)
             page.set_hosted_share_path(self.rhv.selfhosted_domain_share_path)
+
+        return page.click_next()
+
+    def osp_detect_undercloud(self, page):
+        '''OSP Detect Undercloud Page filler'''
+        # First we wait on the spinner that appears.   It says:
+        #
+        #   Inspecting Undercloud
+        page.wait_on_spinner(timeout=300)
+
+        page.set_undercloud_ip(self.osp.undercloud_address)
+        page.set_ssh_user(self.osp.undercloud_user)
+        page.set_ssh_password(self.osp.undercloud_pass)
+        page.click_detect_undercloud()
+        return page.click_next()
+
+    def osp_register_nodes(self, page):
+        '''
+        OSP Register Nodes Page Filler
+
+        This one is pretty complicated.   First we have to click register
+        nodes button.   This opens a modal, where one can fill in various ways
+        of selecting our nodes.   Presently, we only support doing autodetect.
+        Information to do autodetec is filled in and then Next is selected, but
+        this takes you to a new modal where you select which machines to
+        register.
+
+        TODO: The yaml and software supports registering nodes from multiple
+              Hosts, however this code only supports one Host presently.
+              At some point we should make it support multiple hosts.
+        '''
+        # First we wait on the spinner that appears.   It says:
+        #
+        #   Loading OSP Nodes
+        page.wait_on_spinner(timeout=300)
+
+        ##################################
+        # The Register Nodes Modal Frame #
+        ##################################
+        for node_registration_info in self.osp.overcloud_nodes:
+            page.click_register_nodes()
+            self._osp_determine_how_to_register_nodes(
+                page,
+                node_registration_info
+            )
+
+        # Wait for the spinners to be done.   So after you start a node
+        # to be registered, it doesn't show up for a bit, and then it shows
+        # up but with a ! in a triangle.   Finally this transitions to a
+        # progress bar.   So we wait through the three transitions:
+        #
+        #   - Wait for exclamation triangle to appear
+        #   - Wait for exclamation triangle to disappear
+        #   - Wait for progress bar to go away.
+        #
+        # XXX:   Maybe this should go in the page object itself.
+        exclamation_triangle_loc = (
+            By.XPATH,
+            "//span[contains(@class, 'fa-exclamation-triangle')]"
+        )
+        page.wait_until_element_is_visible(
+            locator=exclamation_triangle_loc,
+            timeout=300,
+        )
+        page.wait_until_element_is_not_visible(
+            locator=exclamation_triangle_loc,
+            timeout=300,
+        )
+        page.wait_on_spinner(
+            timeout=360,
+            spin_class='spinner-xs',
+        )
+
+        return page.click_next()
+
+    def _osp_determine_how_to_register_nodes(self, page, node_registration_info):
+        '''
+        Handles filling out information for the:
+
+            Determine How to Register Nodes:
+
+        Modal frame that is part of the RHOSP:Register Nodes Page.
+        '''
+        host_ip = node_registration_info['host_ip']
+        driver_type = node_registration_info['driver_type']
+        host_username = node_registration_info['host_username']
+        host_password = node_registration_info['host_password']
+        mac_address = node_registration_info['mac_address']
+
+        # Click on "autodect or specify nodes" so we can fill the form out
+        # to manually specify the nodes.
+        # TODO: Need to add support for CSV file.
+        # TODO: Need to add support for autodetection.
+        if not page.autodetect_or_specify.is_selected:
+            page.click_autodetect_or_specify()
+
+        # Fill in all the information up to the autodetect slider.
+        page.set_ip_address(host_ip)
+        drivers_selector = page.driver
+        drivers_selector.select_by_value(driver_type)
+        page.set_username(host_username)
+        page.set_password(host_password)
+
+        # We will force autodetect off.
+        # TODO: Eventually we will need to update the config to make this
+        #      configurable so we can test autodetect.
+        if page.is_autodetect_enabled:
+            time.sleep(1)
+            page.click_autodetect()
+            time.sleep(1)
+            if page.is_autodetect_enabled:
+                page.click_autodetect()
+
+# TODO: When we support autodetect add this back.   It worked, and its
+#       going back so I'm not deleting it, and just commenting it out.
+#        # Handle the vendor select widget
+#        if driver_type == 'pxe_ssh':
+#            vendor_selector = page.ssh_vendor
+#        elif driver_type == 'pxe_ipmitool':
+#            vendor_selector = page.ipmi_vendor
+#        else:
+#            raise UnknownDriverTypeError(driver_type)
+#
+#        vendor_selector.select_by_value(vendor)
+
+        # Send the mac address:
+        page.set_mac_addresses(mac_address)
+
+        # Register the node:
+        page.click_register()
+
+    def osp_assign_nodes(self, page):
+        roles = (
+            {
+                'name': 'compute',
+                'nodes': self.osp.compute_count,
+                'assign_func': lambda page: page.click_compute_list(),
+            },
+            {
+                'name': 'controller',
+                'nodes': self.osp.controller_count,
+                'assign_func': lambda page: page.click_controller_list(),
+            },
+            {
+                'name': 'block_storage',
+                'nodes': self.osp.block_storage_count,
+                'assign_func': lambda page: page.click_block_storage_list(),
+            },
+            {
+                'name': 'object_storage',
+                'nodes': self.osp.object_storage_count,
+                'assign_func': lambda page: page.click_object_storage_list(),
+            },
+        )
+
+        # First we wait on a spinner that says:
+        #
+        #   Loading...
+        page.wait_on_spinner(timeout=300)
+
+        #
+        # Iterate across the roles and assign the ones that have a node
+        # count.
+        for role in roles:
+            role_name = role['name']
+            role_node_count = role['nodes']
+            role_assign_func = role['assign_func']
+
+            if role_node_count == 0:
+                continue
+
+            # Assign the role
+            page.click_assign_role()
+            role_assign_func(page)
+
+            # Set the number of nodes if need be:
+            cur_count = page.get_selector_assigned_role_node_count(role_name)
+            if cur_count != role_node_count:
+                page.select_assigned_role_node_count(role_name, role_node_count)
+
+        return page.click_next()
+
+    def osp_configure_overcloud(self, page):
+        # TODO: Support Ceph Storage
+        external_interface = self.osp.network['external_interface']
+        private_network_addr = self.osp.network['provision_network']['network']
+        private_network_mask = self.osp.network['provision_network']['subnet']
+        floating_ip_network_addr = self.osp.network['public_network']['network']
+        floating_ip_network_mask = self.osp.network['public_network']['subnet']
+        floating_ip_network_gateway = self.osp.network['public_network']['gateway']
+        admin_password = self.osp.undercloud_pass
+
+        # Get the network addresses into an IPv4Network object so
+        # we can easily and consistently produce a CIDR format.
+        private_network = ipaddress.ip_network(
+            unicode(
+                "{}/{}".format(
+                    private_network_addr,
+                    private_network_mask
+                )
+            )
+        )
+        floating_ip_network = ipaddress.ip_network(
+            unicode(
+                "{}/{}".format(
+                    floating_ip_network_addr,
+                    floating_ip_network_mask
+                )
+            )
+        )
+
+        # Set items on configuration page:
+        page.set_external_net_interface(external_interface)
+        page.set_private_net(private_network.exploded)
+        page.set_floating_ip_net(floating_ip_network.exploded)
+        page.set_floating_ip_net_gateway(floating_ip_network_gateway)
+        page.set_admin_passwords(admin_password)
 
         return page.click_next()
 

@@ -159,7 +159,9 @@ class InstallationProgress(QCIPage):
         Check the result of all products being deployed.
         Return True if deployment was successful, False otherwise
         """
-        result = True
+        # If there is a Content Sync error there will be no progress bars visible
+        # Don't default to success if there are no progress bars present
+        result = len(self.progress_bar_all) > 0
         for progress_bar in self.progress_bar_all:
             if not self.progress_bar_success(progress_bar):
                 result = False

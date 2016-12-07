@@ -235,15 +235,11 @@ class UIDeploymentRunner(object):
         page.set_username(host_username)
         page.set_password(host_password)
 
-        # We will force autodetect off.
-        # TODO: Eventually we will need to update the config to make this
-        #      configurable so we can test autodetect.
-        if page.is_autodetect_enabled:
-            time.sleep(1)
-            page.click_autodetect()
-            time.sleep(1)
-            if page.is_autodetect_enabled:
-                page.click_autodetect()
+        #
+        # TODO: Need to add autodetect deselection back.
+        # See:
+        #
+        #   https://github.com/RedHatQE/fusor-qe/pull/70#discussion_r90135582
 
 # TODO: When we support autodetect add this back.   It worked, and its
 #       going back so I'm not deleting it, and just commenting it out.

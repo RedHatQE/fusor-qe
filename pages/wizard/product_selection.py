@@ -122,6 +122,13 @@ class SelectProductsPage(QCIPage):
 
         return dct[product]
 
+    def get_requirement_block_links(self):
+        self.select_products(['rhv', 'osp', 'cfme', 'ocp'])
+        links = self.requirement_block.find_elements_by_tag_name('a')
+        dct = {}
+        for link in links:
+            dct.update({link.text: link.get_attribute('href')})
+        return dct
 
     def i_icon_hover_text(self, div_id):
         return self.selenium.find_element(By.XPATH,

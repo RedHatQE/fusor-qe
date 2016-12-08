@@ -348,6 +348,8 @@ class UIDeploymentRunner(object):
         page.set_floating_ip_net_gateway(floating_ip_network_gateway)
         page.set_admin_passwords(admin_password)
 
+        return page.click_next()
+
     def ocp_nodes(self, page):
         '''
         OpenShift Master/Nodes specs

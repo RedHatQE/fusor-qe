@@ -12,5 +12,4 @@
 def test_qci_links_clickable(new_deployment_pg, expected_text):
     links = new_deployment_pg.get_requirement_block_links()
 
-    print expected_text['req_box_links']
     assert cmp(expected_text['req_box_links'], links) == 0

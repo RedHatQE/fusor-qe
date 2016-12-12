@@ -49,6 +49,7 @@ class UIDeploymentRunner(object):
 
     def deployment_name(self, page):
         '''DeploymentName'''
+        # TODO detect error when deployment name already exists
         page.set_name(self.sat.sat_name)
         page.set_description(self.sat.sat_desc)
         page.set_password(self.password)
@@ -57,11 +58,21 @@ class UIDeploymentRunner(object):
 
     def update_availability(self, page):
         '''UpdateAvailability'''
-        if self.sat.update_lifecycle == 'immediately':
+        if self.sat.update_lifecycle_immediately:
             page.click_immediately()
         else:
-            # TODO: write workflow for "after_publishing"
-            pass
+            page.click_after_publishing()
+            if self.sat.create_new_env:
+                for env in self.sat.new_env:
+                    page.click_new_environment_path()
+                    page.set_new_env_name(env['new_env_name'])
+                    page.set_new_env_description(env['new_env_desc'])
+                    page.click_submit_button()
+                    page.wait_for_ajax()
+                    if page.is_error():
+                        raise Exception(page.get_error_text())
+            else:
+                page.click_library()
         return page.click_next()
 
     def access_insights(self, page):

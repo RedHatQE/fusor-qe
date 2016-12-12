@@ -40,6 +40,12 @@ class InstallationProgress(QCIPage):
     _progress_bar_openstack = (By.XPATH, '{}//div[@role="progressbar"]'.format(_progress_bar_openstack_row))
     _progress_bar_openstack_label = (By.XPATH, '{}//div[@class="progress-bar-label"]'.format(_progress_bar_openstack_row))
 
+    # Content error locators
+    _content_error_container = (By.XPATH, '//div[@class="content-error-container"]')
+    _abandon_button = (By.XPATH, '//button[contains(., "Abandon")]')
+    _abandon_delete_button = (By.XPATH, '//button[contains(., "Abandon and Delete")]')
+    _redeploy_button = (By.XPATH, '//button[contains(., "Redeploy")]')
+
     # elements
     @property
     def overview_tab(self):
@@ -117,6 +123,22 @@ class InstallationProgress(QCIPage):
     def logs_dropdown(self):
         return Select(self.selenium.find_element(*self._logs_dropdown_loc))
 
+    @property
+    def content_error_container(self):
+        return self.selenium.find_element(*self._content_error_container)
+
+    @property
+    def abandon_button(self):
+        return self.selenium.find_element(*self._abandon_button)
+
+    @property
+    def abandon_delete_button(self):
+        return self.selenium.find_element(*self._abandon_delete_button)
+
+    @property
+    def redeploy_button(self):
+        return self.selenium.find_element(*self._redeploy_button)
+
     # actions
 
     def click_overview_tab(self):
@@ -181,3 +203,28 @@ class InstallationProgress(QCIPage):
     def progress_bar_processing(self, progress_bar):
         return (not (self.progress_bar_success(progress_bar) or self.progress_bar_error(progress_bar)) and
                 (int(progress_bar.get_attribute('aria-valuemin')) < int(progress_bar.get_attribute('aria-valuenow')) < int(progress_bar.get_attribute('aria-valuemax'))))
+
+    ############################################################################
+    # Content Error Actions
+    ############################################################################
+    def has_content_error(self):
+        """
+        Return True if installation progress shows that a content error occurred
+        """
+        result = True
+        try:
+            # Exception thrown if content error property doesn't exist
+            self.content_error_container.is_displayed()
+        except:
+            result = False
+
+        return result
+
+    def click_abandon_button(self):
+        return self.abandon_button.click()
+
+    def click_abandon_delete_button(self):
+        return self.abandon_delete_button.click()
+
+    def click_redeploy_button(self):
+        return self.redeploy_button.click()

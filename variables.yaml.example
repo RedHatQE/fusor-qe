@@ -103,14 +103,14 @@ deployment:
       master_vcpu: 2
       master_ram: 8
       master_disk: 30
-      node_vcpu: 1
+      node_vcpu: 2
       node_ram: 8
-      node_disk: 15
+      node_disk: 30
       available_vcpu: 0
       available_ram: 0
       available_disk: 0
       number_master_nodes: 1
-      number_worker_nodes: 1
+      number_worker_nodes: 2
       storage_type: null
       storage_name: null
       storage_host: null

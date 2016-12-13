@@ -1,4 +1,5 @@
 from selenium.webdriver.common.by import By
+from selenium.webdriver.support.select import Select
 from pages.qci_page import QCIPage
 
 
@@ -24,7 +25,7 @@ class Nodes(QCIPage):
 
     @property
     def ocp_deploy_type(self):
-        return self.selenium.find_element(*self._ocp_deployment_type_loc)
+        return Select(self.selenium.find_element(*self._ocp_deployment_type_loc))
 
     @property
     def ocp_node_count(self):
@@ -74,7 +75,10 @@ class Nodes(QCIPage):
         self.rhv_radio_button.click()
 
     def set_deployment_type_single(self):
-        self.ocp_deploy_type()
+        self.ocp_deploy_type.select_by_value('single_node')
+
+    def set_deployment_type_high_availability(self):
+        self.ocp_deploy_type.select_by_value('highly_available')
 
     def set_ocp_nodes(self, number):
         self.ocp_node_count.clear()

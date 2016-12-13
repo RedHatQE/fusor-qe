@@ -19,6 +19,8 @@ class Nodes(QCIPage):
     _ocp_custom_node_worker_ram_loc = (By.ID, "Worker nodes-ram")
     _ocp_custom_node_worker_disk_loc = (By.ID, "Worker nodes-disk")
 
+    _ocp_high_availability_node_ratio = (By.XPATH, "//select[contains(@class, 'ose-node-ratio-select')]")
+
     @property
     def rhv_radio_button(self):
         return self.selenium.find_element(*self._rhv_radio_loc)
@@ -71,6 +73,10 @@ class Nodes(QCIPage):
     def worker_disk(self):
         return self.selenium.find_element(*self._ocp_custom_node_worker_disk_loc)
 
+    @property
+    def ocp_high_availability_node_ratio(self):
+        return Select(self.selenium.find_element(*self._ocp_high_availability_node_ratio))
+
     def click_rhv(self):
         self.rhv_radio_button.click()
 
@@ -120,3 +126,6 @@ class Nodes(QCIPage):
     def set_worker_disk(self, number):
         self.worker_disk.clear()
         self.worker_disk.send_keys(number)
+
+    def set_node_ratio_three_master_one_worker(self):
+        self.ocp_high_availability_node_ratio.select_by_value('3')

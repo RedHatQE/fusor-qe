@@ -21,6 +21,8 @@ class Nodes(QCIPage):
 
     _ocp_high_availability_node_ratio = (By.XPATH, "//select[contains(@class, 'ose-node-ratio-select')]")
 
+    _ocp_error_node_count_loc = (By.XPATH, "//div[contains(@class, 'has-error')]//input[@id = 'oseNumNodesInput']")
+
     @property
     def rhv_radio_button(self):
         return self.selenium.find_element(*self._rhv_radio_loc)
@@ -77,6 +79,10 @@ class Nodes(QCIPage):
     def ocp_high_availability_node_ratio(self):
         return Select(self.selenium.find_element(*self._ocp_high_availability_node_ratio))
 
+    @property
+    def ocp_error_node_count(self):
+        return self.selenium.find_element(*self._ocp_error_node_count_loc)
+
     def click_rhv(self):
         self.rhv_radio_button.click()
 
@@ -86,7 +92,7 @@ class Nodes(QCIPage):
     def set_deployment_type_high_availability(self):
         self.ocp_deploy_type.select_by_value('highly_available')
 
-    def set_ocp_nodes(self, number):
+    def set_ocp_node_count(self, number):
         self.ocp_node_count.clear()
         self.ocp_node_count.send_keys(number)
 
@@ -129,3 +135,13 @@ class Nodes(QCIPage):
 
     def set_node_ratio_three_master_one_worker(self):
         self.ocp_high_availability_node_ratio.select_by_value('3')
+
+    def has_error_ocp_node_count(self):
+        result = False
+        try:
+            self.ocp_error_node_count
+            result = True
+        except:
+            result = False
+
+        return result

@@ -378,7 +378,11 @@ class UIDeploymentRunner(object):
         else:
             page.set_deployment_type_single()
 
-        page.set_ocp_nodes(ocp_node_count)
+        page.set_ocp_node_count(ocp_node_count)
+
+        assert not page.has_error_ocp_node_count(), \
+            "Error: OCP Node Count of {} not allowed by QCI".format(ocp_node_count)
+
         page.set_ocp_storage_size(self.ocp.node_disk)
 
         return page.click_next()

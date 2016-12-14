@@ -366,6 +366,8 @@ class UIDeploymentRunner(object):
         OpenShift Master/Nodes specs
         NOTE: Does not automate the input of custom node details
         '''
+        ocp_node_count = self.ocp.number_master_nodes + self.ocp.number_worker_nodes
+
         if self.ocp.install_loc == 'rhv':
             page.click_rhv()
         else:
@@ -376,7 +378,7 @@ class UIDeploymentRunner(object):
         else:
             page.set_deployment_type_single()
 
-        page.set_ocp_nodes(self.ocp.number_worker_nodes)
+        page.set_ocp_nodes(ocp_node_count)
         page.set_ocp_storage_size(self.ocp.node_disk)
 
         return page.click_next()

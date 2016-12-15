@@ -366,13 +366,24 @@ class UIDeploymentRunner(object):
         OpenShift Master/Nodes specs
         NOTE: Does not automate the input of custom node details
         '''
+        ocp_node_count = self.ocp.number_master_nodes + self.ocp.number_worker_nodes
+
         if self.ocp.install_loc == 'rhv':
             page.click_rhv()
         else:
             raise Exception("QCI install of OpenShift only support on RHV")
 
-        page.click_worker_nodes(self.ocp.number_worker_nodes)
-        page.click_additional_storage(self.ocp.node_disk)
+        if 'ocpha' in self.products:
+            page.set_deployment_type_high_availability()
+        else:
+            page.set_deployment_type_single()
+
+        page.set_ocp_node_count(ocp_node_count)
+
+        assert not page.has_error_ocp_node_count(), \
+            "Error: OCP Node Count of {} not allowed by QCI".format(ocp_node_count)
+
+        page.set_ocp_storage_size(self.ocp.node_disk)
 
         return page.click_next()
 
@@ -380,6 +391,8 @@ class UIDeploymentRunner(object):
         '''
         OpenShift Configuration
         '''
+
+        subdomain_name = self.ocp.subdomain_name or 'qciqedom'
 
         if self.ocp.storage_type == 'gluster':
             page.click_gluster_radio()
@@ -394,7 +407,7 @@ class UIDeploymentRunner(object):
         page.set_username(self.ocp.username)
         page.set_password(self.ocp.user_password)
         page.set_confirm_password(self.ocp.user_password)
-        page.set_subdomain(self.ocp.subdomain_name)
+        page.set_subdomain(subdomain_name)
 
         if 'openshift_hello_world' in self.ocp.sample_apps:
             page.click_hello_world()

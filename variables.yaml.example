@@ -9,7 +9,7 @@ deployment:
   deployment_id: ABC123
   deployment_desc: "An automated test deployment"
   deployment_timeout: 240 # Max time(minutes) we should wait after deployment starts
-  install: ['cfme', 'rhv'] # valid entries are: cfme, rhv, osp, ocp
+  install: ['cfme', 'rhv'] # valid entries are: cfme, rhv, osp, ocp, ocpha
   products:
     cfme:
       cfme_address: null
@@ -21,7 +21,7 @@ deployment:
       compute_count: 1
       controller_count: 1
       block_storage_count: 0
-      object_storage_count: 0                
+      object_storage_count: 0
       director_address: null
       director_ui_url: http://example.com
       director_vm_name: null
@@ -95,7 +95,7 @@ deployment:
       subscription:
         name: OpenShift Business Partner Self-Supported NFR
         quantity: 2
-      install_loc: null
+      install_loc: rhv
       storage_size: 30
       username: admin
       user_password: changeme

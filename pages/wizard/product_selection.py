@@ -86,7 +86,8 @@ class SelectProductsPage(QCIPage):
             self.click_openstack()
         if 'cfme' in products and not self.cloudforms_checkbox.is_selected():
             self.click_cloudforms()
-        if 'ocp' in products and not self.openshift_checkbox.is_selected():
+        if (('ocp' in products or 'ocpha' in products) and
+                not self.openshift_checkbox.is_selected()):
             self.click_openshift()
 
     def unselect_products(self, products):
@@ -96,7 +97,7 @@ class SelectProductsPage(QCIPage):
             self.click_openstack()
         if 'cfme' in products and self.cloudforms_checkbox.is_selected():
             self.click_cloudforms()
-        if 'ocp' in products and self.openshift_checkbox.is_selected():
+        if (('ocp' in products or 'ocpha' in products) and self.openshift_checkbox.is_selected()):
             self.click_openshift()
 
     def get_requirements(self, product):

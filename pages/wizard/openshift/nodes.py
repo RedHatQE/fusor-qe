@@ -1,103 +1,113 @@
 from selenium.webdriver.common.by import By
+from selenium.webdriver.support.select import Select
 from pages.qci_page import QCIPage
 
 
 class Nodes(QCIPage):
     _page_title = "QuickStart Cloud Installer"
     _rhv_radio_loc = (By.XPATH, "//input[@value='RHEV']")
-    _master_node_count_loc = (By.XPATH, "//span[@data-qci='master-1']")
-    _worker_custom_link_loc = (By.XPATH, "//a[@data-qci='show-custom-worker-nodes']")
-    _storage_custom_link_loc = (By.XPATH, "//a[@data-qci='show-custom-storage-size']")
-    _custom_edit_loc = (By.XPATH, "//button[contains(., 'Custom Edit')]")
-    _finish_editing_loc = (By.XPATH, "//button[contains(., 'Finish Editing')]")
-    _master_vcpu_loc = (By.ID, "master-v_cpu")
-    _master_ram_loc = (By.ID, "master-ram")
-    _master_disk_loc = (By.ID, "master-disk")
-    _worker_vcpu_loc = (By.ID, "worker-v_cpu")
-    _worker_ram_loc = (By.ID, "worker-ram")
-    _worker_disk_loc = (By.ID, "worker-disk")
+    _ocp_deployment_type_loc = (By.XPATH, "//select[@id='oseDeploymentType']")
+    _ocp_node_count_loc = (By.XPATH, "//input[@id='oseNumNodesInput']")
+    _ocp_storage_pool_loc = (By.XPATH, "//input[@id='oseStoragePoolSizeInput']")
+    _ocp_custom_node_config_edit_btn_loc = (By.XPATH, "//div[contains(@class, 'ose-node-details-title')]//button[contains(., 'Edit')]")
+    _ocp_custom_node_config_save_btn_loc = (By.XPATH, "//div[contains(@class, 'ose-node-details-title')]//button[contains(., 'Save')]")
+    _ocp_custom_node_config_cancel_btn_loc = (By.XPATH, "//div[contains(@class, 'ose-node-details-title')]//button[contains(., 'Cancel')]")
+    _ocp_custom_node_master_vcpu_loc = (By.ID, "Master nodes-v_cpu")
+    _ocp_custom_node_master_ram_loc = (By.ID, "Master nodes-ram")
+    _ocp_custom_node_master_disk_loc = (By.ID, "Master nodes-disk")
+    _ocp_custom_node_worker_vcpu_loc = (By.ID, "Worker nodes-v_cpu")
+    _ocp_custom_node_worker_ram_loc = (By.ID, "Worker nodes-ram")
+    _ocp_custom_node_worker_disk_loc = (By.ID, "Worker nodes-disk")
+
+    _ocp_high_availability_node_ratio = (By.XPATH, "//select[contains(@class, 'ose-node-ratio-select')]")
+
+    _ocp_error_node_count_loc = (By.XPATH, "//div[contains(@class, 'has-error')]//input[@id = 'oseNumNodesInput']")
 
     @property
     def rhv_radio_button(self):
         return self.selenium.find_element(*self._rhv_radio_loc)
 
     @property
-    def master_node_count(self):
-        return self.selenium.find_element(*self._master_node_count_loc)
-
-    def worker_node_count(self, number):
-        return self.selenium.find_element(
-            By.XPATH, "//span[@data-qci='worker-{}']".format(number)
-        )
+    def ocp_deploy_type(self):
+        return Select(self.selenium.find_element(*self._ocp_deployment_type_loc))
 
     @property
-    def worker_node_custom(self):
-        return self.selenium.find_element(*self._worker_custom_link_loc)
-
-    def additional_storage(self, number):
-        return self.selenium.find_element(
-            By.XPATH, "//span[@data-qci='storageSize-{}']".format(number)
-        )
+    def ocp_node_count(self):
+        return self.selenium.find_element(*self._ocp_node_count_loc)
 
     @property
-    def storage_custom(self):
-        return self.selenium.find_element(*self._storage_custom_link_loc)
+    def ocp_storage_pool_size(self):
+        return self.selenium.find_element(*self._ocp_storage_pool_loc)
 
     @property
-    def custom_edit_button(self):
-        return self.selenium.find_element(*self._custom_edit_loc)
+    def edit_node_config_button(self):
+        return self.selenium.find_element(*self._ocp_custom_node_config_edit_btn_loc)
 
     @property
-    def finish_edditing_button(self):
-        return self.selenium.find_element(*self._finish_editing_loc)
+    def cancel_node_config_button(self):
+        return self.selenium.find_element(*self._ocp_custom_node_config_cancel_btn_loc)
+
+    @property
+    def save_node_config_button(self):
+        return self.selenium.find_element(*self._ocp_custom_node_config_save_btn_loc)
 
     @property
     def master_vcpu(self):
-        return self.selenium.find_element(*self._master_vcpu_loc)
+        return self.selenium.find_element(*self._ocp_custom_node_master_vcpu_loc)
 
     @property
     def master_ram(self):
-        return self.selenium.find_element(*self._master_ram_loc)
+        return self.selenium.find_element(*self._ocp_custom_node_master_ram_loc)
 
     @property
     def master_disk(self):
-        return self.selenium.find_element(*self._master_disk_loc)
+        return self.selenium.find_element(*self._ocp_custom_node_master_disk_loc)
 
     @property
     def worker_vcpu(self):
-        return self.selenium.find_element(*self._worker_vcpu_loc)
+        return self.selenium.find_element(*self._ocp_custom_node_worker_vcpu_loc)
 
     @property
     def worker_ram(self):
-        return self.selenium.find_element(*self._worker_ram_loc)
+        return self.selenium.find_element(*self._ocp_custom_node_worker_ram_loc)
 
     @property
     def worker_disk(self):
-        return self.selenium.find_element(*self._worker_disk_loc)
+        return self.selenium.find_element(*self._ocp_custom_node_worker_disk_loc)
+
+    @property
+    def ocp_high_availability_node_ratio(self):
+        return Select(self.selenium.find_element(*self._ocp_high_availability_node_ratio))
+
+    @property
+    def ocp_error_node_count(self):
+        return self.selenium.find_element(*self._ocp_error_node_count_loc)
 
     def click_rhv(self):
         self.rhv_radio_button.click()
 
-    def click_master_nodes(self):
-        self.master_node_count.click()
+    def set_deployment_type_single(self):
+        self.ocp_deploy_type.select_by_value('single_node')
 
-    def click_worker_nodes(self, number):
-        self.worker_node_count(number).click()
+    def set_deployment_type_high_availability(self):
+        self.ocp_deploy_type.select_by_value('highly_available')
 
-    def click_additional_storage(self, number):
-        self.additional_storage(number).click()
+    def set_ocp_node_count(self, number):
+        self.ocp_node_count.clear()
+        self.ocp_node_count.send_keys(number)
 
-    def click_worker_node_custom(self):
-        self.worker_node_custom.click()
+    def set_ocp_storage_size(self, number):
+        self.ocp_storage_pool_size.clear()
+        self.ocp_storage_pool_size.send_keys(number)
 
-    def click_storage_custom(self):
-        self.storage_custom.click()
+    def click_node_config_edit(self):
+        self.edit_node_config_button.click()
 
-    def click_custom_edit(self):
-        self.custom_edit_button.click()
+    def click_node_config_save(self):
+        self.save_node_config_button.click()
 
-    def click_finish_edit(self):
-        self.finish_edditing_button.click()
+    def click_node_config_cancel(self):
+        self.cancel_node_config_button.click()
 
     def set_master_vcpu(self, number):
         self.master_vcpu.clear()
@@ -122,3 +132,16 @@ class Nodes(QCIPage):
     def set_worker_disk(self, number):
         self.worker_disk.clear()
         self.worker_disk.send_keys(number)
+
+    def set_node_ratio_three_master_one_worker(self):
+        self.ocp_high_availability_node_ratio.select_by_value('3')
+
+    def has_error_ocp_node_count(self):
+        result = False
+        try:
+            self.ocp_error_node_count
+            result = True
+        except:
+            result = False
+
+        return result

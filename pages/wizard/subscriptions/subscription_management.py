@@ -49,9 +49,8 @@ class SubscriptionManagement(QCIPage):
         self.wait_for_ajax()
         for sat in self.sma_radio_buttons:
             if uuid in sat.get_attribute('value'):
-                # scroll to the element
-                self.scroll_to_element(sat)
-                return sat.click()
+                # scroll to the element and click on it
+                return self.click(sat)
         else:
             raise Exception("No SMA found with uuid: {}".format(uuid))
 

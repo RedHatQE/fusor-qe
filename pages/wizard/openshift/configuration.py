@@ -85,4 +85,5 @@ class Configuration(QCIPage):
         self.subdomain_field.send_keys(keys)
 
     def click_hello_world(self):
-        self.hello_world_checkbox.click()
+        # Scroll the page so the element is in view then click
+        self.click(self.hello_world_checkbox)

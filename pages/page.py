@@ -98,6 +98,16 @@ class Page(object):
 
         return not jquery_active
 
+    def click(self, element, scroll=True):
+        """
+        Click on the target element. If scroll is True, this will attempt to
+        scroll the element into view then click on it
+        """
+        if scroll:
+            self.scroll_to_element(element)
+
+        element.click()
+
     def scroll_to_element(self, element):
         """
         Given a WebElement, scrolls the element into view.

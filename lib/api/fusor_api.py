@@ -353,22 +353,86 @@ class FusorApi(object):
         return True
 
 
-class FusorDeploymentApi(FusorApi):
+class QCIDeploymentApi(FusorApi):
     """
-    This is supposed to be an abstract base class RHEV/OSP deployment APIs
-    You should never instantiate this class
+    This class handles the deployment of all products supported by QCI using
+    the fusor API
     """
     def __init__(self, fusor_ip, user, pw):
-        super(FusorDeploymentApi, self).__init__(fusor_ip, user, pw)
+        super(QCIDeploymentApi, self).__init__(fusor_ip, user, pw)
         self.fusor_data = None
         self.deployment_id = None
-        self.product_install_location = None
+        self.install_location_cfme = None
+        self.install_location_ocp = None
+        self.openstack_api_url = "https://{}/fusor/api/openstack/deployments/".format(self.fusor_ip)
+        # Id for deployment objects specific to the orchestration of an openstack deployment
+        # This will also be stored in fusor deployment object 'openstack_deployment_id'
+        self.openstack_deployment_id = None
+
+    ################################################################################################
+    # Private Helper Methods
+    ################################################################################################
+    def _openstack_get_resource(self, resource):
+        self.last_response = requests.get(
+            "{}{}".format(self.openstack_api_url, resource),
+            auth=(self.username, self.password), verify=False)
+        return self.last_response
+
+    def _openstack_put_resource(self, resource, data):
+        self.last_response = requests.put(
+            "{}{}".format(self.openstack_api_url, resource), json=data,
+            auth=(self.username, self.password), verify=False)
+        return self.last_response
+
+    def _openstack_post_resource(self, resource, data):
+        self.last_response = requests.post(
+            "{}{}".format(self.openstack_api_url, resource), json=data,
+            auth=(self.username, self.password), verify=False)
+        return self.last_response
+
+    def _openstack_delete_resource(self, resource, data):
+        self.last_response = requests.delete(
+            "{}{}".format(self.openstack_api_url, resource), json=data,
+            auth=(self.username, self.password), verify=False)
+        return self.last_response
+
+    ################################################################################################
+    # Public Helper Methods
+    ################################################################################################
 
     def create_deployment(
             self, name, description=None,
+            deploy_rhv=False, deploy_osp=False,
             deploy_cfme=False, deploy_ose=False,
             organization_id='1', lifecycle_environment_id=None, access_insights=False):
-        raise NotImplementedError("Implement this method")
+        """
+        Create a new deployment with the products specified and store the
+        deployment data returned
+        NOTE: RHCI currently only supports the Default organization
+        """
+        data = {'deployment': {
+            'name': name,
+            'description': description,
+            'deploy_rhev': deploy_rhv,
+            'deploy_cfme': deploy_cfme,
+            'deploy_openshift': deploy_ose,
+            'deploy_openstack': deploy_osp,
+            'organization_id': organization_id,
+            'lifecycle_environment_id': lifecycle_environment_id,
+            'enable_access_insights': access_insights, }, }
+        response = self._fusor_post_resource('deployments', data)
+
+        if response.status_code != 200:
+            return False
+
+        self.fusor_data = {}
+        response_data = response.json()
+        for key in response_data:
+            self.fusor_data[key] = response_data[key]
+
+        self.deployment_id = self.fusor_data['deployment']['id']
+
+        return True
 
     def deploy(self):
         """
@@ -473,6 +537,9 @@ class FusorDeploymentApi(FusorApi):
         pass
 
     def delete_deployment(self):
+        """
+        Delete the currently loaded deployment from Satellite
+        """
         if not self.deployment_id:
             raise Exception("Unable to delete deployment because there is no deployment id")
 
@@ -483,9 +550,7 @@ class FusorDeploymentApi(FusorApi):
         if response.status_code != 200:
             return False
 
-        response_data = response.json()
-        for key in response_data:
-            self.fusor_data[key] = response_data[key]
+        self.fusor_data = None
 
         return True
 
@@ -568,7 +633,7 @@ class FusorDeploymentApi(FusorApi):
         if not self.deployment_id:
             raise Exception("Unable to update deployment because there is no deployment id")
 
-        return super(FusorDeploymentApi, self).add_deployment_subscription(
+        return super(FusorApi, self).add_deployment_subscription(
             self.deployment_id, contract_number, product_name, quantity_attached,
             start_date, end_date, total_quantity, source, quantity_to_add)
 
@@ -619,7 +684,7 @@ class FusorDeploymentApi(FusorApi):
         if not self.deployment_id:
             raise Exception("Unable to update deployment because there is no deployment id")
 
-        return super(FusorDeploymentApi, self).get_deployment_progress(self.deployment_id)
+        return super(FusorApi, self).get_deployment_progress(self.deployment_id)
 
     def get_deployment_log(self):
         """
@@ -665,6 +730,9 @@ class FusorDeploymentApi(FusorApi):
 
         return True
 
+    ################################################################################################
+    # OpenShift Methods
+    ################################################################################################
     def ose_set_storage_size(self, disk_size):
         """
         Set the disk size of OpenShift docker storage.  This will be the 2nd hard drive for the
@@ -727,11 +795,42 @@ class FusorDeploymentApi(FusorApi):
         Helper function since master nodes set the same number and type of objects
         """
         data = {'deployment': {
-            'openshift_install_loc': self.product_install_location,
             node_count_name: node_count,
             node_vcpu_name: node_vcpu,
             node_ram_name: node_ram,
             node_disk_name: node_disk, }}
+
+        resource = 'deployments/{}'.format(self.deployment_id)
+        response = self._fusor_put_resource(resource, data)
+
+        if response.status_code != 200:
+            return False
+
+        response_data = response.json()
+        for key in response_data:
+            self.fusor_data[key] = response_data[key]
+
+        return True
+
+    def set_install_location_ocp(self, location=None):
+        """
+        Set the location where OpenShift will be deployed.
+
+        location - can be either 'rhv' or 'osp'
+        """
+
+        location_dict = {
+            'rhv': 'RHEV',
+            'osp': 'OpenStack', }
+
+        if not location or location.lower() not in ['rhv', 'osp']:
+            raise Exception('Location for OpenShift ({}) is invalid'.format(location))
+
+        self.install_location_ocp = location_dict[location.lower()]
+
+        data = {
+            "deployment": {
+                'openshift_install_loc': self.install_location_ocp, }}
 
         resource = 'deployments/{}'.format(self.deployment_id)
         response = self._fusor_put_resource(resource, data)
@@ -822,6 +921,9 @@ class FusorDeploymentApi(FusorApi):
 
         return True
 
+    ################################################################################################
+    # CloudForms Methods
+    ################################################################################################
     def set_creds_cfme(self, pw):
         """
         Set the CFME credentials
@@ -831,7 +933,6 @@ class FusorDeploymentApi(FusorApi):
 
         data = {
             "deployment": {
-                'cfme_install_loc': self.product_install_location,
                 'cfme_root_password': pw,
                 'cfme_admin_password': pw,
                 'cfme_db_password': pw, }}
@@ -848,81 +949,60 @@ class FusorDeploymentApi(FusorApi):
 
         return True
 
-
-class RHEVFusorApi(FusorDeploymentApi):
-    def __init__(self, fusor_ip, user, pw):
-        super(RHEVFusorApi, self).__init__(fusor_ip, user, pw)
-        self.product_install_location = 'RHEV'
-
-    def is_self_hosted(self):
-        if not self.fusor_data.get('deployment'):
-            return False
-
-        return self.fusor_data['deployment']['rhev_is_self_hosted']
-
-    def create_deployment(
-            self, name, description=None,
-            deploy_cfme=False, deploy_ose=False,
-            organization_id='1', lifecycle_environment_id=None, access_insights=False):
+    def set_install_location_cfme(self, location=None):
         """
-        Create a new RHEV deployment with CFME and store the deployment data returned
-        NOTE: RHCI currently only supports the Default organization
+        Set the location where CloudForms will be deployed.
+
+        location - can be either 'rhv' or 'osp'
         """
-        data = {'deployment': {
-            'name': name,
-            'description': description,
-            'deploy_rhev': True,
-            'deploy_cfme': deploy_cfme,
-            'deploy_openshift': deploy_ose,
-            'deploy_openstack': False,
-            'organization_id': organization_id,
-            'lifecycle_environment_id': lifecycle_environment_id,
-            'enable_access_insights': access_insights, }, }
-        response = self._fusor_post_resource('deployments', data)
+
+        location_dict = {
+            'rhv': 'RHEV',
+            'osp': 'OpenStack', }
+
+        if not location or location.lower() not in ['rhv', 'osp']:
+            raise Exception('Location for CloudForms ({}) is invalid'.format(location))
+
+        self.install_location_cfme = location_dict[location.lower()]
+
+        data = {
+            "deployment": {
+                'cfme_install_loc': self.install_location_cfme, }}
+
+        resource = 'deployments/{}'.format(self.deployment_id)
+        response = self._fusor_put_resource(resource, data)
 
         if response.status_code != 200:
             return False
 
-        self.fusor_data = {}
         response_data = response.json()
         for key in response_data:
             self.fusor_data[key] = response_data[key]
 
-        self.deployment_id = self.fusor_data['deployment']['id']
-
         return True
 
-    def delete_deployment(self):
-        """
-        Delete the currently loaded deployment from Satellite
-        """
-        if not self.deployment_id:
-            raise Exception("Unable to delete deployment because there is no deployment id")
+    ################################################################################################
+    # RHV Methods
+    ################################################################################################
+    def rhv_is_self_hosted(self):
+        if not self.fusor_data.get('deployment'):
+            raise Exception("There is no fusor deployment data")
 
-        resource = 'deployments/{}'.format(self.deployment_id)
-        data = {}
-        response = self._fusor_delete_resource(resource, data)
+        return self.fusor_data['deployment']['rhev_is_self_hosted']
 
-        if response.status_code != 200:
-            return False
-
-        self.fusor_data = None
-
-        return True
-
-    def set_discovered_hosts(self, rhevh_macs, rhevm_mac=None, naming_scheme='Freeform'):
+    def set_rhv_hosts(self, rhvh_macs, rhvm_mac=None, naming_scheme='Freeform'):
         """
         Set the hypervisor hosts (and RHEV engine). If rhevm mac is None then deploy self hosted
-        rhevh_macs - (List of Strings) hypervisor macs
-        rhevm_mac - (String) engine mac OPTIONAL
+        rhvh_macs - (List of Strings) hypervisor macs
+        rhvm_mac - (String) engine mac OPTIONAL
         """
 
         if not self.deployment_id:
             raise Exception("Unable to update deployment because there is no deployment id")
 
         # Wrap string in a list
-        if type(rhevh_macs) is str:
-            rhevh_macs = [rhevh_macs]
+        if type(rhvh_macs) is str:
+            rhvh_macs = [rhvh_macs]
 
         # Grab a list of discovered hosts
         disco_hosts = self.get_discovered_hosts().get(
@@ -932,12 +1012,12 @@ class RHEVFusorApi(FusorDeploymentApi):
         hypervisor_ids = []
 
         for host in disco_hosts:
-            if host['mac'] == rhevm_mac:
+            if host['mac'] == rhvm_mac:
                 engine_id = host['id']
-            elif host['mac'] in rhevh_macs:
+            elif host['mac'] in rhvh_macs:
                 hypervisor_ids.append(host['id'])
 
-        if (rhevm_mac and (not engine_id)) and not hypervisor_ids:
+        if (rhvm_mac and (not engine_id)) and not hypervisor_ids:
             return False
 
         data = {
@@ -959,9 +1039,9 @@ class RHEVFusorApi(FusorDeploymentApi):
 
         return True
 
-    def set_creds_rhev(self, pw):
+    def rhv_set_creds(self, pw):
         """
-        Set the RHEV admin/root password
+        Set the RHV admin/root password
         """
         if not self.deployment_id:
             raise Exception("Unable to update deployment because there is no deployment id")
@@ -983,14 +1063,14 @@ class RHEVFusorApi(FusorDeploymentApi):
 
         return True
 
-    def set_nfs_storage(self,
-                        data_name, data_address, data_path,
-                        export_name, export_address, export_path,
-                        hosted_storage_name=None, hosted_storage_address=None, hosted_storage_path=None,
-                        rhev_data_center_name='Default', rhev_cluster_name='Default'):
+    def rhv_set_nfs_storage(
+            self,
+            data_name, data_address, data_path,
+            export_name, export_address, export_path,
+            hosted_storage_name=None, hosted_storage_address=None, hosted_storage_path=None,
+            rhev_data_center_name='Default', rhev_cluster_name='Default'):
         """
-        Set the nfs storage options. If rhev_self_hosted deployment then the hosted storage values
-        will be set
+        Set the nfs storage options for RHV.
         """
         if not self.deployment_id:
             raise Exception(
@@ -1023,80 +1103,9 @@ class RHEVFusorApi(FusorDeploymentApi):
 
         return True
 
-
-class OSPFusorApi(FusorDeploymentApi):
-    def __init__(self, fusor_ip, user, pw):
-        super(OSPFusorApi, self).__init__(fusor_ip, user, pw)
-        self.openstack_api_url = "https://{}/fusor/api/openstack/deployments/".format(self.fusor_ip)
-        self.product_install_location = 'OpenStack'
-
-        # Id for deployment objects specific to the orchestration of an openstack deployment
-        # This will also be stored in fusor deployment object 'openstack_deployment_id'
-        self.openstack_deployment_id = None
-
     ################################################################################################
-    # Private Helper Methods
+    # OpenStack Methods
     ################################################################################################
-    def _openstack_get_resource(self, resource):
-        self.last_response = requests.get(
-            "{}{}".format(self.openstack_api_url, resource),
-            auth=(self.username, self.password), verify=False)
-        return self.last_response
-
-    def _openstack_put_resource(self, resource, data):
-        self.last_response = requests.put(
-            "{}{}".format(self.openstack_api_url, resource), json=data,
-            auth=(self.username, self.password), verify=False)
-        return self.last_response
-
-    def _openstack_post_resource(self, resource, data):
-        self.last_response = requests.post(
-            "{}{}".format(self.openstack_api_url, resource), json=data,
-            auth=(self.username, self.password), verify=False)
-        return self.last_response
-
-    def _openstack_delete_resource(self, resource, data):
-        self.last_response = requests.delete(
-            "{}{}".format(self.openstack_api_url, resource), json=data,
-            auth=(self.username, self.password), verify=False)
-        return self.last_response
-
-    ################################################################################################
-    # Public Methods
-    ################################################################################################
-
-    def create_deployment(
-            self, name, description=None,
-            deploy_cfme=False, deploy_ose=False,
-            organization_id='1', lifecycle_environment_id=None, access_insights=False):
-        """
-        Create a new RHEV deployment with CFME and store the deployment data returned
-        """
-        data = {'deployment': {
-            'name': name,
-            'description': description,
-            'deploy_rhev': False,
-            'deploy_cfme': deploy_cfme,
-            'deploy_openshift': deploy_ose,
-            'deploy_openstack': True,
-            'organization_id': organization_id,
-            'lifecycle_environment_id': lifecycle_environment_id,
-            'enable_access_insights': access_insights, }, }
-        response = self._fusor_post_resource('deployments', data)
-
-        if response.status_code not in [200, 202]:
-            return False
-
-        self.fusor_data = {}
-        response_data = response.json()
-        for key in response_data:
-            self.fusor_data[key] = response_data[key]
-
-        self.deployment_id = self.fusor_data['deployment']['id']
-        self.openstack_deployment_id = self.fusor_data['deployment']['openstack_deployment_id']
-
-        return True
-
     def add_undercloud(self, ip, ssh_user, ssh_pass):
         if not self.deployment_id:
             raise Exception('Unable to add undercloud because there is no deployment id')
@@ -1133,7 +1142,10 @@ class OSPFusorApi(FusorDeploymentApi):
 
         return undercloud_status['deployed'] and (undercloud_status['failed'] is False)
 
-    def introspection_tasks(self):
+    def get_introspection_tasks(self):
+        """
+        Retrieves the OpenStack introspection task currently running
+        """
         if not self.deployment_id:
             raise Exception('Unable to get deployment id because there is no deployment id')
 
@@ -1151,7 +1163,7 @@ class OSPFusorApi(FusorDeploymentApi):
 
     def get_openstack_images(self):
         """
-        Get a list of the OSP images
+        Get a list of the OpenStack images
         """
         if not self.deployment_id:
             raise Exception('Unable to get deployment id because there is no deployment id')
@@ -1168,9 +1180,9 @@ class OSPFusorApi(FusorDeploymentApi):
 
         return response.json()
 
-    def get_nodes(self):
+    def get_osp_nodes(self):
         """
-        Get a list of the registered OSP nodes for this deployment
+        Get a list of the registered OpenStack nodes for this deployment
         """
         if not self.deployment_id:
             raise Exception('Unable to get deployment id because there is no deployment id')
@@ -1187,7 +1199,7 @@ class OSPFusorApi(FusorDeploymentApi):
 
         return len(self.fusor_data['nodes']) > 0
 
-    def register_nodes(
+    def register_osp_nodes(
             self, ipmi_driver, ipmi_ip, ipmi_user, ipmi_pass,
             node_mac, deploy_kernel_id, deploy_ramdisk_id, virt_type="virsh", capabilities="boot_option:local"):
         """
@@ -1228,7 +1240,7 @@ class OSPFusorApi(FusorDeploymentApi):
 
         return True
 
-    def wait_for_node_registration(self, delay=10, maxtime=30, introspection_attempts_max=1):
+    def wait_for_osp_node_registration(self, delay=10, maxtime=30, introspection_attempts_max=1):
         """
         Wait for node registration to finish processing either by success/error
         If fusor_data['introspection_tasks'] is empty, it will attempt to refresh the
@@ -1304,7 +1316,7 @@ class OSPFusorApi(FusorDeploymentApi):
 
         return True
 
-    def get_deployment_plan(self):
+    def get_overcloud_deployment_plan(self):
         """
         Get the Fusor deployment plan and save it in self.fusor_data
         Return True if sucessful
@@ -1324,52 +1336,52 @@ class OSPFusorApi(FusorDeploymentApi):
 
         return True
 
-    def update_role_compute(self, flavor, count):
+    def update_osp_role_compute(self, flavor, count):
         """
         Assign compute role the specified flavor and count
         """
 
-        return self.update_role(
+        return self.update_osp_role(
             'overcloud_compute_flavor', flavor,
             'overcloud_compute_count', count)
 
-    def update_role_controller(self, flavor, count):
+    def update_osp_role_controller(self, flavor, count):
         """
         Assign controller role the specified flavor and count
         """
 
-        return self.update_role(
+        return self.update_osp_role(
             'overcloud_controller_flavor', flavor,
             'overcloud_controller_count', count)
 
-    def update_role_ceph(self, flavor, count):
+    def update_osp_role_ceph(self, flavor, count):
         """
         Assign ceph role the specified flavor and count
         """
 
-        return self.update_role(
+        return self.update_osp_role(
             'overcloud_ceph_storage_flavor', flavor,
             'overcloud_ceph_count', count)
 
-    def update_role_cinder(self, flavor, count):
+    def update_osp_role_cinder(self, flavor, count):
         """
         Assign cinder role the specified flavor and count
         """
 
-        return self.update_role(
+        return self.update_osp_role(
             'overcloud_block_storage_flavor', flavor,
             'overcloud_block_count', count)
 
-    def update_role_swift(self, flavor, count):
+    def update_osp_role_swift(self, flavor, count):
         """
         Assign swift role the specified flavor and count
         """
 
-        return self.update_role(
+        return self.update_osp_role(
             'overcloud_object_storage_flavor', flavor,
             'overcloud_object_count', count)
 
-    def update_role(self, flavor_role_name, flavor, count_role_name, count):
+    def update_osp_role(self, flavor_role_name, flavor, count_role_name, count):
         """
         Assign a role count and flavor with one api call
         """
@@ -1394,7 +1406,7 @@ class OSPFusorApi(FusorDeploymentApi):
 
         return True
 
-    def update_role_flavor(self, role_name, role_flavor):
+    def update_osp_role_flavor(self, role_name, role_flavor):
         """
         Assign the OSP flavor to the specified role
         """
@@ -1417,7 +1429,7 @@ class OSPFusorApi(FusorDeploymentApi):
 
         return True
 
-    def update_role_count(self, role_name, role_count):
+    def update_osp_role_count(self, role_name, role_count):
         """
         Assign 'role_count' number of nodes to the specified OSP role
         """
@@ -1440,7 +1452,7 @@ class OSPFusorApi(FusorDeploymentApi):
 
         return True
 
-    def node_flavors(self):
+    def node_osp_flavors(self):
         """
         Retrieve the list of OSP node flavors
         """

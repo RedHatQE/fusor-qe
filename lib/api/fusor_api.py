@@ -684,7 +684,7 @@ class QCIDeploymentApi(FusorApi):
         if not self.deployment_id:
             raise Exception("Unable to update deployment because there is no deployment id")
 
-        return super(FusorApi, self).get_deployment_progress(self.deployment_id)
+        return super(QCIDeploymentApi, self).get_deployment_progress(self.deployment_id)
 
     def get_deployment_log(self):
         """
@@ -1039,7 +1039,7 @@ class QCIDeploymentApi(FusorApi):
 
         return True
 
-    def rhv_set_creds(self, pw):
+    def set_creds_rhv(self, pw):
         """
         Set the RHV admin/root password
         """
@@ -1063,7 +1063,7 @@ class QCIDeploymentApi(FusorApi):
 
         return True
 
-    def rhv_set_nfs_storage(
+    def set_nfs_storage_rhv(
             self,
             data_name, data_address, data_path,
             export_name, export_address, export_path,

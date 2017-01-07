@@ -431,6 +431,7 @@ class QCIDeploymentApi(FusorApi):
             self.fusor_data[key] = response_data[key]
 
         self.deployment_id = self.fusor_data['deployment']['id']
+        self.openstack_deployment_id = self.fusor_data['deployment']['openstack_deployment_id']
 
         return True
 
@@ -1452,7 +1453,7 @@ class QCIDeploymentApi(FusorApi):
 
         return True
 
-    def node_osp_flavors(self):
+    def get_osp_node_flavors(self):
         """
         Retrieve the list of OSP node flavors
         """

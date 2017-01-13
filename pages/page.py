@@ -107,20 +107,23 @@ class Page(object):
          scroll/click until the total number of attempts equals the max number
          of attempts
         """
-        attempts = 0
-        while attempts < click_attempts_max:
-            attempts += 1
+        for attempts in xrange(0, click_attempts_max):
             if scroll:
                 self.scroll_to_element(element)
 
             try:
                 element.click()
                 break
-            except WebDriverException:
+            except WebDriverException as clickex:
                 # Raise the click exception if scrolling disabled or
                 # max number of scroll->click attempts
                 if not scroll or attempts >= click_attempts_max:
                     raise
+
+                print "Click attempt {} failed: {} - {}".format(
+                    attempts + 1,
+                    clickex.__class__.__name__,
+                    clickex)
 
     def scroll_to_element(self, element):
         """

@@ -72,6 +72,9 @@ def deployment_attach_subscriptions(
 
     dep_api.rhn_login(rhn_username, rhn_password)
     consumer = dep_api.rhn_get_consumer(rhn_sma_uuid)
+
+    assert consumer, "No RHN consumer found for uuid: {}".format(rhn_sma_uuid)
+
     dep_api.rhn_set_upstream_consumer(consumer['name'], consumer['uuid'])
     subscriptions = dep_api.rhn_get_consumer_subscriptions(rhn_sma_uuid)
 

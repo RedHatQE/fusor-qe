@@ -51,6 +51,12 @@ class Configuration(QCIPage):
     def cpu_type_search_field(self):
         return self.selenium.find_element(*self._cpu_type_search_loc)
 
+    def is_data_center_name_field_enabled(self):
+        return self.data_center_name_field.is_enabled()
+
+    def is_cluster_name_field_enabled(self):
+        return self.cluster_name_field.is_enabled()
+
     def set_root_password(self, password):
         self.root_password_field.clear()
         self.root_password_field.send_keys(password)

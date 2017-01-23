@@ -118,8 +118,11 @@ class UIDeploymentRunner(object):
         # Custom data center & cluster name in RHVSH disabled for QCI 1.0
         # See https://bugzilla.redhat.com/show_bug.cgi?id=1367777
         if self.rhv.rhv_setup_type != 'selfhost':
-            page.set_data_center_name(self.rhv.data_center_name)
-            page.set_cluster_name(self.rhv.cluster_name)
+            if page.is_data_center_name_field_enabled():
+                page.set_data_center_name(self.rhv.data_center_name)
+
+            if page.is_cluster_name_field_enabled():
+                page.set_cluster_name(self.rhv.cluster_name)
 
         page.set_cpu_type(self.rhv.cpu_type)
         return page.click_next()

@@ -79,8 +79,6 @@ deployment:
       rhsm_satellite:
         name: sma_name # requires a valid SMA name. QCI may mangle the sma name by changing '-' to '_'
         uuid: sma_uuid # requires a valid SMA uuid
-      rhsm_subs:
-      - Red Hat Cloud Infrastructure with Smart Management
       sat_desc: description
       sat_name: BasicDeployment
       update_lifecycle_immediately: true

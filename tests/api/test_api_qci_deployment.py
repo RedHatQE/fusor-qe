@@ -123,7 +123,7 @@ def test_api_deployment(dep_api, variables, deployment_name):
     deploy_cfme = 'cfme' in dep['install']
     deploy_ose = 'ocp' in dep['install']
     if not deployment_name:
-        deployment_name = 'pytest-api{}{}{}{}'.format(
+        deployment_name = 'pytest-api-{}{}{}{}'.format(
             dep['deployment_id'],
             '-rhv' if deploy_cfme else '',
             '-osp' if deploy_cfme else '',

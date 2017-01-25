@@ -98,15 +98,32 @@ class Page(object):
 
         return not jquery_active
 
-    def click(self, element, scroll=True):
+    def click(self, element, scroll=True, click_attempts_max=2):
         """
         Click on the target element. If scroll is True, this will attempt to
-        scroll the element into view then click on it
-        """
-        if scroll:
-            self.scroll_to_element(element)
+         scroll the element into view then click on it.
 
-        element.click()
+        If the click attempt fails with WebDriverException then retry
+         scroll/click until the total number of attempts equals the max number
+         of attempts
+        """
+        for attempts in xrange(0, click_attempts_max):
+            if scroll:
+                self.scroll_to_element(element)
+
+            try:
+                element.click()
+                break
+            except WebDriverException as clickex:
+                # Raise the click exception if scrolling disabled or
+                # max number of scroll->click attempts
+                if not scroll or attempts >= click_attempts_max:
+                    raise
+
+                print "Click attempt {} failed: {} - {}".format(
+                    attempts + 1,
+                    clickex.__class__.__name__,
+                    clickex)
 
     def scroll_to_element(self, element):
         """

@@ -61,13 +61,6 @@ def deployment_attach_subscriptions(
         dep_api, rhn_username, rhn_password, rhn_sma_uuid, sub_name, sub_quantity, **kwargs):
     """
     Attach the specified subscriptions to the deployment loaded in the dep_api object
-
-    attach_subs must be a list of dictionaries with each item having the following keys
-    {
-      name - Name of the subscription
-      pool_id - uuid of the pool to attach
-      quantity - Quantity of subs needed for this deployment.
-    }
     """
 
     dep_api.rhn_login(rhn_username, rhn_password)
@@ -78,10 +71,6 @@ def deployment_attach_subscriptions(
     dep_api.rhn_set_upstream_consumer(consumer['name'], consumer['uuid'])
     subscriptions = dep_api.rhn_get_consumer_subscriptions(rhn_sma_uuid)
 
-    # Each run we reset the default subscriptions (pool) to rhsm_pools in the yaml
-    # Deployment products might need additional subs so loop through available
-    #  subs and add attach as subscriptions needed
-    # TODO: Compare quantity needed to quantity available
     for sub in subscriptions:
         pool = sub['pool']
         qty_attached = sub['quantity']
@@ -105,7 +94,8 @@ def test_api_deployment(dep_api, variables, deployment_name):
     masktocidr = {"255.255.255.0": "/24", "255.255.0.0": "/16", "255.0.0.0": "/8", }
 
     enable_access_insights = dep_sat['enable_access_insights']
-    rhv_is_self_hosted = 'selfhost' in dep_rhv['rhv_setup_type']
+    rhv_is_self_hosted = (
+        'selfhost' in dep_rhv['rhv_setup_type'] or 'rhvsh' in dep['install'])
     rhevm_mac = dep_rhv['rhvm_mac'] if not rhv_is_self_hosted else None
     rhevh_macs = dep_rhv['rhvh_macs']
     data_address = dep_rhv['data_domain_address']
@@ -117,16 +107,17 @@ def test_api_deployment(dep_api, variables, deployment_name):
     selfhosted_name = dep_rhv['selfhosted_domain_name']
     selfhosted_address = dep_rhv['selfhosted_domain_address']
     selfhosted_path = dep_rhv['selfhosted_domain_share_path']
-    selfhosted_engine_hostname = dep_rhv['self_hosted_engine_hostname'] or 'rhv-selfhosted-engine'
-    deploy_rhv = 'rhv' in dep['install']
+    selfhosted_engine_hostname = (
+        dep_rhv['self_hosted_engine_hostname'] or 'rhv-selfhosted-engine')
+    deploy_rhv = ('rhv' in dep['install'] or 'rhvsh' in dep['install'])
     deploy_osp = 'osp' in dep['install']
     deploy_cfme = 'cfme' in dep['install']
     deploy_ose = 'ocp' in dep['install']
     if not deployment_name:
         deployment_name = 'pytest-api-{}{}{}{}'.format(
             dep['deployment_id'],
-            '-rhv' if deploy_cfme else '',
-            '-osp' if deploy_cfme else '',
+            '-rhv' if deploy_rhv else '',
+            '-osp' if deploy_osp else '',
             '-cfme' if deploy_cfme else '',
             '-ocp' if deploy_ose else '')
     deployment_desc = 'API deployment using pytest'
@@ -183,6 +174,8 @@ def test_api_deployment(dep_api, variables, deployment_name):
     rhn_username = variables['credentials']['cdn']['username']
     rhn_password = variables['credentials']['cdn']['password']
     rhn_sma_uuid = dep_sat['rhsm_satellite']['uuid']
+    sat_sub_pool_name = dep_sat['subscription']['name']
+    sat_sub_quantity = dep_sat['subscription']['quantity']
 
     assert dep_api.create_deployment(
         deployment_name, deployment_desc,
@@ -207,50 +200,6 @@ def test_api_deployment(dep_api, variables, deployment_name):
             export_name, export_address, export_path,
             selfhosted_name, selfhosted_address, selfhosted_path), \
             "Unable to set the NFS storage for the deployment"
-
-    if deploy_cfme:
-        assert dep_api.set_install_location_cfme(cfme_install_loc), \
-            "Unable to set the CFME install location"
-        assert dep_api.set_creds_cfme(cfme_root_password), \
-            "Unable to set the CFME root/admin passwords"
-
-    if deploy_ose:
-        assert dep_api.set_install_location_ocp(ose_install_loc), \
-            "Unable to set the OpenShift install location"
-
-        assert dep_api.ose_set_master_node_specs(
-            ose_number_master_nodes,
-            ose_master_vcpu,
-            ose_master_ram,
-            ose_master_disk), 'Unable to set the OpenShift master node specs'
-
-        assert dep_api.ose_set_worker_node_specs(
-            ose_number_worker_nodes,
-            ose_node_vcpu,
-            ose_node_ram,
-            ose_node_disk), 'Unable to set the OpenShift worker node specs'
-
-        assert dep_api.ose_set_storage_size(ose_storage_size), \
-            'Unable to set the OpenShift storage size for docker to {}'.format(
-                ose_storage_size)
-
-        assert dep_api.set_ose_nfs_storage(
-            ose_storage_name,
-            ose_storage_host,
-            ose_export_path), 'Unable to set the OpenShift NFS storage'
-
-        assert dep_api.set_ose_creds(ose_username, ose_user_password), \
-            'Unable to set the OpenShift credentials'
-
-        assert dep_api.set_ose_subdomain(ose_subdomain_name), \
-            'Unable to set the OpenShift subdomain name'
-
-        if ose_sample_apps:
-            for app in ose_sample_apps:
-                # Do some translation since the yaml app name value defaults to the element id
-                if 'hello_world' in app:
-                    assert dep_api.set_deployment_property(ose_sample_app_name, True), \
-                        'Unable to enable OpenShift sample application hello_world'
 
     if deploy_osp:
         dep_api.refresh_deployment_info()
@@ -353,13 +302,54 @@ def test_api_deployment(dep_api, variables, deployment_name):
     if deploy_cfme:
         assert dep_api.set_install_location_cfme(cfme_install_loc), \
             "Unable to set the CFME install location"
-        # "Setting info for a Cloudforms Deployment"
-        # "Setting CFME passwords"
-        assert dep_api.set_creds_cfme(cfme_root_password), "Failed to set cfme root password"
-        # "Unable to set the CFME passwords")
+        assert dep_api.set_creds_cfme(cfme_root_password), \
+            "Unable to set the CFME root/admin passwords"
 
+    if deploy_ose:
+        assert dep_api.set_install_location_ocp(ose_install_loc), \
+            "Unable to set the OpenShift install location"
+
+        assert dep_api.ose_set_master_node_specs(
+            ose_number_master_nodes,
+            ose_master_vcpu,
+            ose_master_ram,
+            ose_master_disk), 'Unable to set the OpenShift master node specs'
+
+        assert dep_api.ose_set_worker_node_specs(
+            ose_number_worker_nodes,
+            ose_node_vcpu,
+            ose_node_ram,
+            ose_node_disk), 'Unable to set the OpenShift worker node specs'
+
+        assert dep_api.ose_set_storage_size(ose_storage_size), \
+            'Unable to set the OpenShift storage size for docker to {}'.format(
+                ose_storage_size)
+
+        assert dep_api.set_ose_nfs_storage(
+            ose_storage_name,
+            ose_storage_host,
+            ose_export_path), 'Unable to set the OpenShift NFS storage'
+
+        assert dep_api.set_ose_creds(ose_username, ose_user_password), \
+            'Unable to set the OpenShift credentials'
+
+        assert dep_api.set_ose_subdomain(ose_subdomain_name), \
+            'Unable to set the OpenShift subdomain name'
+
+        if ose_sample_apps:
+            for app in ose_sample_apps:
+                # Do some translation since the yaml app name value defaults to the element id
+                if 'hello_world' in app:
+                    assert dep_api.set_deployment_property(ose_sample_app_name, True), \
+                        'Unable to enable OpenShift sample application hello_world'
+
+    # Add subscriptions
     deployment_attach_subscriptions(
-        dep_api, rhn_username, rhn_password, rhn_sma_uuid, ose_sub_pool_name, ose_sub_quantity)
+        dep_api, rhn_username, rhn_password, rhn_sma_uuid, sat_sub_pool_name, sat_sub_quantity)
+
+    if deploy_ose:
+        deployment_attach_subscriptions(
+            dep_api, rhn_username, rhn_password, rhn_sma_uuid, ose_sub_pool_name, ose_sub_quantity)
 
     dep_validation = dep_api.get_deployment_validation()['validation']
 

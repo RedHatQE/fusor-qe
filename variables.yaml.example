@@ -25,6 +25,7 @@ deployment:
       director_address: null
       director_ui_url: http://example.com
       director_vm_name: null
+      external_ceph_storage: false
       overcloud_nodes:
       - driver_type: pxe_ssh
         host_ip: 10.8.0.136
@@ -45,6 +46,14 @@ deployment:
           subnet: 255.255.255.0
           network: 192.168.156.0
           gateway: 192.168.156.1
+      ceph:
+        ceph_ext_mon_host: null
+        ceph_cluster_fsid: null
+        ceph_client_username: openstack
+        ceph_client_key: null
+        nova_rbd_pool_name: vms
+        cinder_rbd_pool_name: volumes
+        glance_rbd_pool_name: images
     rhv:
       cluster_name: Default
       cpu_type: Intel Nehalem Family

@@ -123,6 +123,7 @@ def test_api_deployment(dep_api, variables, deployment_name):
     deployment_desc = 'API deployment using pytest'
 
     rhev_admin_password = dep_rhv['rhvm_adminpass']
+    rhv_cpu_type = dep_rhv['cpu_type']
     cfme_root_password = dep_cfme['cfme_admin_password']
     cfme_install_loc = dep_cfme['cfme_install_loc']
     cfme_root_password = dep_cfme['cfme_root_password']
@@ -162,6 +163,15 @@ def test_api_deployment(dep_api, variables, deployment_name):
     cinder_role_count = dep_osp.get('cinder_count', 0)
     swift_role_count = dep_osp.get('swift_count', 0)
     ceph_role_count = dep_osp.get('ceph_count', 0)  # Ceph local storage not supported in QCI
+    deploy_external_ceph = dep_osp['external_ceph_storage']
+    ceph_ext_mon_host = dep_osp['ceph']['ceph_ext_mon_host']
+    ceph_cluster_fsid = dep_osp['ceph']['ceph_cluster_fsid']
+    ceph_client_username = dep_osp['ceph']['ceph_client_username']
+    ceph_client_key = dep_osp['ceph']['ceph_client_key']
+    nova_rbd_pool_name = dep_osp['ceph']['nova_rbd_pool_name']
+    cinder_rbd_pool_name = dep_osp['ceph']['cinder_rbd_pool_name']
+    glance_rbd_pool_name = dep_osp['ceph']['glance_rbd_pool_name']
+
     overcloud_admin_pass = dep_osp['undercloud_pass']  # Sync overcloud pw with undercloud
     overcloud_prov_network = '{}{}'.format(
         dep_osp['network']['provision_network']['network'],
@@ -183,7 +193,7 @@ def test_api_deployment(dep_api, variables, deployment_name):
         deploy_osp=deploy_osp,
         deploy_cfme=deploy_cfme, deploy_ose=deploy_ose,
         access_insights=enable_access_insights), \
-        "Unable to create RHEV deployment ({})".format(deployment_name)
+        "Unable to create QCI deployment ({})".format(deployment_name)
 
     if deploy_rhv:
         assert dep_api.set_rhv_hosts(rhevh_macs, rhevm_mac), "Unable to set the RHEV Hosts"
@@ -191,10 +201,11 @@ def test_api_deployment(dep_api, variables, deployment_name):
         if rhv_is_self_hosted:
             dep_api.set_deployment_property('rhev_self_hosted_engine_hostname', selfhosted_engine_hostname)
 
-        # log.info("Setting the RHEV credentials")
         assert dep_api.set_creds_rhv(rhev_admin_password), "Unable to set RHEV credentials"
 
-        # log.info("Setting NFS storage values")
+        assert dep_api.set_rhv_cpu_type(rhv_cpu_type), "Unable to set RHV cpu type: {}".format(
+            rhv_cpu_type)
+
         assert dep_api.set_nfs_storage_rhv(
             data_name, data_address, data_path,
             export_name, export_address, export_path,
@@ -284,7 +295,13 @@ def test_api_deployment(dep_api, variables, deployment_name):
             "Unable to update object role and count({})".format(
                 flavor_name, swift_role_count)
 
-        assert dep_api.update_osp_role_ceph(flavor_name, ceph_role_count)
+        if ceph_role_count:
+            assert dep_api.update_osp_role_ceph(flavor_name, ceph_role_count)
+
+        if deploy_external_ceph:
+            dep_api.set_external_ceph_storage(
+                ceph_ext_mon_host, ceph_cluster_fsid, ceph_client_username, ceph_client_key,
+                nova_rbd_pool_name, cinder_rbd_pool_name, glance_rbd_pool_name)
 
         # This should only be run for nested deployments. Baremetal doesn't need this
         assert dep_api.set_nova_libvirt_type(overcloud_libvirt_type), \

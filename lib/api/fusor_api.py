@@ -991,6 +991,30 @@ class QCIDeploymentApi(FusorApi):
 
         return self.fusor_data['deployment']['rhev_is_self_hosted']
 
+    def set_rhv_cpu_type(self, cpu_type):
+        """
+        Set the RHV cpu type
+        """
+
+        if not self.deployment_id:
+            raise Exception("Unable to update deployment because there is no deployment id")
+
+        data = {
+            "deployment": {
+                'rhev_cpu_type': cpu_type, }}
+
+        resource = 'deployments/{}'.format(self.deployment_id)
+        response = self._fusor_put_resource(resource, data)
+
+        if response.status_code != 200:
+            return False
+
+        response_data = response.json()
+        for key in response_data:
+            self.fusor_data[key] = response_data[key]
+
+        return True
+
     def set_rhv_hosts(self, rhvh_macs, rhvm_mac=None, naming_scheme='Freeform'):
         """
         Set the hypervisor hosts (and RHEV engine). If rhevm mac is None then deploy self hosted
@@ -1359,6 +1383,7 @@ class QCIDeploymentApi(FusorApi):
         """
         Assign ceph role the specified flavor and count
         """
+        raise Exception("Local ceph storage is not supported in QCi")
 
         return self.update_osp_role(
             'overcloud_ceph_storage_flavor', flavor,
@@ -1442,6 +1467,36 @@ class QCIDeploymentApi(FusorApi):
                 role_name: role_count, }}
 
         resource = 'deployments/{}'.format(self.deployment_id)
+        response = self._fusor_put_resource(resource, data)
+
+        if response.status_code not in [200, 202]:
+            return False
+
+        response_data = response.json()
+        for key in response_data:
+            self.fusor_data[key] = response_data[key]
+
+        return True
+
+    def set_external_ceph_storage(
+            self,
+            ceph_host, ceph_fsid, ceph_username, ceph_key,
+            nova_pool_name, cinder_pool_name, glance_pool_name):
+        """
+        Set the info for the external ceph storage
+        """
+        data = {
+            'openstack_deployment': {
+                'ceph_ext_mon_host': ceph_host,
+                'ceph_cluster_fsid': ceph_fsid,
+                'ceph_client_username': ceph_username,
+                'ceph_client_key': ceph_key,
+                'nova_rbd_pool_name': nova_pool_name,
+                'cinder_rbd_pool_name': cinder_pool_name,
+                'glance_rbd_pool_name': glance_pool_name,
+            }, }
+
+        resource = 'openstack_deployments/{}'.format(self.openstack_deployment_id)
         response = self._fusor_put_resource(resource, data)
 
         if response.status_code not in [200, 202]:

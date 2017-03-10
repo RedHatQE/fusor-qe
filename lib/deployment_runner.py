@@ -14,15 +14,6 @@ class UnknownDriverTypeError(Exception):
         return "Unknown driver type: '{}'".format(self.name)
 
 
-class ProductConfig(object):
-    '''
-    A simple mapping of dictionary keys to instance attributes
-    '''
-    def __init__(self, dictionary):
-        for k, v in dictionary.items():
-            setattr(self, k, v)
-
-
 class UIDeploymentRunner(object):
     '''
     This class manages the configuration and workflow for a QCI deployment

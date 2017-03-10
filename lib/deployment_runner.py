@@ -29,19 +29,99 @@ class UIDeploymentRunner(object):
     defined by a yaml file.
     '''
 
-    def __init__(self, path='./variables.yaml'):
-        with open(path, 'r') as conffile:
-            self.conf = yaml.load(conffile)
-        self.rhv = ProductConfig(self.conf['deployment']['products']['rhv'])
-        self.sat = ProductConfig(self.conf['deployment']['products']['sat'])
-        self.cfme = ProductConfig(self.conf['deployment']['products']['cfme'])
-        self.osp = ProductConfig(self.conf['deployment']['products']['osp'])
-        self.ocp = ProductConfig(self.conf['deployment']['products']['ose'])
+    def __init__(self, deployment_config=None):
+        if deployment_config is not None:
+            self.__init_from_deployment_config(deployment_config)
 
-        self.products = self.conf['deployment']['install']
-        self.deployment_id = self.conf['deployment']['deployment_id']
-        self.password = self.conf['credentials']['fusor']['password']
+    def __init_from_deployment_config(self, config):
+        self.deployment_id = config.deployment_id
+        self.products = config.products
+        self.credentials = config.credentials
+        self.password = config.credentials['fusor']['password']
+        self.rhv = config.rhv
+        self.sat = config.sat
+        self.cfme = config.cfme
+        self.osp = config.osp
+        self.ocp = config.ocp
 
+    ##############
+    # Attributes #
+    ##############
+    @property
+    def credentials(self):
+        return self.__credentials
+
+    @credentials.setter
+    def credentials(self, value):
+        self.__credentials = value
+
+    @property
+    def deployment_id(self):
+        return self.__deployment_id
+
+    @deployment_id.setter
+    def deployment_id(self, value):
+        self.__deployment_id = value
+
+    @property
+    def products(self):
+        return self.__products
+
+    @products.setter
+    def products(self, value):
+        self.__products = value
+
+    @property
+    def password(self):
+        return self.__password
+
+    @password.setter
+    def password(self, value):
+        self.__password = value
+
+    @property
+    def rhv(self):
+        return self.__rhv
+
+    @rhv.setter
+    def rhv(self, value):
+        self.__rhv = value
+
+    @property
+    def sat(self):
+        return self.__sat
+
+    @sat.setter
+    def sat(self, value):
+        self.__sat = value
+
+    @property
+    def cfme(self):
+        return self.__cfme
+
+    @cfme.setter
+    def cfme(self, value):
+        self.__cfme = value
+
+    @property
+    def osp(self):
+        return self.__osp
+
+    @osp.setter
+    def osp(self, value):
+        self.__osp = value
+
+    @property
+    def ocp(self):
+        return self.__ocp
+
+    @ocp.setter
+    def ocp(self, value):
+        self.__ocp = value
+
+    ###############
+    # Run Methods #
+    ###############
     def product_selection(self, page):
         '''SelectProductsPage'''
         page.select_products(self.products)
@@ -440,8 +520,8 @@ class UIDeploymentRunner(object):
         '''Content Provider Page'''
         if not self.sat.disconnected_mode:
             page.click_redhat_cdn()
-            page.set_username(self.conf['credentials']['cdn']['username'])
-            page.set_password(self.conf['credentials']['cdn']['password'])
+            page.set_username(self.credentials['cdn']['username'])
+            page.set_password(self.credentials['cdn']['password'])
         else:
             page.click_disconnected()
             page.set_disconnected_url_field(self.sat.disconnected_url)

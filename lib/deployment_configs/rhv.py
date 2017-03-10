@@ -1,4 +1,4 @@
-class Rhv(object):
+class RHV(object):
     '''
     This class contains all the config information for a RHV
     deployment.

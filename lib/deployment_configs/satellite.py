@@ -1,4 +1,4 @@
-class Sat(object):
+class Satellite(object):
     '''
     This class contains all the satellite config information for a
     deployment.

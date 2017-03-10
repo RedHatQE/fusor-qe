@@ -1,4 +1,4 @@
-class Cfme(object):
+class CFME(object):
     '''
     This class contains all the config information for a CFME
     deployment.
@@ -42,6 +42,5 @@ class Cfme(object):
 
     @cfme_db_password.setter
     def cfme_db_password(self, value):
-        print "set it"
         self.__cfme_db_password = value
 

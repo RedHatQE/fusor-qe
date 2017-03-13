@@ -1,4 +1,5 @@
 from time import sleep
+from lib.deployment_config import DeploymentConfig
 from lib.deployment_runner import UIDeploymentRunner
 from pages.wizard.rhv.setup_type import SetupType
 from pages.wizard.rhv.engine import Engine
@@ -19,7 +20,12 @@ def test_e2e_deployment(new_deployment_pg, variables):
     actions performed on each page and the yaml values that direct those
     actions are handled by the UIDeploymentRunner class.
     '''
-    runner = UIDeploymentRunner()
+
+    # First parse the config and instantiate the deployment runner
+    config = DeploymentConfig()
+    runner = UIDeploymentRunner(deployment_config=config)
+
+    # Now navigate through the initial satellite pages
     deployment_name_pg = runner.product_selection(new_deployment_pg)
     update_avail_pg = runner.deployment_name(deployment_name_pg)
     insights_pg = runner.update_availability(update_avail_pg)

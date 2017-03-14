@@ -11,28 +11,29 @@ class DeploymentConfig(object):
     defined by a yaml file.
     '''
 
-    def __init__(self, path='./variables.yaml'):
-        with open(path, 'r') as conffile:
-            conf = yaml.load(conffile)
+    def __init__(self, conf_dict=None, path='./variables.yaml'):
+        if conf_dict is None:
+            with open(path, 'r') as conffile:
+                conf_dict = yaml.load(conffile)
 
         # Initialize RHV config structure:
-        self.__init_rhv(conf['deployment']['products']['rhv'])
+        self.__init_rhv(conf_dict['deployment']['products']['rhv'])
 
         # Initialize Satellite structure:
-        self.__init_sat(conf['deployment']['products']['sat'])
+        self.__init_sat(conf_dict['deployment']['products']['sat'])
 
         # Initialize CFME Structure
-        self.__init_cfme(conf['deployment']['products']['cfme'])
+        self.__init_cfme(conf_dict['deployment']['products']['cfme'])
 
         # Initialize OSP Structure
-        self.__init_osp(conf['deployment']['products']['osp'])
+        self.__init_osp(conf_dict['deployment']['products']['osp'])
 
         # Initialize OCP Structure
-        self.__init_ocp(conf['deployment']['products']['ose'])
+        self.__init_ocp(conf_dict['deployment']['products']['ose'])
 
-        self.products = conf['deployment']['install']
-        self.deployment_id = conf['deployment']['deployment_id']
-        self.credentials = conf['credentials']
+        self.products = conf_dict['deployment']['install']
+        self.deployment_id = conf_dict['deployment']['deployment_id']
+        self.credentials = conf_dict['credentials']
 
     def __init_rhv(self, conf_dict):
         self.rhv = RHV()

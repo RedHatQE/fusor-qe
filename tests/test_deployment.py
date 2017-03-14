@@ -1,5 +1,4 @@
 from time import sleep
-from lib.deployment_config import DeploymentConfig
 from lib.deployment_runner import UIDeploymentRunner
 from pages.wizard.rhv.setup_type import SetupType
 from pages.wizard.rhv.engine import Engine
@@ -10,8 +9,7 @@ from pages.wizard.subscriptions.review_subscriptions import ReviewSubscriptions
 from pages.wizard.review.installation_progress import InstallationProgress
 from pages.wizard.openshift.nodes import Nodes
 
-
-def test_e2e_deployment(new_deployment_pg, variables):
+def test_e2e_deployment(new_deployment_pg, deployment_config):
     '''
     Using values from the provided variables file to run a QCI deployment
 
@@ -21,16 +19,17 @@ def test_e2e_deployment(new_deployment_pg, variables):
     actions are handled by the UIDeploymentRunner class.
     '''
 
-    # First parse the config and instantiate the deployment runner
-    config = DeploymentConfig()
-    runner = UIDeploymentRunner(deployment_config=config)
+    # Create some convenience variables from the config:
+    deployment_time_max = deployment_config.deployment_timeout
+
+    # instantiate the deployment runner
+    runner = UIDeploymentRunner(deployment_config=deployment_config)
 
     # Now navigate through the initial satellite pages
     deployment_name_pg = runner.product_selection(new_deployment_pg)
     update_avail_pg = runner.deployment_name(deployment_name_pg)
     insights_pg = runner.update_availability(update_avail_pg)
     next_pg = runner.access_insights(insights_pg)
-    deployment_time_max = variables['deployment'].get('deployment_timeout', 240)
 
     # Number of retry attempts if there is failure to mount the rhv storage domains
     rhv_storage_fail_retry_max = 3

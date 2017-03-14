@@ -34,6 +34,7 @@ class DeploymentConfig(object):
         self.products = conf_dict['deployment']['install']
         self.deployment_id = conf_dict['deployment']['deployment_id']
         self.credentials = conf_dict['credentials']
+        self.deployment_timeout = conf_dict['deployment']['deployment_timeout']
 
     def __init_rhv(self, conf_dict):
         self.rhv = RHV()
@@ -130,3 +131,79 @@ class DeploymentConfig(object):
         self.ocp.export_path = conf_dict['export_path']
         self.ocp.subdomain_name = conf_dict['subdomain_name']
         self.ocp.sample_apps = conf_dict['sample_apps']
+
+    ##############
+    # Properties #
+    ##############
+    @property
+    def credentials(self):
+        return self.__credentials
+
+    @credentials.setter
+    def credentials(self, value):
+        self.__credentials = value
+
+    @property
+    def cfme(self):
+        return self.__cfme
+
+    @cfme.setter
+    def cfme(self, value):
+        self.__cfme = value
+
+    @property
+    def deployment_id(self):
+        return self.__deployment_id
+
+    @deployment_id.setter
+    def deployment_id(self, value):
+        self.__deployment_id = value
+
+    @property
+    def deployment_timeout(self):
+        return self.__deployment_timeout
+
+    @deployment_timeout.setter
+    def deployment_timeout(self, value):
+        self.__deployment_timeout = value
+
+    @property
+    def ocp(self):
+        return self.__ocp
+
+    @ocp.setter
+    def ocp(self, value):
+        self.__ocp = value
+
+    @property
+    def osp(self):
+        return self.__osp
+
+    @osp.setter
+    def osp(self, value):
+        self.__osp = value
+
+    @property
+    def products(self):
+        return self.__products
+
+    @products.setter
+    def products(self, value):
+        self.__products = value
+
+    @property
+    def rhv(self):
+        return self.__rhv
+
+    @rhv.setter
+    def rhv(self, value):
+        self.__rhv = value
+
+    @property
+    def sat(self):
+        return self.__sat
+
+    @sat.setter
+    def sat(self, value):
+        self.__sat = value
+

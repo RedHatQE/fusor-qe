@@ -8,8 +8,8 @@
 
 from lib.deployment_runner import UIDeploymentRunner
 
-def test_new_env_path_validation(new_deployment_pg):
-    runner = UIDeploymentRunner()
+def test_new_env_path_validation(new_deployment_pg, deployment_config):
+    runner = UIDeploymentRunner(deployment_config=deployment_config)
     deployment_name_pg = runner.product_selection(new_deployment_pg)
     update_availability_pg = runner.deployment_name(deployment_name_pg)
 

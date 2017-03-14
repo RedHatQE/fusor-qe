@@ -3,6 +3,8 @@ This file specifies fixtures that are located under the plugins directory.
 Any files added to the plugin directory will need to be listed below for
 py.test to load it.
 """
+import pytest
+from lib.deployment_config import DeploymentConfig
 
 pytest_plugins = "plugin.selenium",\
     "plugin.navigation",\
@@ -17,8 +19,6 @@ pytest_plugins = "plugin.selenium",\
 # def foo_fixture(request):
 #     return request.config.getoption("--foo-fixture")
 ####################################################################################################
-
-
 def pytest_addoption(parser):
     """
     parser.addoption(
@@ -38,3 +38,8 @@ def pytest_addoption(parser):
         action="store",
         help="File with the expected text lines in json format",
         default=None)
+
+@pytest.fixture
+def deployment_config(variables):
+    print "*** Create deployment config"
+    return DeploymentConfig(conf_dict=variables)

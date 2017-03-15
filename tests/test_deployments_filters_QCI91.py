@@ -52,26 +52,10 @@ def test_deployments_button(deployments_pg, deployment_config):
             name=dep_name
         )
 
-        # TODO: We should make the page object for the Deployments page support
-        #      handing back simply python structures of the deployment records.
-        #
-        # Verify it exists
-        # 1) Get list of deployments, this will actually be a list of the tr web
-        #    elements, the deployments table.
-        deployments = deployments_pg.deployments
 
-        # 2) Iterate over the list of deployments and see if the specified name exists.
-        found = 0
-        for deployment in deployments:
-            # 3) Get the text from the first column (that is the deployment name):
-            q_dep_name = deployment.find_elements_by_css_selector('td')[0].text
-
-            # 4) See if we found the deployment:
-            if q_dep_name == dep_name:
-                found = 1
-                break
-
-        assert found == 1
+        # Seach for the deployment (i.e. make sure it really was created).
+        found = deployments_pg.get_deployment(dep_name)
+        assert found is not None
 
     # Iterate over the filters and see if we get the results we want:
     for filter_test in filter_tests:

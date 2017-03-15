@@ -54,7 +54,7 @@ class DeploymentsPage(QCIPage):
         '''
         Filters deployments using the provided name and returns a list of elements of the results
         '''
+        self.search_box.clear()
         self.search_box.send_keys(name)
-        self.search_button.click()
         self.wait_until_element_is_not_visible(self._spinner_locator)
         return self.deployments

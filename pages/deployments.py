@@ -53,6 +53,26 @@ class DeploymentsPage(QCIPage):
     def clear_search(self):
         self.search_box.clear()
 
+    # TODO: We should instead of handing back a web element,  hand back
+    #       a simple list of dictionaries of the deployment records.
+    def get_deployment(self, name):
+        # 1) Get list of deployments, this will actually be a list of the tr web
+        #    elements in the deployments table.
+        deployments = self.deployments
+
+        # 2) Iterate over the list of deployments and see if the specified name exists.
+        needle = None
+        for deployment in deployments:
+            # 3) Get the text from the first column (that is the deployment name):
+            q_dep_name = deployment.find_elements_by_css_selector('td')[0].text
+
+            # 4) See if we found the deployment:
+            if q_dep_name == name:
+                needle = deployment
+                break
+
+        return needle
+
     def search_deployments(self, query):
         '''
         Filters deployments using the provided query and returns a list of elements of the results

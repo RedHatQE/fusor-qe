@@ -50,11 +50,17 @@ class DeploymentsPage(QCIPage):
         from pages.wizard.product_selection import SelectProductsPage
         return SelectProductsPage(self.base_url, self.selenium)
 
-    def search_deployments(self, name):
+    def clear_search(self):
+        self.search_box.clear()
+
+    def search_deployments(self, query):
         '''
-        Filters deployments using the provided name and returns a list of elements of the results
+        Filters deployments using the provided query and returns a list of elements of the results
+        Note this is useful for testing the actual filter interface on the page, as it will exercise
         '''
         self.search_box.clear()
-        self.search_box.send_keys(name)
+        self.search_box.send_keys(query)
         self.wait_until_element_is_not_visible(self._spinner_locator)
         return self.deployments
+
+

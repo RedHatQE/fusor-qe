@@ -66,4 +66,8 @@ def test_deployments_button(deployments_pg, deployment_config):
 
         assert len(deployments) == rows
 
-    # TODO: Add cleanup code
+    # Cleanup
+    deployments_pg.clear_search()
+    for dep_name in deployment_names:
+        deployments_pg.delete_deployment(dep_name)
+

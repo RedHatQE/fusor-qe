@@ -7,6 +7,8 @@ from qci_page import QCIPage
 
 class DeploymentsPage(QCIPage):
     _page_title = "QuickStart Cloud Installer"
+
+    # Locators
     _search_box_locator = (By.XPATH, '//input[contains(@class, "filter-input")]')
     _search_btn_locator = (By.XPATH, '//button[contains(.,"Search")]')
     _new_deploy_btn_locator = (By.XPATH,
@@ -14,6 +16,7 @@ class DeploymentsPage(QCIPage):
     _deployment_locator = (By.XPATH, '//tr[contains(@class, "deployment-row")]//a[contains(., "{}")]')
     _deployments_locator = (By.XPATH, '//tr[contains(@class, "deployment-row")]')
     _spinner_locator = (By.CLASS_NAME, 'spinner-md')
+    _rm_deployment_confirm_locator = (By.XPATH, '//button[contains(., "Delete Deployment")]')
 
     # elements
     @property
@@ -44,6 +47,10 @@ class DeploymentsPage(QCIPage):
             "Could not find expected element for Deployments Page")
         return True
 
+    @property
+    def rm_deployment_confirm_btn(self):
+        return self.selenium.find_element(*self._rm_deployment_confirm_locator)
+
     # actions
     def create_new_deployment(self):
         self.new_deployment_button.click()
@@ -52,6 +59,20 @@ class DeploymentsPage(QCIPage):
 
     def clear_search(self):
         self.search_box.clear()
+
+    def delete_deployment(self, name):
+        deployment = self.get_deployment(name)
+        if deployment is None:
+            return
+
+        # Now get the web element for the delete button of this deployment
+        # record:
+        delete_btn = deployment.find_element_by_css_selector('.btn-danger')
+        delete_btn.click()
+
+        # Clicking the delete button will bring up a modal dialogue to confirm
+        self.rm_deployment_confirm_btn.click()
+
 
     # TODO: We should instead of handing back a web element,  hand back
     #       a simple list of dictionaries of the deployment records.

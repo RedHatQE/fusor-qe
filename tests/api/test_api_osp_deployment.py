@@ -59,7 +59,7 @@ def osp_api(fusor_admin_username, fusor_admin_password, base_url):
     OSPFusorApi object with methods for accessing/editing OSP deployment objects
     """
     fusor_ip = parse_ip_from_url(base_url)
-    return fusor_api.OSPFusorApi(fusor_ip, fusor_admin_username, fusor_admin_password)
+    return fusor_api.QCIDeploymentApi(fusor_ip, fusor_admin_username, fusor_admin_password)
 
 
 def deployment_attach_sub(
@@ -119,6 +119,7 @@ def test_osp_api(osp_api, variables, deployment_name):
     masktocidr = {"255.255.255.0": "/24", "255.255.0.0": "/16", "255.0.0.0": "/8", }
 
     deploy_cfme = 'cfme' in dep['install']
+    cfme_install_loc = 'osp'
     deploy_ose = 'ocp' in dep['install']
     if not deployment_name:
         deployment_name = 'pytest-osp-api-{}{}'.format(
@@ -154,6 +155,7 @@ def test_osp_api(osp_api, variables, deployment_name):
     kernel_image = None
 
     assert osp_api.create_deployment(deployment_name, deployment_desc,
+                                     deploy_osp=True,
                                      deploy_cfme=deploy_cfme, deploy_ose=deploy_ose)
 
     osp_api.refresh_deployment_info()
@@ -197,7 +199,7 @@ def test_osp_api(osp_api, variables, deployment_name):
             sleep(image_query_wait)
 
     for node in overcloud_nodes:
-        assert osp_api.register_nodes(
+        assert osp_api.register_osp_nodes(
             node['driver_type'],
             node['host_ip'],
             node['host_username'],
@@ -208,7 +210,7 @@ def test_osp_api(osp_api, variables, deployment_name):
         # "Failed to register OSP node: {}".format(node['mac_address'])
 
     osp_api.refresh_deployment_info()
-    assert osp_api.wait_for_node_registration()
+    assert osp_api.wait_for_osp_node_registration()
     # 'Overcloud nodes failed to finish registration successfully'
 
     # TODO: Verify that the finished tasks didn't fail
@@ -217,26 +219,26 @@ def test_osp_api(osp_api, variables, deployment_name):
     assert osp_api.set_overcloud_node_count(overcloud_node_count)
     # 'Unable to set the overcloud node count to {}'.format(overcloud_node_count)
 
-    osp_api.node_flavors()
+    osp_api.get_osp_node_flavors()
     # Since nodes have the same HW specs we only have 1 flavor
     flavor_name = osp_api.fusor_data['osp_flavors'][0]['name']
 
-    assert osp_api.update_role_controller(flavor_name, overcloud_controller_count)
+    assert osp_api.update_osp_role_controller(flavor_name, overcloud_controller_count)
     # "Unable to update controller role and count"
 
-    assert osp_api.update_role_compute(flavor_name, overcloud_compute_count)
+    assert osp_api.update_osp_role_compute(flavor_name, overcloud_compute_count)
     # "Unable to update compute role and count"
 
     # "Assigning cinder role flavor ({}) and count ({})".format( flavor_name, storage_role_count))
-    assert osp_api.update_role_cinder(flavor_name, cinder_role_count)
+    assert osp_api.update_osp_role_cinder(flavor_name, cinder_role_count)
     # "Unable to update cinder role and count"
 
     # "Assigning swift role flavor ({}) and count ({})".format(flavor_name, swift_role_count))
-    assert osp_api.update_role_swift(flavor_name, swift_role_count)
+    assert osp_api.update_osp_role_swift(flavor_name, swift_role_count)
     # "Unable to update swift role and count"
 
     # Local ceph storage not supported by QCI
-    assert osp_api.update_role_ceph(flavor_name, ceph_role_count)
+    assert osp_api.update_osp_role_ceph(flavor_name, ceph_role_count)
     # "Unable to update ceph role and count"
 
     # This should only be run for nested deployments. Baremetal doesn't need this
@@ -253,6 +255,8 @@ def test_osp_api(osp_api, variables, deployment_name):
     # "Unable to set the overcloud network info"
 
     if deploy_cfme:
+        assert osp_api.set_install_location_cfme(cfme_install_loc), \
+            "Unable to set the CFME install location"
         # "Setting info for a Cloudforms Deployment"
         # "Setting CFME passwords"
         assert osp_api.set_creds_cfme(cfme_root_password)

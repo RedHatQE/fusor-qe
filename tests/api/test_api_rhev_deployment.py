@@ -54,7 +54,7 @@ def rhv_api(fusor_admin_username, fusor_admin_password, base_url):
     RHEVFusorApi object with methods for accessing/editing RHEV deployment objects
     """
     fusor_ip = parse_ip_from_url(base_url)
-    return fusor_api.RHEVFusorApi(fusor_ip, fusor_admin_username, fusor_admin_password)
+    return fusor_api.QCIDeploymentApi(fusor_ip, fusor_admin_username, fusor_admin_password)
 
 
 def deployment_attach_subscriptions(
@@ -125,15 +125,18 @@ def test_rhv_api(rhv_api, variables, deployment_name):
     selfhosted_address = dep_rhv['selfhosted_domain_address']
     selfhosted_path = dep_rhv['selfhosted_domain_share_path']
     selfhosted_engine_hostname = dep_rhv['self_hosted_engine_hostname'] or 'rhv-selfhosted-engine'
+    deploy_rhv = 'rhv' in dep['install']
     deploy_cfme = 'cfme' in dep['install']
     deploy_ose = 'ocp' in dep['install']
     rhev_admin_password = dep_rhv['rhvm_adminpass']
     cfme_root_password = dep_cfme['cfme_admin_password']
+    cfme_install_loc = dep_cfme['cfme_install_loc']
     if not deployment_name:
         deployment_name = 'pytest-rhv-api-{}{}{}'.format(
             dep['deployment_id'], '-cfme' if deploy_cfme else '', '-ocp' if deploy_ose else '')
     deployment_desc = 'Pytest of the fusor api for deploying RHEV'
 
+    ose_install_loc = dep_ose['install_loc']
     ose_number_master_nodes = dep_ose['number_master_nodes']
     ose_master_vcpu = dep_ose['master_vcpu']
     ose_master_ram = dep_ose['master_ram']
@@ -160,30 +163,33 @@ def test_rhv_api(rhv_api, variables, deployment_name):
     # "Creating RHEV deployment: {}".format(deployment_name)
     assert rhv_api.create_deployment(
         deployment_name, deployment_desc,
+        deploy_rhv=deploy_rhv,
         deploy_cfme=deploy_cfme, deploy_ose=deploy_ose), "Unable to create RHEV deployment ({})".format(deployment_name)
 
     # log.info("Assigning RHEV Hypervisors: {}".format(rhevh_macs))
-    assert rhv_api.set_discovered_hosts(rhevh_macs, rhevm_mac), "Unable to set the RHEV Hosts"
+    assert rhv_api.set_rhv_hosts(rhevh_macs, rhevm_mac), "Unable to set the RHEV Hosts"
 
     if rhv_is_self_hosted:
         rhv_api.set_deployment_property('rhev_self_hosted_engine_hostname', selfhosted_engine_hostname)
 
     # log.info("Setting the RHEV credentials")
-    assert rhv_api.set_creds_rhev(rhev_admin_password), "Unable to set RHEV credentials"
+    assert rhv_api.set_creds_rhv(rhev_admin_password), "Unable to set RHEV credentials"
 
-    # Set NFS for CloudForms or OpenShift
     # log.info("Setting NFS storage values")
-    assert rhv_api.set_nfs_storage(
+    assert rhv_api.set_nfs_storage_rhv(
         data_name, data_address, data_path,
         export_name, export_address, export_path,
         selfhosted_name, selfhosted_address, selfhosted_path), "Unable to set the NFS storage for the deployment"
 
     if deploy_cfme:
-        # log.info("Setting info for a Cloudforms Deployment")
-        # log.info("Setting CFME root/admin password")
-        assert rhv_api.set_creds_cfme(cfme_root_password), "Unable to set the CFME root/admin passwords"
+        assert rhv_api.set_install_location_cfme(cfme_install_loc), \
+            "Unable to set the CFME install location"
+        assert rhv_api.set_creds_cfme(cfme_root_password), \
+            "Unable to set the CFME root/admin passwords"
 
     if deploy_ose:
+        assert rhv_api.set_install_location_ocp(ose_install_loc), \
+            "Unable to set the OpenShift install location"
         # log.info("Setting info for a OpenShift Deployment")
         # log.info("Setting Master({}) node specs: vcpu({}), ram({}), disk size({})".format(
         #   ose_number_master_nodes,
@@ -272,7 +278,7 @@ def test_rhv_api_deployment_success(rhv_api, variables, deployment_name):
            progress['state'] == 'stopped' and
            progress['progress'] == 1.0):
             deployment_success = True
-            print 'OpenStack Deployment Succeeded!'
+            print 'RHV Deployment Succeeded!'
         elif progress['result'] == 'error' and progress['state'] == 'paused':
             deployment_success = False
             deployment_task_uuid = rhv_api.fusor_data['deployment']['foreman_task_uuid']
